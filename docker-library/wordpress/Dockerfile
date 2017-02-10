@@ -44,13 +44,13 @@ ENV HTTPD_HOME "/usr/local/httpd"
 ENV HTTPD_SOURCE "$HTTPD_HOME/src"
 WORKDIR $HTTPD_HOME
 RUN set -ex \
-    && wget -O httpd.tar.gz "$HTTPD_DOWNLOAD_URL" \
+    && wget -O httpd.tar.gz "$HTTPD_DOWNLOAD_URL" --no-check-certificate \
     && echo "$HTTPD_SHA1 *httpd.tar.gz" | sha1sum -c - \
     && mkdir src \
     && tar -xf httpd.tar.gz -C $HTTPD_SOURCE --strip-components=1 \
     && rm httpd.tar.gz
 
-WORKDIR HTTPD_SOURCE
+WORKDIR $HTTPD_SOURCE
 RUN ./configure \
 		--prefix="$HTTPD_HOME" \
 		--enable-mods-shared=reallyall \
@@ -58,7 +58,7 @@ RUN ./configure \
     && make install
 
 WORKDIR $HTTPD_HOME
-RUN rm -f src man manual \
+RUN rm -r src man manual \
     && sed -ri \
 		-e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \
 		-e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
@@ -67,7 +67,7 @@ RUN rm -f src man manual \
 
 EXPOSE 80
 
-CMD ["$HTTPD_HOME/bin/httpd","-DFOREGROUND"]
+CMD ["/usr/local/httpd/bin/httpd","-DFOREGROUND"]
 
 # php
 ENV PHP_VERSION 7.1.1
