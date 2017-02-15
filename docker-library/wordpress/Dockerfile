@@ -72,7 +72,7 @@ ENV PHP_VERSION "7.1.1"
 ENV PHP_DOWNLOAD_URL "https://secure.php.net/get/php-7.1.1.tar.gz/from/this/mirror"
 ENV PHP_SHA256 "c136279d539c3c2c25176bf149c14913670e79bb27ee6b73e1cd69003985a70d"
 
-RUN a2dismod mpm_event && a2enmod mpm_prefork
+#RUN /usr/local/httpd/bin/a2dismod mpm_event && /usr/local/httpd/bin/a2enmod mpm_prefork
 
 ## runtime deps
 
