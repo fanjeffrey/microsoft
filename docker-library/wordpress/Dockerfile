@@ -99,7 +99,7 @@ RUN set -ex \
 WORKDIR $PHP_SOURCE
 RUN set -ex \
     && ./configure --prefix="$PHP_HOME" \
-					--with-apxs2=/usr/local/httpd/bin/apxs \
+					--with-apxs2="$HTTPD_HOME/bin/apxs" \
 	&& make -j "$(nproc)" \
 	&& make install \
 	&& make clean \
@@ -112,12 +112,13 @@ RUN sed -i 's_DocumentRoot "/usr/local/httpd/htdocs"_DocumentRoot "/var/www"_' "
 COPY php.conf "$HTTPD_HOME/conf/extra/"
 
 ## include php.conf
-RUN echo 'Include conf/extra/php.conf' | tee -a "$HTTPD_HOME/conf/httpd.conf"
+RUN set -ex \
+	&& echo 'Include conf/extra/php.conf' | tee -a "$HTTPD_HOME/conf/httpd.conf"
 
 WORKDIR /var/www
 RUN set -ex \
 	&& echo '<?php phpinfo();' | tee /var/www/index.php
-	
+
 
 # wordpress
 ENV WORDPRESS_VERSION 4.7.2
