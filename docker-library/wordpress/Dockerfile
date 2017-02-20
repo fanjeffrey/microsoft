@@ -51,7 +51,8 @@ RUN set -ex \
     && rm httpd.tar.gz
 
 WORKDIR $HTTPD_SOURCE
-RUN ./configure \
+RUN set -ex \
+	&& ./configure \
 		--prefix="$HTTPD_HOME" \
 		--enable-mods-shared=reallyall \
 	&& make -j "$(nproc)" \
@@ -79,8 +80,10 @@ ENV PHP_SHA256 "c136279d539c3c2c25176bf149c14913670e79bb27ee6b73e1cd69003985a70d
 
 ## build deps
 RUN set -ex \
+	### zlib1g-dev >> with-zlib >> Uncaught Error: Call to undefined function gzinflate() in /var/www/wp-includes/class-requests.php:947
 	&& buildDeps=" \
-		libxml2-dev \
+		libxml2-dev \		
+		zlib1g-dev \
 	" \
 	&& apt-get update \
 	&& apt-get install -y $buildDeps --no-install-recommends \
@@ -98,8 +101,13 @@ RUN set -ex \
 	
 WORKDIR $PHP_SOURCE
 RUN set -ex \
-    && ./configure --prefix="$PHP_HOME" \
-					--with-apxs2="$HTTPD_HOME/bin/apxs" \
+    && ./configure \
+		--prefix="$PHP_HOME" \
+		--with-apxs2="$HTTPD_HOME/bin/apxs" \
+		### see http://php.net/manual/en/mysqlnd.overview.php
+		### see http://php.net/manual/en/mysqlinfo.api.choosing.php
+		--with-mysqli=mysqlnd \
+		--with-zlib
 	&& make -j "$(nproc)" \
 	&& make install \
 	&& make clean \
@@ -116,12 +124,22 @@ RUN set -ex \
 	&& echo 'Include conf/extra/php.conf' | tee -a "$HTTPD_HOME/conf/httpd.conf"
 
 WORKDIR /var/www
-RUN set -ex \
-	&& echo '<?php phpinfo();' | tee /var/www/index.php
+### kept for test, will remove this on final release
+RUN set -ex && echo '<?php phpinfo();' | tee /var/www/info.php
 
 
 # wordpress
 ENV WORDPRESS_VERSION 4.7.2
+### see https://wordpress.org/download/release-archive/
+ENV WORDPRESS_DOWNLOAD_URL "https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz"
+ENV WORDPRESS_SHA1 "7b687f1af589c337124e6247229af209ec1d52c3"
+
+RUN set -ex \
+	&& wget -O wordpress.tar.gz "$WORDPRESS_DOWNLOAD_URL" --no-check-certificate \
+	&& echo "$WORDPRESS_SHA1 *wordpress.tar.gz" | sha1sum -c - \
+	&& tar -xf wordpress.tar.gz --strip-components=1 \
+	&& rm wordpress.tar.gz \
+	&& chown -R www-data:www-data /var/www
 
 # mysql
 ENV MYSQL_VERSION 5.7.17
