@@ -24,7 +24,7 @@ RUN apt-get update \
 		libaprutil1-ldap \
 		libapr1-dev \
 		libaprutil1-dev \
-        && rm -r /var/lib/apt/lists/*
+	&& rm -r /var/lib/apt/lists/*
 
 ## build deps
 RUN set -ex \
@@ -131,7 +131,7 @@ RUN echo '<?php phpinfo();' | tee /var/www/info.php
 # wordpress
 ENV WORDPRESS_VERSION 4.7.2
 ### see https://wordpress.org/download/release-archive/
-ENV WORDPRESS_DOWNLOAD_URL "https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz"
+ENV WORDPRESS_DOWNLOAD_URL "https://wordpress.org/wordpress-$WORDPRESS_VERSION.tar.gz"
 ENV WORDPRESS_SHA1 "7b687f1af589c337124e6247229af209ec1d52c3"
 
 RUN set -ex \
