@@ -113,8 +113,11 @@ RUN set -ex \
 	&& make clean \
 	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $buildDeps
 
-## change DocumentRoot to /var/www
-RUN sed -i 's_DocumentRoot "/usr/local/httpd/htdocs"_DocumentRoot "/var/www"_' "$HTTPD_HOME/conf/httpd.conf"
+## change DocumentRoot, User, Group
+RUN set -ex \
+	&& sed -i 's_DocumentRoot "/usr/local/httpd/htdocs"_DocumentRoot "/var/www"_' "$HTTPD_HOME/conf/httpd.conf" \
+	&& sed -i 's_User daemon_User www-data_' "$HTTPD_HOME/conf/httpd.conf" \
+	&& sed -i 's_Group daemon_Group www-data_' "$HTTPD_HOME/conf/httpd.conf"
 
 ## copy php.conf
 COPY php.conf "$HTTPD_HOME/conf/extra/"
@@ -155,4 +158,4 @@ RUN apt-get purge -y --auto-remove $tools
 
 # 
 EXPOSE 80
-CMD ["/usr/local/httpd/bin/httpd","-DFOREGROUND"]
+CMD ["$HTTPD_HOME/bin/apachectl","start"]
