@@ -158,4 +158,4 @@ RUN apt-get purge -y --auto-remove $tools
 
 # 
 EXPOSE 80
-CMD ["/usr/local/http/bin/apachectl","start"]
+CMD ["/usr/local/httpd/bin/apachectl","start"]
