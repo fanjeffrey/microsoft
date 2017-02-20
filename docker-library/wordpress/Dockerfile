@@ -107,7 +107,7 @@ RUN set -ex \
 		### see http://php.net/manual/en/mysqlnd.overview.php
 		### see http://php.net/manual/en/mysqlinfo.api.choosing.php
 		--with-mysqli=mysqlnd \
-		--with-zlib
+		--with-zlib \
 	&& make -j "$(nproc)" \
 	&& make install \
 	&& make clean \
