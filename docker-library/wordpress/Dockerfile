@@ -125,7 +125,7 @@ RUN set -ex \
 
 WORKDIR /var/www
 ### kept for test, will remove this on final release
-RUN set -ex && echo '<?php phpinfo();' | tee /var/www/info.php
+RUN echo '<?php phpinfo();' | tee /var/www/info.php
 
 
 # wordpress
