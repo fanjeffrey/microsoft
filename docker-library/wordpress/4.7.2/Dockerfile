@@ -155,7 +155,7 @@ RUN set -ex \
 
 
 # phpMyAdmin
-ENV PHPMYADMIN_VERSION 4.6.6
+ENV PHPMYADMIN_VERSION "4.6.6"
 ENV PHPMYADMIN_DOWNLOAD_URL "https://files.phpmyadmin.net/phpMyAdmin/$PHPMYADMIN_VERSION/phpMyAdmin-$PHPMYADMIN_VERSION-all-languages.tar.gz"
 ENV PHPMYADMIN_SHA256 "54086600558613b31c4daddf4ae58fbc1c252a2b8e3e6fae12f851f78677d72e"
 ENV PHPMYADMIN_HOME "/usr/local/phpmyadmin"
@@ -175,7 +175,24 @@ COPY phpmyadmin.conf "$HTTPD_CONF_DIR/"
 
 
 # redis
-ENV REDIS_VERSION 3.2.7
+ENV REDIS_VERSION "3.2.8"
+ENV REDIS_DOWNLOAD_URL "http://download.redis.io/releases/redis-$REDIS_VERSION.tar.gz"
+ENV REDIS_SHA1 "6780d1abb66f33a97aad0edbe020403d0a15b67f"
+ENV REDIS_HOME "/usr/local/redis"
+ENV REDIS_SOURCE "$REDIS_HOME/src"
+ENV PATH "$REDIS_HOME/bin":$PATH
+WORKDIR $REDIS_HOME
+RUN set -ex \
+	&& wget -O redis.tar.gz "$REDIS_DOWNLOAD_URL" --no-check-certificate \
+	&& echo "$REDIS_SHA1 *redis.tar.gz" | sha1sum -c - \
+	&& mkdir "$REDIS_SOURCE" \
+	&& tar -xf redis.tar.gz -C "$REDIS_SOURCE" --strip-components=1 \
+	&& cd "$REDIS_SOURCE" \
+	&& make \
+	&& make PREFIX=/usr/local/redis install \
+	&& cd "$REDIS_HOME" \
+	&& rm redis.tar.gz \
+	&& rm -rf "$REDIS_SOURCE"
 
 
 # clean up
