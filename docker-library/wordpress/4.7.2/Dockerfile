@@ -87,6 +87,8 @@ RUN set -ex \
 	&& apt-get update \
         && apt-get install -y -V --no-install-recommends \	
 		## runtime deps
+		### libcurl4-gnutls-dev >> --with-curl >> [wordpress] download plugins
+		libcurl4-gnutls-dev \
 		libxml2 \
 		## build deps
 		$buildDeps \
@@ -108,6 +110,7 @@ RUN set -ex \
 		--with-bz2 \
 		--with-config-file-path="$PHP_HOME/etc" \
 		--with-config-file-scan-dir="$PHP_HOME/etc/conf.d" \
+		--with-curl \
 		### see http://php.net/manual/en/mysqlnd.overview.php
 		### see http://php.net/manual/en/mysqlinfo.api.choosing.php
 		--with-mysqli=mysqlnd \
