@@ -1,0 +1,134 @@
+{
+    "parameters": {
+        "siteName": {
+            "type": "string"
+        },
+        "dockerRegistryImageName": {
+            "type": "string",
+            "defaultValue": "fanjeffrey/wordpress:4.7.2"
+        },
+        "servicePlanName": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "West US",
+            "allowedValues": [
+                "West US",
+                "West Europe",
+                "Southeast Asia"
+            ]
+        },
+        "sku": {
+            "type": "string",
+            "defaultValue": "S2",
+            "allowedValues": [
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3"
+            ]
+        },
+        "WordPress Database Host": {
+            "type": "string",
+            "defaultValue": "127.0.0.1"
+        },
+        "WordPress Database Name": {
+            "type": "string",
+            "defaultValue": "wordpress"
+        },
+        "WordPress Database Username": {
+            "type": "string",
+            "defaultValue": "wordpress"
+        },
+        "WordPress Database Password": {
+            "type": "securestring",
+            "defaultValue": "MS173m_QN"
+        },
+        "WordPress Table Prefix": {
+            "type": "string",
+            "defaultValue": "wp_"
+        },
+        "phpMyAdmin Username": {
+            "type": "string",
+            "defaultValue": "phpmyadmin"
+        },
+        "phpMyAdmin Password": {
+            "type": "securestring",
+            "defaultValue": "MS173m_QN"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "name": "[parameters('siteName')]",
+            "properties": {
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "DOCKER_CUSTOM_IMAGE_NAME",
+                            "value": "[parameters('dockerRegistryImageName')]"
+                        },
+                        {
+                            "name": "WORDPRESS_DB_HOST",
+                            "value": "[parameters('WordPress Database Host')]"
+                        },
+                        {
+                            "name": "WORDPRESS_DB_NAME",
+                            "value": "[parameters('WordPress Database Name')]"
+                        },
+                        {
+                            "name": "WORDPRESS_DB_USERNAME",
+                            "value": "[parameters('WordPress Database Username')]"
+                        },
+                        {
+                            "name": "WORDPRESS_DB_PASSWORD",
+                            "value": "[parameters('WordPress Database Password')]"
+                        },
+                        {
+                            "name": "WORDPRESS_DB_TABLE_NAME_PREFIX",
+                            "value": "[parameters('WordPress Table Prefix')]"
+                        },
+                        {
+                            "name": "PHPMYADMIN_USERNAME",
+                            "value": "[parameters('phpMyAdmin Username')]"
+                        },
+                        {
+                            "name": "PHPMYADMIN_PASSWORD",
+                            "value": "[parameters('phpMyAdmin Password')]"
+                        }
+                    ]
+                },
+                "name": "[parameters('siteName')]",
+                "serverFarmId": "[parameters('servicePlanName')]",
+                "hostingEnvironment": ""
+            },
+            "apiVersion": "2016-03-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[parameters('servicePlanName')]"
+            ]
+        },
+        {
+            "apiVersion": "2016-09-01",
+            "name": "[parameters('servicePlanName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[parameters('location')]",
+            "properties": {
+                "name": "[parameters('servicePlanName')]",
+                "workerSizeId": "1",
+                "reserved": true,
+                "numberOfWorkers": "1",
+                "hostingEnvironment": ""
+            },
+            "sku": {
+                "Name": "[parameters('sku')]"
+            },
+            "kind": "linux"
+        }
+    ],
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0"
+}

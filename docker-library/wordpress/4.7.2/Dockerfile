@@ -203,8 +203,8 @@ RUN set -ex \
 # 
 EXPOSE 80
 
-COPY entry.sh /usr/local/bin/
+COPY entrypoint.sh /usr/local/bin/
 RUN set -ex \
-	&& chmod +x /usr/local/bin/entry.sh
-ENTRYPOINT ["entry.sh"]
+	&& chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
 
