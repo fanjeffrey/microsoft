@@ -31,33 +31,54 @@
                 "S3"
             ]
         },
-        "WordPress Database Host": {
+        "wordPressDatabaseHost": {
             "type": "string",
-            "defaultValue": "127.0.0.1"
+            "defaultValue": "127.0.0.1",
+            "metadata": {
+                "description": "WordPress Database Host"
+            }
         },
-        "WordPress Database Name": {
+        "wordPressDatabaseName": {
             "type": "string",
-            "defaultValue": "wordpress"
+            "defaultValue": "wordpress",
+            "metadata": {
+                "description": "WordPress Database Name"
+            }
         },
-        "WordPress Database Username": {
+        "wordPressDatabaseUsername": {
             "type": "string",
-            "defaultValue": "wordpress"
+            "defaultValue": "wordpress",
+            "metadata": {
+                "description": "WordPress Database Username"
+            }
         },
-        "WordPress Database Password": {
+        "wordPressDatabasePassword": {
             "type": "securestring",
-            "defaultValue": "MS173m_QN"
+            "defaultValue": "MS173m_QN",
+            "metadata": {
+                "description": "WordPress Database Password"
+            }
         },
-        "WordPress Table Prefix": {
+        "wordPressTablePrefix": {
             "type": "string",
-            "defaultValue": "wp_"
+            "defaultValue": "wp_",
+            "metadata": {
+                "description": "WordPress Table Prefix"
+            }
         },
-        "phpMyAdmin Username": {
+        "phpMyAdminUsername": {
             "type": "string",
-            "defaultValue": "phpmyadmin"
+            "defaultValue": "phpmyadmin",
+            "metadata": {
+                "description": "phpMyAdmin Username"
+            }
         },
-        "phpMyAdmin Password": {
+        "phpMyAdminPassword": {
             "type": "securestring",
-            "defaultValue": "MS173m_QN"
+            "defaultValue": "MS173m_QN",
+            "metadata": {
+                "description": "phpMyAdmin Password"
+            }
         }
     },
     "resources": [
@@ -73,31 +94,31 @@
                         },
                         {
                             "name": "WORDPRESS_DB_HOST",
-                            "value": "[parameters('WordPress Database Host')]"
+                            "value": "[parameters('wordPressDatabaseHost')]"
                         },
                         {
                             "name": "WORDPRESS_DB_NAME",
-                            "value": "[parameters('WordPress Database Name')]"
+                            "value": "[parameters('wordPressDatabaseName')]"
                         },
                         {
                             "name": "WORDPRESS_DB_USERNAME",
-                            "value": "[parameters('WordPress Database Username')]"
+                            "value": "[parameters('wordPressDatabaseUsername')]"
                         },
                         {
                             "name": "WORDPRESS_DB_PASSWORD",
-                            "value": "[parameters('WordPress Database Password')]"
+                            "value": "[parameters('wordPressDatabasePassword')]"
                         },
                         {
                             "name": "WORDPRESS_DB_TABLE_NAME_PREFIX",
-                            "value": "[parameters('WordPress Table Prefix')]"
+                            "value": "[parameters('wordPressTablePrefix')]"
                         },
                         {
                             "name": "PHPMYADMIN_USERNAME",
-                            "value": "[parameters('phpMyAdmin Username')]"
+                            "value": "[parameters('phpMyAdminUsername')]"
                         },
                         {
                             "name": "PHPMYADMIN_PASSWORD",
-                            "value": "[parameters('phpMyAdmin Password')]"
+                            "value": "[parameters('phpMyAdminPassword')]"
                         }
                     ]
                 },
