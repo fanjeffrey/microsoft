@@ -133,7 +133,7 @@ COPY php.conf "$HTTPD_CONF_DIR/"
 ENV WORDPRESS_VERSION "4.7.2"
 ENV WORDPRESS_DOWNLOAD_URL "https://wordpress.org/wordpress-$WORDPRESS_VERSION.tar.gz"
 ENV WORDPRESS_SHA1 "7b687f1af589c337124e6247229af209ec1d52c3"
-ENV WORDPRESS_HOME "/var/www"
+ENV WORDPRESS_HOME "/var/www/wordpress"
 WORKDIR "$WORDPRESS_HOME"
 RUN set -ex \
 	&& wget -O wordpress.tar.gz "$WORDPRESS_DOWNLOAD_URL" --no-check-certificate \
@@ -145,7 +145,7 @@ RUN set -ex \
 	## include wordpress.conf
         && echo 'Include conf/wordpress.conf' >> "$HTTPD_CONF_FILE"
 COPY wordpress.conf "$HTTPD_CONF_DIR/"
-
+COPY wp-config.php.microsoft "$WORDPRESS_HOME/"
 
 # MariaDB
 RUN set -ex \
