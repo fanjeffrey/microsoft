@@ -22,7 +22,7 @@ This docker image enables you to:
 ## Limitations
 - Some unexpected issues may happen after you scale out your site to multiple instances, if you deploy a WordPress site on Azure with this docker image and use the MariaDB built in this docker image as the database.
 - The Redis cache built in this docker image is available only when you use the MariaDB built in this docker image as the database.
-- The phpMyAdmin build in this docker image is available only when you use the MariaDB built in this docker image as the database.
+- The phpMyAdmin built in this docker image is available only when you use the MariaDB built in this docker image as the database.
 
 ## Fast deploying a WordPress site to Azure
 [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
