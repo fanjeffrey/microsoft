@@ -4,6 +4,7 @@ This repo contains a Dockerfile and essential files that are used to build a Wor
 
 ## Application Stack in this Image
 This docker image currently contains the following application stack:
+
 1. WordPress    4.7.2
 2. PHP          7.1.1
 3. Apache HTTPD 2.4.25
@@ -11,6 +12,7 @@ This docker image currently contains the following application stack:
 5. Redis        3.2.8
 
 and provides native phpmyadmin to help manage native MariaDB.
+
 6. phpmyadmin   4.6.6
 
 ## Features
@@ -42,6 +44,8 @@ PHPMYADMIN_USERNAME | phpmyadmin
 PHPMYADMIN_PASSWORD | MS173m_QN
 
 You can change these default values on the *SETUP* page when deploying with the *Deploy to Azure* button above.
+
+![WordPress Deploy to Azure SETUP page](https://raw.githubusercontent.com/fanjeffrey/Images/master/Microsoft/docker-library/wordpress_deploy_setup.PNG)
 
 Or use the command below if you run this image on your Docker engine's host.
 ```
