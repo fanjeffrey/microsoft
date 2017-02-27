@@ -61,8 +61,10 @@ RUN set -ex \
 		libpcre++-dev \
 
 	## change User, Group
-        && sed -i 's_User daemon_User www-data_' "$HTTPD_CONF_FILE" \
-        && sed -i 's_Group daemon_Group www-data_' "$HTTPD_CONF_FILE"
+	&& sed -i 's_User daemon_User www-data_' "$HTTPD_CONF_FILE" \
+	&& sed -i 's_Group daemon_Group www-data_' "$HTTPD_CONF_FILE" \
+	## load rewrite_module
+	&& sed -i 's/#LoadModule rewrite_module/LoadModule rewrite_module/' "$HTTPD_CONF_FILE"
 
 
 # php
@@ -82,7 +84,7 @@ RUN set -ex \
 	&& buildDeps=" \
 		libbz2-dev \
 		libxml2-dev \
-                zlib1g-dev \
+		zlib1g-dev \
 		" \
 	&& apt-get update \
         && apt-get install -y -V --no-install-recommends \	
@@ -170,7 +172,7 @@ RUN set -ex \
 	&& chown -R www-data:www-data "$PHPMYADMIN_HOME" \
 	
 	## include phpmyadmin.conf
-        && echo 'Include conf/phpmyadmin.conf' >> "$HTTPD_CONF_FILE"
+	&& echo 'Include conf/phpmyadmin.conf' >> "$HTTPD_CONF_FILE"
 COPY phpmyadmin.conf "$HTTPD_CONF_DIR/"
 
 
