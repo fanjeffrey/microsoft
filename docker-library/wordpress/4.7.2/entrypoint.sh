@@ -18,9 +18,15 @@ if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
 	set_var_if_null "WORDPRESS_DB_PASSWORD" "MS173m_QN"
 	set_var_if_null "WORDPRESS_DB_TABLE_NAME_PREFIX" "wp_"
 
+	# replace {'localhost',,} with '127.0.0.1'
+	if [ "${WORDPRESS_DB_HOST,,}" = "localhost" ]; then
+		export WORDPRESS_DB_HOST="127.0.0.1"
+		echo "Replace localhost with 127.0.0.1 ... $WORDPRESS_DB_HOST"
+	fi
+
 	# check if use native MariaDB
 	# if yes, we allow users to use native phpMyAdmin and native Redis server
-	if [ $WORDPRESS_DB_HOST == "127.0.0.1" ]; then
+	if [ $WORDPRESS_DB_HOST = "127.0.0.1" ]; then
 		# set vars for phpMyAdmin if not provided
 		set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
 		set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
