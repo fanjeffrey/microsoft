@@ -27,6 +27,11 @@ This docker image enables you to:
 ## Fast deploying a WordPress site to Azure
 [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 
+## Run this image on your Docker engine's host
+```
+docker run -d -t -p 80:80 fanjeffrey/wordpress:4.7.2
+```
+
 ## Configurations
 Below list the environment variables which are used in this docker image.
 
