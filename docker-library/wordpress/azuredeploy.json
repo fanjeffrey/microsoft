@@ -3,10 +3,6 @@
         "siteName": {
             "type": "string"
         },
-        "dockerRegistryImageName": {
-            "type": "string",
-            "defaultValue": "fanjeffrey/wordpress:4.7.2"
-        },
         "servicePlanName": {
             "type": "string"
         },
@@ -30,6 +26,10 @@
                 "S2",
                 "S3"
             ]
+        },
+        "dockerRegistryImageName": {
+            "type": "string",
+            "defaultValue": "fanjeffrey/wordpress:4.7.2"
         },
         "wordPressDatabaseHost": {
             "type": "string",
