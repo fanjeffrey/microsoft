@@ -75,8 +75,10 @@ ENV PHP_DOWNLOAD_URL "https://secure.php.net/get/php-$PHP_VERSION.tar.gz/from/th
 ENV PHP_SHA256 "e6773217c9c719ca22abb104ae3d437d53daceaf31faf2e5eeb1f9f5028005d8"
 ENV PHP_HOME "/usr/local/php"
 ENV PHP_SOURCE "$PHP_HOME/src"
+ENV PHP_CONF_DIR "$PHP_HOME/etc/conf.d"
 ENV PATH "$PHP_HOME/bin":$PATH
 COPY httpd-php.conf "$HTTPD_CONF_DIR/"
+COPY php-opcache.ini "$PHP_CONF_DIR/"
 WORKDIR $PHP_HOME
 RUN set -ex \
 	## build deps
@@ -112,7 +114,7 @@ RUN set -ex \
 		--with-apxs2="$HTTPD_HOME/bin/apxs" \
 		--with-bz2 \
 		--with-config-file-path="$PHP_HOME/etc" \
-		--with-config-file-scan-dir="$PHP_HOME/etc/conf.d" \
+		--with-config-file-scan-dir="$PHP_CONF_DIR" \
 		--with-curl \
 		### see http://php.net/manual/en/mysqlnd.overview.php
 		### see http://php.net/manual/en/mysqlinfo.api.choosing.php
