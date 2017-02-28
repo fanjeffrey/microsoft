@@ -111,6 +111,8 @@ RUN set -ex \
 	&& cd "$PHP_SOURCE" \
 	&& ./configure \
 		--prefix="$PHP_HOME" \
+		### we don't need CGI version of PHP here
+                --disable-cgi \
 		--enable-mbstring \
 		--enable-zip \
 		--with-apxs2="$HTTPD_HOME/bin/apxs" \
