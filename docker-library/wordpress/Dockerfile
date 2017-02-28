@@ -49,6 +49,8 @@ RUN set -ex \
 	&& cd "$HTTPD_SOURCE" \
 	&& ./configure \
 		--prefix="$HTTPD_HOME" \
+		### using prefork for PHP. see http://php.net/manual/en/install.unix.apache2.php
+		--with-mpm=prefork \
 		--enable-mods-shared=reallyall \
 	&& make -j "$(nproc)" \
 	&& make install \
