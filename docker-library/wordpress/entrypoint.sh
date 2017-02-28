@@ -52,6 +52,11 @@ if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
 	sed -i "s/connectstr_dbpassword = '';/connectstr_dbpassword = '$WORDPRESS_DB_PASSWORD';/" "$WORDPRESS_HOME/wp-config.php"
 	sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$WORDPRESS_DB_TABLE_NAME_PREFIX';/" "$WORDPRESS_HOME/wp-config.php"
 	chown www-data:www-data "$WORDPRESS_HOME/wp-config.php"
+else
+	if grep "connectstr_dbhost = '127.0.0.1'" "$WORDPRESS_HOME/wp-config.php"; then
+		service mysql start
+		redis-server --daemonize yes
+	fi
 fi
 
 # start Apache HTTPD
