@@ -141,16 +141,16 @@ RUN set -ex \
 ENV WORDPRESS_VERSION "4.7.2"
 ENV WORDPRESS_DOWNLOAD_URL "https://wordpress.org/wordpress-$WORDPRESS_VERSION.tar.gz"
 ENV WORDPRESS_SHA1 "7b687f1af589c337124e6247229af209ec1d52c3"
-ENV WORDPRESS_HOME "/home/site/wordpress"
-WORKDIR "$WORDPRESS_HOME"
+ENV WORDPRESS_SRC "/usr/src/wordpress"
+WORKDIR $WORDPRESS_SRC
 COPY httpd-wordpress.conf "$HTTPD_CONF_DIR/"
-COPY wp-config.php.microsoft "$WORDPRESS_HOME/"
+COPY wp-config.php.microsoft "$WORDPRESS_SRC/"
 RUN set -ex \
 	&& wget -O wordpress.tar.gz "$WORDPRESS_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$WORDPRESS_SHA1 *wordpress.tar.gz" | sha1sum -c - \
 	&& tar -xf wordpress.tar.gz --strip-components=1 \
 	&& rm wordpress.tar.gz \
-	&& chown -R www-data:www-data "$WORDPRESS_HOME" \
+	&& chown -R www-data:www-data "$WORDPRESS_SRC" \
 	
 	## include wordpress.conf
         && echo 'Include conf/httpd-wordpress.conf' >> "$HTTPD_CONF_FILE"

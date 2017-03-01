@@ -7,10 +7,24 @@ set_var_if_null(){
 	fi
 }
 
-echo "WordPress home : $WORDPRESS_HOME"
+AZURE_WEB_APP_ROOT=/home/site/wwwroot
+WORDPRESS_HOME=/var/www/wordpress
+
+test ! -d $AZURE_WEB_APP_ROOT && echo "INFO: Azure Web App on Linux site root: $AZURE_WEB_APP_ROOT not found!"
 
 # if WordPress is not installed/configured
 if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
+	# if /home/site/wwwroot exists,
+	if [ -d "$AZURE_WEB_APP_ROOT" ]; then
+        	# this container is running on Azure
+	        test ! -d /var/www && mkdir /var/www
+	        rm -rf $WORDPRESS_HOME
+	        ln -s $AZURE_WEB_APP_ROOT $WORDPRESS_HOME
+	else
+        	rm -rf $WORDPRESS_HOME
+	        mkdir -p $WORDPRESS_HOME
+	fi
+
 	# set vars for WordPress if not provided
 	set_var_if_null "WORDPRESS_DB_HOST" "127.0.0.1"
 	set_var_if_null "WORDPRESS_DB_NAME" "wordpress"
@@ -43,15 +57,18 @@ if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
 		# start native Redis server
 		redis-server --daemonize yes
 	fi
-	
+
 	# update wp-config.php
-	cp "$WORDPRESS_HOME/wp-config.php.microsoft" "$WORDPRESS_HOME/wp-config.php"
-	sed -i "s/connectstr_dbhost = '';/connectstr_dbhost = '$WORDPRESS_DB_HOST';/" "$WORDPRESS_HOME/wp-config.php"
-	sed -i "s/connectstr_dbname = '';/connectstr_dbname = '$WORDPRESS_DB_NAME';/" "$WORDPRESS_HOME/wp-config.php"
-	sed -i "s/connectstr_dbusername = '';/connectstr_dbusername = '$WORDPRESS_DB_USERNAME';/" "$WORDPRESS_HOME/wp-config.php"
-	sed -i "s/connectstr_dbpassword = '';/connectstr_dbpassword = '$WORDPRESS_DB_PASSWORD';/" "$WORDPRESS_HOME/wp-config.php"
-	sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$WORDPRESS_DB_TABLE_NAME_PREFIX';/" "$WORDPRESS_HOME/wp-config.php"
-	chown www-data:www-data "$WORDPRESS_HOME/wp-config.php"
+	cp "$WORDPRESS_SRC/wp-config.php.microsoft" "$WORDPRESS_SRC/wp-config.php"
+	sed -i "s/connectstr_dbhost = '';/connectstr_dbhost = '$WORDPRESS_DB_HOST';/" "$WORDPRESS_SRC/wp-config.php"
+	sed -i "s/connectstr_dbname = '';/connectstr_dbname = '$WORDPRESS_DB_NAME';/" "$WORDPRESS_SRC/wp-config.php"
+	sed -i "s/connectstr_dbusername = '';/connectstr_dbusername = '$WORDPRESS_DB_USERNAME';/" "$WORDPRESS_SRC/wp-config.php"
+	sed -i "s/connectstr_dbpassword = '';/connectstr_dbpassword = '$WORDPRESS_DB_PASSWORD';/" "$WORDPRESS_SRC/wp-config.php"
+	sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$WORDPRESS_DB_TABLE_NAME_PREFIX';/" "$WORDPRESS_SRC/wp-config.php"
+
+	# move WordPress source files to the WordPress site home
+	mv $WORDPRESS_SRC/* $WORDPRESS_HOME
+	chown -R www-data:www-data $WORDPRESS_HOME/*
 else
 	if grep "connectstr_dbhost = '127.0.0.1'" "$WORDPRESS_HOME/wp-config.php"; then
 		service mysql start
