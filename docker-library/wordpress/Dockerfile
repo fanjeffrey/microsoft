@@ -208,6 +208,16 @@ RUN set -ex \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $tools \
 	&& apt-get autoremove -y
 
+# Azure Web App on Linux configurations
+# /home/site/wwwroot is a shared directory among multiple web app instances.
+ENV AZURE_WEB_APP_ROOT=/home/site/wwwroot \
+	WORDPRESS_HOME=/var/www/wordpress 
+RUN set -ex \
+	&& test ! -d /var/www && mkdir /var/www \
+	&& rm -rf "$WORDPRESS_HOME" \
+	&& ln -s "$AZURE_WEB_APP_ROOT" "$WORDPRESS_HOME"
+
+
 # 
 EXPOSE 80
 

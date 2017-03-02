@@ -1,26 +1,23 @@
 #!/bin/bash
 
 set_var_if_null(){
-	local varname="$1"
-	if [ ! "${!varname:-}" ]; then
-		export "$varname"="$2"
-	fi
-}
 
-AZURE_WEB_APP_ROOT=/home/site/wwwroot
-WORDPRESS_HOME=/var/www/wordpress
+	local varname="$1"
+
+	if [ ! "${!varname:-}" ]; then
+
+		export "$varname"="$2"
+
+	fi
+
+}
 
 test ! -d $AZURE_WEB_APP_ROOT && echo "INFO: Azure Web App on Linux site root: $AZURE_WEB_APP_ROOT not found!"
 
 # if WordPress is not installed/configured
 if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
-	# if /home/site/wwwroot exists,
-	if [ -d "$AZURE_WEB_APP_ROOT" ]; then
-        	# this container is running on Azure
-	        test ! -d /var/www && mkdir /var/www
-	        rm -rf $WORDPRESS_HOME
-	        ln -s $AZURE_WEB_APP_ROOT $WORDPRESS_HOME
-	else
+	# if /home/site/wwwroot doesn't exist, it is not on Auzre.
+	if [ ! -d "$AZURE_WEB_APP_ROOT" ]; then
         	rm -rf $WORDPRESS_HOME
 	        mkdir -p $WORDPRESS_HOME
 	fi
