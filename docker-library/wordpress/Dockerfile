@@ -141,16 +141,16 @@ RUN set -ex \
 ENV WORDPRESS_VERSION "4.7.2"
 ENV WORDPRESS_DOWNLOAD_URL "https://wordpress.org/wordpress-$WORDPRESS_VERSION.tar.gz"
 ENV WORDPRESS_SHA1 "7b687f1af589c337124e6247229af209ec1d52c3"
-ENV WORDPRESS_SRC "/usr/src/wordpress"
-WORKDIR $WORDPRESS_SRC
+ENV WORDPRESS_SOURCE "/usr/src/wordpress"
+WORKDIR $WORDPRESS_SOURCE
 COPY httpd-wordpress.conf "$HTTPD_CONF_DIR/"
-COPY wp-config.php.microsoft "$WORDPRESS_SRC/"
+COPY wp-config.php.microsoft "$WORDPRESS_SOURCE/"
 RUN set -ex \
 	&& wget -O wordpress.tar.gz "$WORDPRESS_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$WORDPRESS_SHA1 *wordpress.tar.gz" | sha1sum -c - \
 	&& tar -xf wordpress.tar.gz --strip-components=1 \
 	&& rm wordpress.tar.gz \
-	&& chown -R www-data:www-data "$WORDPRESS_SRC" \
+	&& chown -R www-data:www-data "$WORDPRESS_SOURCE" \
 	
 	## include wordpress.conf
         && echo 'Include conf/httpd-wordpress.conf' >> "$HTTPD_CONF_FILE"
@@ -167,16 +167,16 @@ RUN set -ex \
 ENV PHPMYADMIN_VERSION "4.6.6"
 ENV PHPMYADMIN_DOWNLOAD_URL "https://files.phpmyadmin.net/phpMyAdmin/$PHPMYADMIN_VERSION/phpMyAdmin-$PHPMYADMIN_VERSION-all-languages.tar.gz"
 ENV PHPMYADMIN_SHA256 "54086600558613b31c4daddf4ae58fbc1c252a2b8e3e6fae12f851f78677d72e"
-ENV PHPMYADMIN_HOME "/usr/local/phpmyadmin"
+ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
+WORKDIR $PHPMYADMIN_SOURCE
 COPY httpd-phpmyadmin.conf "$HTTPD_CONF_DIR/"
-COPY phpmyadmin-config.inc.php "$PHPMYADMIN_HOME/config.inc.php"
-WORKDIR $PHPMYADMIN_HOME
+COPY phpmyadmin-config.inc.php "$PHPMYADMIN_SOURCE/config.inc.php"
 RUN set -ex \
 	&& wget -O phpmyadmin.tar.gz "$PHPMYADMIN_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
-	&& tar -xf phpmyadmin.tar.gz -C "$PHPMYADMIN_HOME" --strip-components=1 \
+	&& tar -xf phpmyadmin.tar.gz -C "$PHPMYADMIN_SOURCE" --strip-components=1 \
 	&& rm phpmyadmin.tar.gz \ 
-	&& chown -R www-data:www-data "$PHPMYADMIN_HOME" \
+	&& chown -R www-data:www-data "$PHPMYADMIN_SOURCE" \
 	
 	## include phpmyadmin.conf
 	&& echo 'Include conf/httpd-phpmyadmin.conf' >> "$HTTPD_CONF_FILE"
@@ -208,14 +208,31 @@ RUN set -ex \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $tools \
 	&& apt-get autoremove -y
 
-# Azure Web App on Linux configurations
-# /home/site/wwwroot is a shared directory among multiple web app instances.
-ENV AZURE_WEB_APP_ROOT=/home/site/wwwroot \
-	WORDPRESS_HOME=/var/www/wordpress 
+# Azure Web App on Linux configurations:
+# /home is a shared directory among multiple web app instances
+# /home/site/wwwroot for WordPress site
+# /home/phpmyadmin for phpMyAdmin site
+# /home/data for native MariaDB data dir
+ENV WORDPRESS_HOME_AZURE="/home/site/wwwroot"
+ENV WORDPRESS_HOME="/var/www/wordpress"
+ENV PHPMYADMIN_HOME_AZURE="/home/phpmyadmin"
+ENV PHPMYADMIN_HOME="/var/www/phpmyadmin"
+ENV MARIADB_DATA_HOME_AZURE="/home/data"
+ENV MARIADB_DATA_HOME="/var/lib/mysql"
+ENV MARIADB_DATA_HOME_TEMP="/tmp/mariadb"
 RUN set -ex \
 	&& test ! -d /var/www && mkdir /var/www \
-	&& rm -rf "$WORDPRESS_HOME" \
-	&& ln -s "$AZURE_WEB_APP_ROOT" "$WORDPRESS_HOME"
+	# wordpress
+	&& rm -rf $WORDPRESS_HOME \
+	&& ln -s $WORDPRESS_HOME_AZURE $WORDPRESS_HOME \
+	# phpmyadmin
+	&& rm -rf $PHPMYADMIN_HOME \
+	&& ln -s $PHPMYADMIN_HOME_AZURE $PHPMYADMIN_HOME \
+	# mariadb
+	&& mkdir -p $MARIADB_DATA_HOME_TEMP \
+	&& mv $MARIADB_DATA_HOME/* $MARIADB_DATA_HOME_TEMP/ \
+	&& rm -rf $MARIADB_DATA_HOME \
+	&& ln -s $MARIADB_DATA_HOME_AZURE $MARIADB_DATA_HOME
 
 
 # 
