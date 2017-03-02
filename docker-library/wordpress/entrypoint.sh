@@ -49,8 +49,8 @@ if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
         mv $WORDPRESS_SOURCE/* $WORDPRESS_HOME/ && chown -R www-data:www-data $WORDPRESS_HOME/
         mv $PHPMYADMIN_SOURCE/* $PHPMYADMIN_HOME/ && chown -R www-data:www-data $PHPMYADMIN_HOME/
         mv $MARIADB_DATA_HOME_TEMP/* $MARIADB_DATA_HOME/ && chown -R mysql:mysql $MARIADB_DATA_HOME/
-	chown -R www-data:www-data $HTTPD_LOG_DIR
-	chown -R mysql:mysql $MARIADB_LOG_DIR
+	chown -R www-data:www-data $HTTPD_LOG_DIR/
+	chown -R mysql:mysql $MARIADB_LOG_DIR/
 
 	# check if use native MariaDB
 	# if yes, we allow users to use native phpMyAdmin and native Redis server
