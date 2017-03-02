@@ -11,7 +11,9 @@ test ! -d $WORDPRESS_HOME_AZURE && echo "INFO: WordPress site home on Azure: $WO
 
 # if WordPress is not installed/configured
 if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
-	# if /home/site/wwwroot doesn't exist, it is not on Auzre.
+	# Because Azure Web App on Linux uses /home/site/wwwroot,
+	# so if /home/site/wwwroot doesn't exist, 
+	# we think the container is not running on Auzre.
 	if [ ! -d "$WORDPRESS_HOME_AZURE" ]; then
         	rm -rf $WORDPRESS_HOME
 	        mkdir -p $WORDPRESS_HOME
