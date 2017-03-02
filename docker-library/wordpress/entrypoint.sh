@@ -15,15 +15,16 @@ if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
 	# so if /home/site/wwwroot doesn't exist, 
 	# we think the container is not running on Auzre.
 	if [ ! -d "$WORDPRESS_HOME_AZURE" ]; then
-        	rm -rf $WORDPRESS_HOME
-	        mkdir -p $WORDPRESS_HOME
-		rm -rf $PHPMYADMIN_HOME
-		mkdir -p $PHPMYADMIN_HOME
-		rm -rf $MARIADB_DATA_HOME
-		mkdir -p $MARIADB_DATA_HOME
+        	rm -rf $WORDPRESS_HOME && mkdir -p $WORDPRESS_HOME
+		rm -rf $PHPMYADMIN_HOME && mkdir -p $PHPMYADMIN_HOME
+		rm -rf $MARIADB_DATA_HOME && mkdir -p $MARIADB_DATA_HOME
+		rm -rf $HTTPD_LOG_DIR && mkdir -p $HTTPD_LOG_DIR
+		rm -rf $MARIADB_LOG_DIR && mkdir -p $MARIADB_LOG_DIR
 	else
 		test ! -d $PHPMYADMIN_HOME_AZURE && mkdir -p $PHPMYADMIN_HOME_AZURE
 		test ! -d $MARIADB_DATA_HOME_AZURE && mkdir -p $MARIADB_DATA_HOME_AZURE
+		test ! -d $HTTPD_LOG_DIR_AZURE && mkdir -p $HTTPD_LOG_DIR_AZURE
+		test ! -d $MARIADB_LOG_DIR_AZURE && mkdir -p $MARIADB_LOG_DIR_AZURE
 	fi
 
 	# set vars for WordPress if not provided

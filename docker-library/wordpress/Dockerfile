@@ -58,15 +58,18 @@ RUN set -ex \
 	## clean up
 	&& cd "$HTTPD_HOME" \
 	&& rm httpd.tar.gz \
-	&& rm -r src man manual \
+	&& rm -rf src man manual \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove \
-		libpcre++-dev \
+		libpcre++-dev 
 
+COPY httpd.conf $HTTPD_CONF_DIR
+COPY httpd-modules.conf $HTTPD_CONF_DIR
+RUN set -ex \
 	## change User, Group
 	&& sed -i 's_User daemon_User www-data_' "$HTTPD_CONF_FILE" \
 	&& sed -i 's_Group daemon_Group www-data_' "$HTTPD_CONF_FILE" \
 	## load rewrite_module
-	&& sed -i 's/#LoadModule rewrite_module/LoadModule rewrite_module/' "$HTTPD_CONF_FILE"
+	&& sed -i 's/#LoadModule rewrite_module/LoadModule rewrite_module/' "$HTTPD_CONF_DIR/httpd-modules.conf"
 
 
 # php
@@ -81,6 +84,7 @@ ENV PHP_CONF_DIR "$PHP_HOME/etc/conf.d"
 ENV PATH "$PHP_HOME/bin":$PATH
 COPY httpd-php.conf "$HTTPD_CONF_DIR/"
 COPY php-opcache.ini "$PHP_CONF_DIR/"
+COPY php-log.ini "$PHP_CONF_DIR/"
 WORKDIR $PHP_HOME
 RUN set -ex \
 	## build deps
@@ -220,6 +224,11 @@ ENV PHPMYADMIN_HOME="/var/www/phpmyadmin"
 ENV MARIADB_DATA_HOME_AZURE="/home/data"
 ENV MARIADB_DATA_HOME="/var/lib/mysql"
 ENV MARIADB_DATA_HOME_TEMP="/tmp/mariadb"
+# /home/LogFiles
+ENV HTTPD_LOG_DIR_AZURE="/home/LogFiles/httpd"
+ENV HTTPD_LOG_DIR="/var/log/httpd"
+ENV MARIADB_LOG_DIR_AZURE="/home/LogFiles/mariadb"
+ENV MARIADB_LOG_DIR="/var/log/mysql"
 RUN set -ex \
 	&& test ! -d /var/www && mkdir /var/www \
 	# wordpress
@@ -232,7 +241,13 @@ RUN set -ex \
 	&& mkdir -p $MARIADB_DATA_HOME_TEMP \
 	&& mv $MARIADB_DATA_HOME/* $MARIADB_DATA_HOME_TEMP/ \
 	&& rm -rf $MARIADB_DATA_HOME \
-	&& ln -s $MARIADB_DATA_HOME_AZURE $MARIADB_DATA_HOME
+	&& ln -s $MARIADB_DATA_HOME_AZURE $MARIADB_DATA_HOME \
+	# httpd, php, wordpress, phpmyadmin logs
+	&& rm -rf $HTTPD_LOG_DIR \
+	&& ln -s $HTTPD_LOG_DIR_AZURE $HTTPD_LOG_DIR \
+	# mariadb log
+	&& rm -rf $MARIADB_LOG_DIR \
+	&& ln -s $MARIADB_LOG_DIR_AZURE $MARIADB_LOG_DIR
 
 
 # 
