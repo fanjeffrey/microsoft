@@ -21,7 +21,7 @@ if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
 		mkdir -p $MARIADB_DATA_HOME
 	else
 		test ! -d $PHPMYADMIN_HOME_AZURE && mkdir -p $PHPMYADMIN_HOME_AZURE
-		test ! -d $MARIADB_DATA_HOME_AZURE ** mkdir -p $MARIADB_DATA_HOME_AZURE
+		test ! -d $MARIADB_DATA_HOME_AZURE && mkdir -p $MARIADB_DATA_HOME_AZURE
 	fi
 
 	# set vars for WordPress if not provided
