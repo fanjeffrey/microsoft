@@ -31,9 +31,9 @@ ENV PHP_CONF_DIR_SCAN "$PHP_CONF_DIR/conf.d"
 ENV PATH "$PHP_HOME/bin":$PATH
 
 # mariadb
-ENV MARIADB_DATA_HOME="/var/lib/mysql"
+ENV MARIADB_DATA_DIR="/var/lib/mysql"
 ENV MARIADB_LOG_DIR="/var/log/mysql"
-ENV MARIADB_DATA_HOME_TEMP="/tmp/mariadb"
+ENV MARIADB_DATA_DIR_TEMP="/tmp/mariadb"
 
 # redis
 ENV REDIS_VERSION "3.2.8"
@@ -271,7 +271,7 @@ RUN set -ex \
 
 ENV WORDPRESS_HOME_AZURE "/home/site/wwwroot"
 ENV PHPMYADMIN_HOME_AZURE "/home/phpmyadmin"
-ENV MARIADB_DATA_HOME_AZURE "/home/data"
+ENV MARIADB_DATA_DIR_AZURE "/home/data"
 ENV HTTPD_LOG_DIR_AZURE "/home/LogFiles/httpd"
 ENV MARIADB_LOG_DIR_AZURE "/home/LogFiles/mariadb"
 
@@ -284,10 +284,10 @@ RUN set -ex \
 	&& rm -rf $PHPMYADMIN_HOME \
 	&& ln -s $PHPMYADMIN_HOME_AZURE $PHPMYADMIN_HOME \
 	# mariadb
-	&& mkdir -p $MARIADB_DATA_HOME_TEMP \
-	&& mv $MARIADB_DATA_HOME/* $MARIADB_DATA_HOME_TEMP/ \
-	&& rm -rf $MARIADB_DATA_HOME \
-	&& ln -s $MARIADB_DATA_HOME_AZURE $MARIADB_DATA_HOME \
+	&& mkdir -p $MARIADB_DATA_DIR_TEMP \
+	&& cp -R $MARIADB_DATA_DIR/* $MARIADB_DATA_DIR_TEMP/ \
+	&& rm -rf $MARIADB_DATA_DIR \
+	&& ln -s $MARIADB_DATA_DIR_AZURE $MARIADB_DATA_DIR \
 	# httpd, php, wordpress, phpmyadmin logs
 	&& rm -rf $HTTPD_LOG_DIR \
 	&& ln -s $HTTPD_LOG_DIR_AZURE $HTTPD_LOG_DIR \

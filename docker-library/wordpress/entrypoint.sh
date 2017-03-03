@@ -37,18 +37,18 @@ if [ ! -f "$WORDPRESS_HOME/wp-config.php" ]; then
 	if [ ! -d "$WORDPRESS_HOME_AZURE" ]; then
         	rm -rf $WORDPRESS_HOME && mkdir -p $WORDPRESS_HOME
 		rm -rf $PHPMYADMIN_HOME && mkdir -p $PHPMYADMIN_HOME
-		rm -rf $MARIADB_DATA_HOME && mkdir -p $MARIADB_DATA_HOME
+		rm -rf $MARIADB_DATA_DIR && mkdir -p $MARIADB_DATA_DIR
 		rm -rf $HTTPD_LOG_DIR && mkdir -p $HTTPD_LOG_DIR
 		rm -rf $MARIADB_LOG_DIR && mkdir -p $MARIADB_LOG_DIR
 	else
 		test ! -d $PHPMYADMIN_HOME_AZURE && mkdir -p $PHPMYADMIN_HOME_AZURE
-		test ! -d $MARIADB_DATA_HOME_AZURE && mkdir -p $MARIADB_DATA_HOME_AZURE
+		test ! -d $MARIADB_DATA_DIR_AZURE && mkdir -p $MARIADB_DATA_DIR_AZURE
 		test ! -d $HTTPD_LOG_DIR_AZURE && mkdir -p $HTTPD_LOG_DIR_AZURE
 		test ! -d $MARIADB_LOG_DIR_AZURE && mkdir -p $MARIADB_LOG_DIR_AZURE
 	fi
-        cp $WORDPRESS_SOURCE/* $WORDPRESS_HOME/ && chown -R www-data:www-data $WORDPRESS_HOME/ && rm -rf $WORDPRESS_SOURCE
-        cp $PHPMYADMIN_SOURCE/* $PHPMYADMIN_HOME/ && chown -R www-data:www-data $PHPMYADMIN_HOME/ && rm -rf $PHPMYADMIN_SOURCE
-        cp $MARIADB_DATA_HOME_TEMP/* $MARIADB_DATA_HOME/ && chown -R mysql:mysql $MARIADB_DATA_HOME/ && rm -rf $MARIADB_DATA_HOME_TEMP
+        cp -R $WORDPRESS_SOURCE/* $WORDPRESS_HOME/ && chown -R www-data:www-data $WORDPRESS_HOME/ && rm -rf $WORDPRESS_SOURCE
+        cp -R $PHPMYADMIN_SOURCE/* $PHPMYADMIN_HOME/ && chown -R www-data:www-data $PHPMYADMIN_HOME/ && rm -rf $PHPMYADMIN_SOURCE
+        cp -R $MARIADB_DATA_DIR_TEMP/* $MARIADB_DATA_DIR/ && chown -R mysql:mysql $MARIADB_DATA_DIR/ && rm -rf $MARIADB_DATA_DIR_TEMP
 	chown -R www-data:www-data $HTTPD_LOG_DIR/
 	chown -R mysql:mysql $MARIADB_LOG_DIR/
 
