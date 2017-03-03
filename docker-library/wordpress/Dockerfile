@@ -135,7 +135,7 @@ RUN set -ex \
 	## buildtime deps
 	### libbz2-dev >> --with-bz2 >> [phpmyadmin] Bzip2 compression and decompression requires functions (bzopen, bzcompress) which are unavailable on this system.
 	### zlib1g-dev >> --with-zlib >> [wordpress] Uncaught Error: Call to undefined function gzinflate() in /var/www/wp-includes/class-requests.php:947
-	&& phpBuildtimeDeps=" \
+	&& phpBuildtimeDeps="\
 		libbz2-dev \
 		libxml2-dev \
 		zlib1g-dev \
@@ -145,7 +145,7 @@ RUN set -ex \
 	&& phpRuntimeDeps=" \
 		libcurl4-gnutls-dev \
 		libxml2 \
-	"\
+	" \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends $phpBuildtimeDeps $phpRuntimeDeps \	
 	&& rm -rf /var/lib/apt/lists/* \
@@ -218,7 +218,7 @@ RUN set -ex \
 	&& wget -O phpmyadmin.tar.gz "$PHPMYADMIN_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
 	&& tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_SOURCE --strip-components=1 \
-	&& rm $DOCKER_BUILD_HOME/phpmyadmin.tar.gz
+	&& rm $DOCKER_BUILD_HOME/phpmyadmin.tar.gz \
 
 	# ----------
 	# . clean up
@@ -232,18 +232,18 @@ RUN set -ex \
 # =========
 
 # httpd confs
-COPY httpd.conf $HTTPD_CONF_DIR
-COPY httpd-modules.conf $HTTPD_CONF_DIR
-COPY httpd-php.conf $HTTPD_CONF_DIR
-COPY httpd-wordpress.conf $HTTPD_CONF_DIR
-COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR
+COPY httpd.conf $HTTPD_CONF_DIR/
+COPY httpd-modules.conf $HTTPD_CONF_DIR/
+COPY httpd-php.conf $HTTPD_CONF_DIR/
+COPY httpd-wordpress.conf $HTTPD_CONF_DIR/
+COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
 
 # php confs
-COPY php-log.ini $PHP_CONF_DIR_SCAN
-COPY php-opcache.ini $PHP_CONF_DIR_SCAN
+COPY php-log.ini $PHP_CONF_DIR_SCAN/
+COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 
 # wordpress conf
-COPY wp-config.php.microsoft $WORDPRESS_SOURCE
+COPY wp-config.php.microsoft $WORDPRESS_SOURCE/
 
 # phpmyadmin conf
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
@@ -256,7 +256,7 @@ RUN set -ex \
 	## include phpmyadmin.conf
 	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE \
 	&& chown -R www-data:www-data $WORDPRESS_SOURCE \
-	&& chown -R www-data:www-data $PHPMYADMIN_SOURCE \
+	&& chown -R www-data:www-data $PHPMYADMIN_SOURCE
 
 
 # ============================================================
