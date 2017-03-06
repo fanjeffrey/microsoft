@@ -138,12 +138,13 @@ RUN set -ex \
 	&& phpBuildtimeDeps="\
 		libbz2-dev \
 		libxml2-dev \
-		zlib1g-dev \
 	" \
 	## runtime deps
 	### libcurl4-gnutls-dev >> --with-curl >> [wordpress] download plugins
 	&& phpRuntimeDeps=" \
 		libcurl4-gnutls-dev \
+		libjpeg-dev \
+                libpng12-dev \
 		libxml2 \
 	" \
 	&& apt-get update \
@@ -169,6 +170,9 @@ RUN set -ex \
 		--with-curl \
 		### see http://php.net/manual/en/mysqlnd.overview.php
 		### see http://php.net/manual/en/mysqlinfo.api.choosing.php
+		--with-gd \
+		--with-jpeg-dir \
+		--with-png-dir \
 		--with-mysqli=mysqlnd \
 		--with-zlib \
 	&& make -j "$(nproc)" \
@@ -254,9 +258,7 @@ RUN set -ex \
 	## include wordpress.conf
 	&& echo 'Include conf/httpd-wordpress.conf' >> $HTTPD_CONF_FILE \
 	## include phpmyadmin.conf
-	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE \
-	&& chown -R www-data:www-data $WORDPRESS_SOURCE \
-	&& chown -R www-data:www-data $PHPMYADMIN_SOURCE
+	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
 
 
 # ============================================================
@@ -299,6 +301,5 @@ RUN set -ex \
 # final
 # =====
 COPY entrypoint.sh /usr/local/bin/
-RUN set -ex	&& chmod u+x /usr/local/bin/entrypoint.sh
 EXPOSE 80
 ENTRYPOINT ["entrypoint.sh"]
