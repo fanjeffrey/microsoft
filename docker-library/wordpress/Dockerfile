@@ -135,7 +135,6 @@ RUN set -ex \
 	&& mkdir -p $PHP_HOME \
 	## buildtime deps
 	### libbz2-dev >> --with-bz2 >> [phpmyadmin] Bzip2 compression and decompression requires functions (bzopen, bzcompress) which are unavailable on this system.
-	### zlib1g-dev >> --with-zlib >> [wordpress] Uncaught Error: Call to undefined function gzinflate() in /var/www/wp-includes/class-requests.php:947
 	&& phpBuildtimeDeps="\
 		libbz2-dev \
 		libxml2-dev \
@@ -145,6 +144,7 @@ RUN set -ex \
 	### libgmp-dev >> --with-gmp
 	### libicu-dev >> --enable-intl	
 	### libjpeg-dev, libpng12-dev >> --with-gd, --with-jpeg-dir, --with-png-dir (libpng12-dev >> zlib1g-dev)
+	### zlib1g-dev >> --with-zlib >> [wordpress] Uncaught Error: Call to undefined function gzinflate() in /var/www/wp-includes/class-requests.php:947
 	### libldap2-dev >> --with-ldap
 	&& phpRuntimeDeps=" \
 		libcurl4-gnutls-dev \
@@ -183,15 +183,14 @@ RUN set -ex \
 		--with-config-file-path=$PHP_CONF_DIR \
 		--with-config-file-scan-dir=$PHP_CONF_DIR_SCAN \
 		--with-curl \
-		### see http://php.net/manual/en/mysqlnd.overview.php
-		### see http://php.net/manual/en/mysqlinfo.api.choosing.php
 		--with-gd \
 		--with-jpeg-dir \
 		--with-png-dir \
 		--with-gmp \
 		--with-ldap \
+		### see http://php.net/manual/en/mysqlnd.overview.php
+                ### see http://php.net/manual/en/mysqlinfo.api.choosing.php
 		--with-mysqli=mysqlnd \
-		--with-zlib \
 	&& make -j "$(nproc)" \
 	&& make install \	
 	## clean up
@@ -216,7 +215,7 @@ RUN set -ex \
 	&& echo "$REDIS_SHA1 *redis.tar.gz" | sha1sum -c - \
 	&& tar -xf redis.tar.gz -C $REDIS_SOURCE --strip-components=1 \
 	&& cd $REDIS_SOURCE \
-	&& make \
+	&& make -j "$(nproc)" \
 	&& make PREFIX=$REDIS_HOME install \
 	&& rm -rf $REDIS_SOURCE \
 	&& rm $DOCKER_BUILD_HOME/redis.tar.gz \
