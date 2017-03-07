@@ -142,18 +142,25 @@ RUN set -ex \
 	" \
 	## runtime deps
 	### libcurl4-gnutls-dev >> --with-curl >> [wordpress] download plugins
+	### libgmp-dev >> --with-gmp
+	### libicu-dev >> --enable-intl	
 	### libjpeg-dev, libpng12-dev >> --with-gd, --with-jpeg-dir, --with-png-dir (libpng12-dev >> zlib1g-dev)
-	### libicu-dev >> --enable-intl
+	### libldap2-dev >> --with-ldap
 	&& phpRuntimeDeps=" \
 		libcurl4-gnutls-dev \
+		libgmp-dev \
+		libicu-dev \
 		libjpeg-dev \
                 libpng12-dev \
-		libicu-dev \
+		libldap2-dev \
 		libxml2 \
 	" \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends $phpBuildtimeDeps $phpRuntimeDeps \	
 	&& rm -rf /var/lib/apt/lists/* \
+	&& ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
+	&& ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so \
+	&& ln -s /usr/lib/x86_64-linux-gnu/liblber.so /usr/lib/liblber.so \
 	## download, validate, extract
 	&& cd $DOCKER_BUILD_HOME \
 	&& wget -O php.tar.gz "$PHP_DOWNLOAD_URL" --no-check-certificate \
@@ -179,6 +186,8 @@ RUN set -ex \
 		--with-gd \
 		--with-jpeg-dir \
 		--with-png-dir \
+		--with-gmp \
+		--with-ldap \
 		--with-mysqli=mysqlnd \
 		--with-zlib \
 	&& make -j "$(nproc)" \
