@@ -77,6 +77,7 @@ RUN set -ex \
 	# 1. essential tools
 	# ------------------
 	&& tools=" \
+		g++ \
 		gcc \
 		make \
 		wget \
@@ -142,10 +143,12 @@ RUN set -ex \
 	## runtime deps
 	### libcurl4-gnutls-dev >> --with-curl >> [wordpress] download plugins
 	### libjpeg-dev, libpng12-dev >> --with-gd, --with-jpeg-dir, --with-png-dir (libpng12-dev >> zlib1g-dev)
+	### libicu-dev >> --enable-intl
 	&& phpRuntimeDeps=" \
 		libcurl4-gnutls-dev \
 		libjpeg-dev \
                 libpng12-dev \
+		libicu-dev \
 		libxml2 \
 	" \
 	&& apt-get update \
@@ -162,6 +165,7 @@ RUN set -ex \
 		--prefix=$PHP_HOME \
 		### we don't need CGI version of PHP here
 		--disable-cgi \
+		--enable-intl \
 		--enable-mbstring \
 		--enable-zip \
 		--with-apxs2=$HTTPD_HOME/bin/apxs \
