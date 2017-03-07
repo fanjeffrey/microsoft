@@ -95,6 +95,7 @@ RUN set -ex \
 	## runtime and buildtime deps
 	&& httpdBuildtimeDeps=" \
 		libpcre++-dev \
+		libssl-dev \
 	" \
 	&& httpdRuntimeDeps="\
 		libapr1 \
@@ -118,6 +119,7 @@ RUN set -ex \
 		### using prefork for PHP. see http://php.net/manual/en/install.unix.apache2.php
 		--with-mpm=prefork \
 		--enable-mods-shared=reallyall \
+		--enable-ssl \
 	&& make -j "$(nproc)" \
 	&& make install \
 	## clean up
