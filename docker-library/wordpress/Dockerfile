@@ -165,6 +165,7 @@ RUN set -ex \
 		--prefix=$PHP_HOME \
 		### we don't need CGI version of PHP here
 		--disable-cgi \
+		--enable-bcmath \
 		--enable-intl \
 		--enable-mbstring \
 		--enable-zip \
