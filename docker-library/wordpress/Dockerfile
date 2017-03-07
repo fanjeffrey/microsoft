@@ -80,6 +80,7 @@ RUN set -ex \
 		g++ \
 		gcc \
 		make \
+		pkg-config \
 		wget \
 	" \
 	&& apt-get update \
@@ -137,6 +138,10 @@ RUN set -ex \
 	### libbz2-dev >> --with-bz2 >> [phpmyadmin] Bzip2 compression and decompression requires functions (bzopen, bzcompress) which are unavailable on this system.
 	&& phpBuildtimeDeps="\
 		libbz2-dev \
+		libgmp-dev \
+                libicu-dev \
+		libldap2-dev \
+		libssl-dev \
 		libxml2-dev \
 	" \
 	## runtime deps
@@ -148,11 +153,8 @@ RUN set -ex \
 	### libldap2-dev >> --with-ldap
 	&& phpRuntimeDeps=" \
 		libcurl4-gnutls-dev \
-		libgmp-dev \
-		libicu-dev \
 		libjpeg-dev \
                 libpng12-dev \
-		libldap2-dev \
 		libxml2 \
 	" \
 	&& apt-get update \
@@ -191,10 +193,12 @@ RUN set -ex \
 		### see http://php.net/manual/en/mysqlnd.overview.php
                 ### see http://php.net/manual/en/mysqlinfo.api.choosing.php
 		--with-mysqli=mysqlnd \
+		--with-openssl \
 	&& make -j "$(nproc)" \
 	&& make install \	
 	## clean up
 	&& rm -rf $PHP_SOURCE \
+	&& rm -rf $PHP_HOME/php/man \
 	&& rm $DOCKER_BUILD_HOME/php.tar.gz \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $phpBuildtimeDeps \
 
