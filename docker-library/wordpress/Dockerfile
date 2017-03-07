@@ -141,6 +141,7 @@ RUN set -ex \
 	" \
 	## runtime deps
 	### libcurl4-gnutls-dev >> --with-curl >> [wordpress] download plugins
+	### libjpeg-dev, libpng12-dev >> --with-gd, --with-jpeg-dir, --with-png-dir (libpng12-dev >> zlib1g-dev)
 	&& phpRuntimeDeps=" \
 		libcurl4-gnutls-dev \
 		libjpeg-dev \
