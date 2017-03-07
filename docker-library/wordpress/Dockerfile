@@ -172,6 +172,8 @@ RUN set -ex \
 		--prefix=$PHP_HOME \
 		### we don't need CGI version of PHP here
 		--disable-cgi \
+		### also, don't need pdo
+		--disable-pdo \
 		--enable-bcmath \
 		--enable-intl \
 		--enable-mbstring \
