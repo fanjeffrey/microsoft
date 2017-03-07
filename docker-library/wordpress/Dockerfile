@@ -138,6 +138,9 @@ RUN set -ex \
 	&& mkdir -p $PHP_HOME \
 	## buildtime deps
 	### libbz2-dev >> --with-bz2 >> [phpmyadmin] Bzip2 compression and decompression requires functions (bzopen, bzcompress) which are unavailable on this system.
+	### libgmp-dev >> --with-gmp
+        ### libicu-dev >> --enable-intl
+	### libldap2-dev >> --with-ldap
 	&& phpBuildtimeDeps="\
 		libbz2-dev \
 		libgmp-dev \
@@ -148,13 +151,10 @@ RUN set -ex \
 	" \
 	## runtime deps
 	### libcurl4-gnutls-dev >> --with-curl >> [wordpress] download plugins
-	### libgmp-dev >> --with-gmp
-	### libicu-dev >> --enable-intl	
 	### libjpeg-dev, libpng12-dev >> --with-gd, --with-jpeg-dir, --with-png-dir (libpng12-dev >> zlib1g-dev)
 	### zlib1g-dev >> --with-zlib >> [wordpress] Uncaught Error: Call to undefined function gzinflate() in /var/www/wp-includes/class-requests.php:947
-	### libldap2-dev >> --with-ldap
 	&& phpRuntimeDeps=" \
-		libcurl4-gnutls-dev \
+		libcurl4-openssl-dev \
 		libjpeg-dev \
                 libpng12-dev \
 		libxml2 \
