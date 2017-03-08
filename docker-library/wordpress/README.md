@@ -76,7 +76,7 @@ docker run -d -t -p 80:80 \
     fanjeffrey/wordpress:4.7.2
 ```
 
-## The builtin MariaDB server
+## The Builtin MariaDB server
 The builtin MariaDB server uses port 3306.
 
 ## The Builtin phpMyAdmin Site
