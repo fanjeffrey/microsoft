@@ -237,7 +237,7 @@ RUN set -ex \
 	# ------------
 	&& mkdir -p $MAGENTO_SOURCE \
 	&& cd $DOCKER_BUILD_HOME \
-	&& tar -xf $MAGENTO_PACKAGE -C $MAGENTO_SOURCE --strip-components=1 \
+	&& tar -xf $MAGENTO_PACKAGE -C $MAGENTO_SOURCE \
 	&& rm $DOCKER_BUILD_HOME/$MAGENTO_PACKAGE \
 
 	# -------------
