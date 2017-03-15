@@ -263,9 +263,9 @@ RUN set -ex \
 	&& apt-get autoremove -y	
 
 
-# =========
-# Configure
-# =========
+# ==============
+# Configurations 
+# ==============
 
 # httpd confs
 COPY httpd.conf $HTTPD_CONF_DIR/
@@ -273,19 +273,22 @@ COPY httpd-modules.conf $HTTPD_CONF_DIR/
 COPY httpd-php.conf $HTTPD_CONF_DIR/
 COPY httpd-magento.conf $HTTPD_CONF_DIR/
 COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
-
 # php confs
 COPY php.ini $PHP_CONF_DIR/
 COPY php-log.ini $PHP_CONF_DIR_SCAN/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
-
-# phpmyadmin conf
+# phpmyadmin config
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
-
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
 	&& echo 'Include conf/httpd-magento.conf' >> $HTTPD_CONF_FILE \
 	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
+
+# =========
+# cron jobs
+# =========
+COPY magento-cronjobs /cronjobs/
+RUN crontab /cronjobs/magento-cronjobs
 
 
 # ============================================================
