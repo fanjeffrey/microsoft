@@ -285,8 +285,7 @@ COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
 	&& echo 'Include conf/httpd-magento.conf' >> $HTTPD_CONF_FILE \
-	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE \
-	&& chmod ug+x $MAGENTO_SOURCE/bin/magento
+	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
 
 
 # ============================================================

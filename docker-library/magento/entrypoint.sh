@@ -71,7 +71,13 @@ if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 	fi
 
 	echo "copying Magento source files to $MAGENTO_HOME ..."
-	cp -R $MAGENTO_SOURCE/. $MAGENTO_HOME/ && rm -rf $MAGENTO_SOURCE	
+	cp -R $MAGENTO_SOURCE/. $MAGENTO_HOME/ && rm -rf $MAGENTO_SOURCE
+
+	# see http://devdocs.magento.com/guides/v2.0/install-gde/prereq/file-system-perms.html
+	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type d -exec chmod g+ws {} \;
+	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type f -exec chmod g+w {} \;
+	chown -R www-data:www-data $MAGENTO_HOME/
+	chmod ug+x $MAGENTO_SOURCE/bin/magento
 
 	$MAGENTO_HOME/bin/magento setup:install \
 		--admin-user=$MAGENTO_ADMIN_USER \
@@ -91,12 +97,13 @@ if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 
 	if [ -f $MAGENTO_HOME/app/etc/env.php ]; then
 		echo "switching to PRODUCTION mode..."
-		$MAGENTO_HOME/bin/magento deploy:mode:set production		
+		$MAGENTO_HOME/bin/magento deploy:mode:set production
+
+		# see http://devdocs.magento.com/guides/v2.0/config-guide/prod/prod_file-sys-perms.html
+		find $MAGENTO_HOME/app/code $MAGENTO_HOME/app/etc $MAGENTO_HOME/lib $MAGENTO_HOME/pub/static $MAGENTO_HOME/var/di $MAGENTO_HOME/var/generation $MAGENTO_HOME/var/view_preprocessed $MAGENTO_HOME/vendor \( -type d -or -type f \) -exec chmod g-w {} \; 
+		chmod o-rwx app/etc/env.php
 	fi
 
-	chown -R www-data:www-data $MAGENTO_HOME/
-	find $MAGENTO_HOME/var $MAGENTO_HOME/vendor $MAGENTO_HOME/pub/static $MAGENTO_HOME/pub/media $MAGENTO_HOME/app/etc -type d -exec chmod g+ws {} \;
-	find $MAGENTO_HOME/var $MAGENTO_HOME/vendor $MAGENTO_HOME/pub/static $MAGENTO_HOME/pub/media $MAGENTO_HOME/app/etc -type f -exec chmod g+w {} \;
 
 else
 	if grep "'host' => '127.0.0.1'" "$MAGENTO_HOME/app/etc/env.php"; then
