@@ -49,6 +49,7 @@ ENV MAGENTO_VERSION "2.1.5"
 ENV MAGENTO_PACKAGE "Magento-CE-$MAGENTO_VERSION.tar.gz"
 ENV MAGENTO_SOURCE "/usr/src/magento"
 ENV MAGENTO_HOME "/var/www/magento"
+ENV PATH "$MAGENTO_HOME/bin":$PATH
 
 # phpMyAdmin
 ENV PHPMYADMIN_VERSION "4.6.6"
@@ -62,20 +63,21 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 
 # ====================
 # Download and Install
-# 1. essential tools
+# 1. tools
 # 2. apache httpd
 # 3. php
 # 4. mariadb
 # 5. redis
 # 6. magento ce
 # 7. phpmyadmin
+# 8. cron
 # ====================
 
 WORKDIR $DOCKER_BUILD_HOME
 COPY $MAGENTO_PACKAGE $DOCKER_BUILD_HOME/
 RUN set -ex \
 	# ------------------
-	# 1. essential tools
+	# 1. tools
 	# ------------------
 	&& tools=" \
 		g++ \
@@ -138,17 +140,12 @@ RUN set -ex \
 	&& mkdir -p $PHP_SOURCE \
 	&& mkdir -p $PHP_HOME \
 	## buildtime deps
-	### libbz2-dev >> --with-bz2 >> [phpmyadmin] Bzip2 compression and decompression requires functions (bzopen, bzcompress) which are unavailable on this system.
-	### libgmp-dev >> --with-gmp
-    ### libicu-dev >> --enable-intl
-	### libldap2-dev >> --with-ldap
-	### libmcrypt-dev >> --with-mcrypt
-	### libmhash-dev >> --with-mhash
-	### libxslt-dev >> --with-xsl
 	&& phpBuildtimeDeps="\
 		libbz2-dev \
 		libgmp-dev \
         libicu-dev \
+		libjpeg-dev \
+		libpng12-dev \
 		libldap2-dev \
 		libmcrypt-dev \
 		libmhash-dev \
@@ -157,13 +154,13 @@ RUN set -ex \
 		libxslt-dev \
 	" \
 	## runtime deps
-	### libcurl4-gnutls-dev >> --with-curl
-	### libjpeg-dev, libpng12-dev >> --with-gd, --with-jpeg-dir, --with-png-dir
 	&& phpRuntimeDeps=" \
 		libcurl4-openssl-dev \
-		libjpeg-dev \
-        libpng12-dev \
+		libjpeg8 \
+        libpng12-0 \
+		libmcrypt4 \
 		libxml2 \
+		libxslt1.1 \
 	" \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends $phpBuildtimeDeps $phpRuntimeDeps \	
@@ -199,9 +196,12 @@ RUN set -ex \
 		--with-ldap \
 		--with-mcrypt \
 		--with-mhash \
+		### for phpmyadmin
+		--with-mysqli=mysqlnd \
 		--with-openssl \
 		### see http://php.net/manual/en/mysqlinfo.library.choosing.php
 		--with-pdo-mysql=mysqlnd \
+		--with-xsl \
 	&& make -j "$(nproc)" \
 	&& make install \	
 	## clean up
@@ -250,16 +250,23 @@ RUN set -ex \
 	&& tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_SOURCE --strip-components=1 \
 	&& rm $DOCKER_BUILD_HOME/phpmyadmin.tar.gz \
 
+	# -------
+	# 8. cron
+	# -------
+	&& apt-get update \
+	&& apt-get install cron -y -V --no-install-recommends \
+	&& rm -r /var/lib/apt/lists/* \
+
 	# ----------
-	# . clean up
+	# ~. clean up
 	# ----------
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $tools \
 	&& apt-get autoremove -y	
 
 
-# =========
-# Configure
-# =========
+# ==============
+# Configurations 
+# ==============
 
 # httpd confs
 COPY httpd.conf $HTTPD_CONF_DIR/
@@ -267,59 +274,42 @@ COPY httpd-modules.conf $HTTPD_CONF_DIR/
 COPY httpd-php.conf $HTTPD_CONF_DIR/
 COPY httpd-magento.conf $HTTPD_CONF_DIR/
 COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
-
 # php confs
+COPY php.ini $PHP_CONF_DIR/
 COPY php-log.ini $PHP_CONF_DIR_SCAN/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
-
-# phpmyadmin conf
+# phpmyadmin config
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
-
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
 	&& echo 'Include conf/httpd-magento.conf' >> $HTTPD_CONF_FILE \
 	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
 
 
-# ============================================================
-# Azure Web App on Linux configurations:
+# =====================================
+# Azure Web App on Linux configurations
+# =====================================
 # /home is a shared directory among multiple web app instances
 # /home/site/wwwroot for Magento site
 # /home/phpmyadmin for phpMyAdmin site
 # /home/data for native MariaDB data dir
 # /home/LogFiles/httpd for httpd/php/magento/phpmyadmin logs
 # /home/LogFiles/mariadb for mariadb logs
-# ============================================================
 
-ENV MAGENTO_HOME_AZURE "/home/site/wwwroot"
+ENV AZURE_SITE_ROOT "/home/site/wwwroot"
 ENV PHPMYADMIN_HOME_AZURE "/home/phpmyadmin"
 ENV MARIADB_DATA_DIR_AZURE "/home/data"
 ENV HTTPD_LOG_DIR_AZURE "/home/LogFiles/httpd"
 ENV MARIADB_LOG_DIR_AZURE "/home/LogFiles/mariadb"
 
-RUN set -ex \
-	&& test ! -d /var/www && mkdir -p /var/www \
-	# magento
-	&& rm -rf $MAGENTO_HOME \
-	&& ln -s $MAGENTO_HOME_AZURE $MAGENTO_HOME \
-	# phpmyadmin
-	&& rm -rf $PHPMYADMIN_HOME \
-	&& ln -s $PHPMYADMIN_HOME_AZURE $PHPMYADMIN_HOME \
-	# mariadb
-	&& mkdir -p $MARIADB_DATA_DIR_TEMP \
-	&& cp -R $MARIADB_DATA_DIR/* $MARIADB_DATA_DIR_TEMP/ \
-	&& rm -rf $MARIADB_DATA_DIR \
-	&& ln -s $MARIADB_DATA_DIR_AZURE $MARIADB_DATA_DIR \
-	# httpd, php, magento, phpmyadmin logs
-	&& rm -rf $HTTPD_LOG_DIR \
-	&& ln -s $HTTPD_LOG_DIR_AZURE $HTTPD_LOG_DIR \
-	# mariadb log
-	&& rm -rf $MARIADB_LOG_DIR \
-	&& ln -s $MARIADB_LOG_DIR_AZURE $MARIADB_LOG_DIR
 
 # =====
 # final
 # =====
 COPY entrypoint.sh /usr/local/bin/
+RUN set -ex \
+	&& chmod +x /usr/local/bin/entrypoint.sh \
+	&& test ! -d /var/www && mkdir -p /var/www
 EXPOSE 80
 ENTRYPOINT ["entrypoint.sh"]
+
