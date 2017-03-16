@@ -68,6 +68,8 @@ if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 		mysql -u root -e "create user '$PHPMYADMIN_USERNAME'@'127.0.0.1' identified by '$PHPMYADMIN_PASSWORD'; grant all on *.* to '$PHPMYADMIN_USERNAME'@'127.0.0.1' with grant option; flush privileges;"	
 		# start native Redis server
 		redis-server --daemonize yes
+		# start cron
+		service cron start
 	fi
 
 	echo "copying Magento source files to $MAGENTO_HOME ..."
@@ -98,6 +100,8 @@ if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 	if [ -f $MAGENTO_HOME/app/etc/env.php ]; then
 		echo "switching to PRODUCTION mode..."
 		$MAGENTO_HOME/bin/magento deploy:mode:set production
+		# magento cron jobs
+		$MAGENTO_HOME/bin/magento cron:run && $MAGENTO_HOME/bin/magento cron:run
 		# change the user/group again after switching
 		chown -R www-data:www-data $MAGENTO_HOME/
 	fi
@@ -105,14 +109,9 @@ else
 	if grep "'host' => '127.0.0.1'" "$MAGENTO_HOME/app/etc/env.php"; then
 		service mysql start
 		redis-server --daemonize yes
+		service cron start
 	fi
 fi
-
-# We must run cron twice: the first time to discover tasks to run and the second time to run the tasks themselves.
-# see http://devdocs.magento.com/guides/v2.0/config-guide/cli/config-cli-subcommands-cron.html#config-cli-cron-bkg
-echo "running magento cron jobs"
-magento cron:run
-magento cron:run
 
 # start Apache HTTPD
 httpd -DFOREGROUND

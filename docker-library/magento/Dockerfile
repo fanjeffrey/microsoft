@@ -255,6 +255,7 @@ RUN set -ex \
 	# -------
 	&& apt-get update \
 	&& apt-get install cron -y -V --no-install-recommends \
+	&& rm -r /var/lib/apt/lists/* \
 
 	# ----------
 	# ~. clean up
@@ -283,12 +284,6 @@ RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
 	&& echo 'Include conf/httpd-magento.conf' >> $HTTPD_CONF_FILE \
 	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
-
-# =========
-# cron jobs
-# =========
-COPY magento-cronjobs /cronjobs/
-RUN crontab /cronjobs/magento-cronjobs
 
 
 # ============================================================
