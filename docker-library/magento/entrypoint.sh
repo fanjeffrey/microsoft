@@ -7,10 +7,7 @@ set_var_if_null(){
 	fi
 }
 
-# That app/etc/env.php doesn't exist means Magento is not installed/configured yet.
-if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
-	echo "env.app not found. installing magento ..."
-
+process_vars(){
 	# see http://devdocs.magento.com/guides/v2.1/install-gde/install/cli/install-cli-install.html
 	set_var_if_null 'MAGENTO_ADMIN_USER' 'admin'
 	set_var_if_null 'MAGENTO_ADMIN_PASSWORD' 'MS173m_QN'
@@ -24,58 +21,88 @@ if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 	set_var_if_null 'MAGENTO_DB_USERNAME' 'magento'
 	set_var_if_null 'MAGENTO_DB_PASSWORD' 'MS173m_QN'
 	set_var_if_null 'MAGENTO_DB_PREFIX' 'm2_'
-	
+
 	# replace {'localhost',,} with '127.0.0.1'
 	if [ "${MAGENTO_DB_HOST,,}" = "localhost" ]; then
 		export MAGENTO_DB_HOST="127.0.0.1"
 		echo "Replace localhost with 127.0.0.1 ... $MAGENTO_DB_HOST"
-	fi       	
-
-	# Because Azure Web App on Linux uses /home/site/wwwroot,
-	# so if /home/site/wwwroot doesn't exist, 
-	# we think the container is not running on Auzre.
-	if [ ! -d "$MAGENTO_HOME_AZURE" ]; then
-		echo "INFO: $MAGENTO_HOME_AZURE not found!"
-		rm -rf $MAGENTO_HOME && mkdir -p $MAGENTO_HOME
-		rm -rf $PHPMYADMIN_HOME && mkdir -p $PHPMYADMIN_HOME
-		rm -rf $MARIADB_DATA_DIR && mkdir -p $MARIADB_DATA_DIR
-		rm -rf $HTTPD_LOG_DIR && mkdir -p $HTTPD_LOG_DIR
-		rm -rf $MARIADB_LOG_DIR && mkdir -p $MARIADB_LOG_DIR
-	else
-		test ! -d $PHPMYADMIN_HOME_AZURE && mkdir -p $PHPMYADMIN_HOME_AZURE
-		test ! -d $MARIADB_DATA_DIR_AZURE && mkdir -p $MARIADB_DATA_DIR_AZURE
-		test ! -d $HTTPD_LOG_DIR_AZURE && mkdir -p $HTTPD_LOG_DIR_AZURE
-		test ! -d $MARIADB_LOG_DIR_AZURE && mkdir -p $MARIADB_LOG_DIR_AZURE
 	fi
-	
-	cp -R $PHPMYADMIN_SOURCE/. $PHPMYADMIN_HOME/ && chown -R www-data:www-data $PHPMYADMIN_HOME/ && rm -rf $PHPMYADMIN_SOURCE
-	cp -R $MARIADB_DATA_DIR_TEMP/. $MARIADB_DATA_DIR/ && chown -R mysql:mysql $MARIADB_DATA_DIR/ && rm -rf $MARIADB_DATA_DIR_TEMP
-	chown -R www-data:www-data $HTTPD_LOG_DIR/
-	chown -R mysql:mysql $MARIADB_LOG_DIR/
+}
 
-	# check if use native MariaDB
-	# if yes, we allow users to use native phpMyAdmin and native Redis server
+setup_httpd_log_dir(){	
+	rm -rf $HTTPD_LOG_DIR
+
+	if [ -d "$AZURE_SITE_ROOT" ]; then
+		test ! -d $HTTPD_LOG_DIR_AZURE && mkdir -p $HTTPD_LOG_DIR_AZURE
+		ln -s $HTTPD_LOG_DIR_AZURE $HTTPD_LOG_DIR
+	else
+		mkdir -p $HTTPD_LOG_DIR
+	fi
+
+	chown -R www-data:www-data $HTTPD_LOG_DIR/
+}
+
+startup_local_servers_if(){
+	# Check if the local MariaDB is used.
+	# If yes, we allow users to use cron and local Redis.
 	if [ $MAGENTO_DB_HOST = "127.0.0.1" ]; then
 		echo "using $MAGENTO_DB_HOST as database host ..."
-		# set vars for phpMyAdmin if not provided
+		# MariaDB
+		if [ -d "$AZURE_SITE_ROOT" ]; then
+			test ! -d $MARIADB_DATA_DIR_AZURE && mkdir -p $MARIADB_DATA_DIR_AZURE
+			cp -R $MARIADB_DATA_DIR/. $MARIADB_DATA_DIR_AZURE/
+			rm -rf $MARIADB_DATA_DIR && ln -s $MARIADB_DATA_DIR_AZURE $MARIADB_DATA_DIR
+			test ! -d $MARIADB_LOG_DIR_AZURE && mkdir -p $MARIADB_LOG_DIR_AZURE
+			rm -rf $MARIADB_LOG_DIR	&& ln -s $MARIADB_LOG_DIR_AZURE $MARIADB_LOG_DIR
+		fi
+		chown -R mysql:mysql $MARIADB_DATA_DIR/
+		chown -R mysql:mysql $MARIADB_LOG_DIR/
+		service mysql start
+		# Redis
+		redis-server --daemonize yes
+		# cron
+		service cron start
+	fi
+}
+
+setup_phpmyadmin_if(){
+	if [ $MAGENTO_DB_HOST = "127.0.0.1" ]; then
 		set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
 		set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
-		# start native database 
-		service mysql start
-		# create database and databse user for Magento
-		mysql -u root -e "create database $MAGENTO_DB_NAME; grant all on $MAGENTO_DB_NAME.* to '$MAGENTO_DB_USERNAME'@'127.0.0.1' identified by '$MAGENTO_DB_PASSWORD'; flush privileges;"
-		# create database user for phpMyAdmin
+
 		mysql -u root -e "create user '$PHPMYADMIN_USERNAME'@'127.0.0.1' identified by '$PHPMYADMIN_PASSWORD'; grant all on *.* to '$PHPMYADMIN_USERNAME'@'127.0.0.1' with grant option; flush privileges;"	
-		# start native Redis server
-		redis-server --daemonize yes
-		# start cron
-		service cron start
+		
+		if [ -d "$AZURE_SITE_ROOT" ]; then
+			test ! -d $PHPMYADMIN_HOME_AZURE && mkdir -p $PHPMYADMIN_HOME_AZURE
+			ln -s $PHPMYADMIN_HOME_AZURE $PHPMYADMIN_HOME
+		else
+			mkdir -p $PHPMYADMIN_HOME
+		fi
+		cp -R $PHPMYADMIN_SOURCE/. $PHPMYADMIN_HOME/
+		rm -rf $PHPMYADMIN_SOURCE
+		chown -R www-data:www-data $PHPMYADMIN_HOME/
+	fi
+}
+
+setup_magento(){
+	if [ $MAGENTO_DB_HOST = "127.0.0.1" ]; then
+		# create Magento database and database user
+		mysql -u root -e "create database $MAGENTO_DB_NAME; grant all on $MAGENTO_DB_NAME.* to '$MAGENTO_DB_USERNAME'@'127.0.0.1' identified by '$MAGENTO_DB_PASSWORD'; flush privileges;"
+	fi
+
+	# Because Azure Web App on Linux uses /home/site/wwwroot,
+	# so if /home/site/wwwroot exists,
+	# we think the container is running on Auzre.
+	if [ -d "$AZURE_SITE_ROOT" ]; then
+		ln -s $AZURE_SITE_ROOT $MAGENTO_HOME
+	else
+		mkdir -p $MAGENTO_HOME
 	fi
 
 	echo "copying Magento source files to $MAGENTO_HOME ..."
 	cp -R $MAGENTO_SOURCE/. $MAGENTO_HOME/ && rm -rf $MAGENTO_SOURCE
 
-	# see http://devdocs.magento.com/guides/v2.0/install-gde/prereq/file-system-perms.html
+	# see http://devdocs.magento.com/guides/v2.1/install-gde/prereq/file-system-perms.html
 	chown -R www-data:www-data $MAGENTO_HOME/
 	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type d -exec chmod g+ws {} \;
 	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type f -exec chmod g+w {} \;
@@ -101,10 +128,21 @@ if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 		echo "switching to PRODUCTION mode..."
 		$MAGENTO_HOME/bin/magento deploy:mode:set production
 		# magento cron jobs
+		# see http://devdocs.magento.com/guides/v2.1/config-guide/cli/config-cli-subcommands-cron.html
 		$MAGENTO_HOME/bin/magento cron:run && $MAGENTO_HOME/bin/magento cron:run
 		# change the user/group again after switching
 		chown -R www-data:www-data $MAGENTO_HOME/
 	fi
+}
+
+# That app/etc/env.php doesn't exist means Magento is not installed/configured yet.
+if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
+	echo "$MAGENTO_HOME/app/etc/env.app not found. installing magento ..."
+	process_vars
+	setup_httpd_log_dir
+	startup_local_servers_if
+	setup_phpmyadmin_if
+	setup_magento
 else
 	if grep "'host' => '127.0.0.1'" "$MAGENTO_HOME/app/etc/env.php"; then
 		service mysql start
@@ -115,3 +153,4 @@ fi
 
 # start Apache HTTPD
 httpd -DFOREGROUND
+

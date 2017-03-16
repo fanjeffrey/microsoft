@@ -286,46 +286,30 @@ RUN set -ex \
 	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
 
 
-# ============================================================
-# Azure Web App on Linux configurations:
+# =====================================
+# Azure Web App on Linux configurations
+# =====================================
 # /home is a shared directory among multiple web app instances
 # /home/site/wwwroot for Magento site
 # /home/phpmyadmin for phpMyAdmin site
 # /home/data for native MariaDB data dir
 # /home/LogFiles/httpd for httpd/php/magento/phpmyadmin logs
 # /home/LogFiles/mariadb for mariadb logs
-# ============================================================
 
-ENV MAGENTO_HOME_AZURE "/home/site/wwwroot"
+ENV AZURE_SITE_ROOT "/home/site/wwwroot"
 ENV PHPMYADMIN_HOME_AZURE "/home/phpmyadmin"
 ENV MARIADB_DATA_DIR_AZURE "/home/data"
 ENV HTTPD_LOG_DIR_AZURE "/home/LogFiles/httpd"
 ENV MARIADB_LOG_DIR_AZURE "/home/LogFiles/mariadb"
 
-RUN set -ex \
-	&& test ! -d /var/www && mkdir -p /var/www \
-	# magento
-	&& rm -rf $MAGENTO_HOME \
-	&& ln -s $MAGENTO_HOME_AZURE $MAGENTO_HOME \
-	# phpmyadmin
-	&& rm -rf $PHPMYADMIN_HOME \
-	&& ln -s $PHPMYADMIN_HOME_AZURE $PHPMYADMIN_HOME \
-	# mariadb
-	&& mkdir -p $MARIADB_DATA_DIR_TEMP \
-	&& cp -R $MARIADB_DATA_DIR/. $MARIADB_DATA_DIR_TEMP/ \
-	&& rm -rf $MARIADB_DATA_DIR \
-	&& ln -s $MARIADB_DATA_DIR_AZURE $MARIADB_DATA_DIR \
-	# httpd, php, magento, phpmyadmin logs
-	&& rm -rf $HTTPD_LOG_DIR \
-	&& ln -s $HTTPD_LOG_DIR_AZURE $HTTPD_LOG_DIR \
-	# mariadb log
-	&& rm -rf $MARIADB_LOG_DIR \
-	&& ln -s $MARIADB_LOG_DIR_AZURE $MARIADB_LOG_DIR
 
 # =====
 # final
 # =====
 COPY entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN set -ex \
+	&& chmod +x /usr/local/bin/entrypoint.sh \
+	&& test ! -d /var/www && mkdir -p /var/www
 EXPOSE 80
 ENTRYPOINT ["entrypoint.sh"]
+
