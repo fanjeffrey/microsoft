@@ -82,6 +82,8 @@ setup_phpmyadmin_if(){
 		rm -rf $PHPMYADMIN_SOURCE
 		chown -R www-data:www-data $PHPMYADMIN_HOME/
 	fi
+
+	echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
 }
 
 setup_magento(){
@@ -103,8 +105,11 @@ setup_magento(){
 	cp -R $MAGENTO_SOURCE/. $MAGENTO_HOME/ && rm -rf $MAGENTO_SOURCE
 
 	# see http://devdocs.magento.com/guides/v2.1/install-gde/prereq/file-system-perms.html
+	echo "chown -R www-data:www-data $MAGENTO_HOME/ ..."
 	chown -R www-data:www-data $MAGENTO_HOME/
+	echo "chmod g+ws for the dirs: app/etc, public/media, public/static, var, and vendor ..."
 	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type d -exec chmod g+ws {} \;
+	echo "chmod g+w for the files: app/etc, public/media, public/static, var, and vendor ..."
 	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type f -exec chmod g+w {} \;
 	chmod ug+x $MAGENTO_HOME/bin/magento
 
@@ -133,6 +138,8 @@ setup_magento(){
 		# change the user/group again after switching
 		chown -R www-data:www-data $MAGENTO_HOME/
 	fi
+
+	echo 'Include conf/httpd-magento.conf' >> $HTTPD_CONF_FILE
 }
 
 # That app/etc/env.php doesn't exist means Magento is not installed/configured yet.
@@ -140,9 +147,15 @@ if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 	echo "$MAGENTO_HOME/app/etc/env.app not found. installing magento ..."
 	process_vars
 	setup_httpd_log_dir
+
+	apachectl start
+
 	startup_local_servers_if
 	setup_phpmyadmin_if
 	setup_magento
+
+	echo "killing all httpds ..."
+	kill -TERM `cat /usr/local/httpd/logs/httpd.pid`
 else
 	if grep "'host' => '127.0.0.1'" "$MAGENTO_HOME/app/etc/env.php"; then
 		service mysql start
@@ -152,5 +165,6 @@ else
 fi
 
 # start Apache HTTPD
+echo "starting httpd -DFOREGROUND ..."
 httpd -DFOREGROUND
 
