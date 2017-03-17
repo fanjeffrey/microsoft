@@ -1,0 +1,190 @@
+{
+    "parameters": {
+        "siteName": {
+            "type": "string"
+        },
+        "servicePlanName": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "West US",
+            "allowedValues": [
+                "West US",
+                "West Europe",
+                "Southeast Asia"
+            ]
+        },
+        "sku": {
+            "type": "string",
+            "defaultValue": "S2",
+            "allowedValues": [
+                "B1",
+                "B2",
+                "B3",
+                "S1",
+                "S2",
+                "S3"
+            ]
+        },
+        "dockerRegistryImageName": {
+            "type": "string",
+            "defaultValue": "fanjeffrey/magento:ce-2.1.5"
+        },
+        "magentoAdminUser": {
+            "type": "string",
+            "defaultValue": "admin"
+        },
+        "magentoAdminPassword": {
+            "type": "securestring",
+            "defaultValue": "MS173m_QN"
+        },
+        "magentoAdminFirstname": {
+            "type": "string",
+            "defaultValue": "firstname"
+        },
+        "magentoAdminLastname": {
+            "type": "string",
+            "defaultValue": "lastname"
+        },
+        "magentoAdminEmail": {
+            "type": "string",
+            "defaultValue": "admin@example.com"
+        },
+        "magentoBackendFrontname": {
+            "type": "string",
+            "defaultValue": "admin_1qn"
+        },
+        "magentoBaseUrl": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "magentoDatabaseHost": {
+            "type": "string",
+            "defaultValue": "127.0.0.1"
+        },
+        "magentoDatabaseName": {
+            "type": "string",
+            "defaultValue": "magento"
+        },
+        "magentoDatabaseUsername": {
+            "type": "string",
+            "defaultValue": "magento"
+        },
+        "magentoDatabasePassword": {
+            "type": "securestring",
+            "defaultValue": "MS173m_QN"
+        },
+        "magentoTablePrefix": {
+            "type": "string",
+            "defaultValue": "m2_"
+        },
+        "phpmyadminUsername": {
+            "type": "string",
+            "defaultValue": "phpmyadmin"
+        },
+        "phpmyadminPassword": {
+            "type": "securestring",
+            "defaultValue": "MS173m_QN"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "name": "[parameters('siteName')]",
+            "properties": {
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "DOCKER_CUSTOM_IMAGE_NAME",
+                            "value": "[parameters('dockerRegistryImageName')]"
+                        },
+                        {
+                            "name": "MAGENTO_ADMIN_USER",
+                            "value": "[parameters('magentoAdminUser')]"
+                        },
+                        {
+                            "name": "MAGENTO_ADMIN_PASSWORD",
+                            "value": "[parameters('magentoAdminPassword')]"
+                        },
+                        {
+                            "name": "MAGENTO_ADMIN_FIRSTNAME",
+                            "value": "[parameters('magentoAdminFirstname')]"
+                        },
+                        {
+                            "name": "MAGENTO_ADMIN_LASTNAME",
+                            "value": "[parameters('magentoAdminLastname')]"
+                        },
+                        {
+                            "name": "MAGENTO_ADMIN_EMAIL",
+                            "value": "[parameters('magentoAdminEmail')]"
+                        },
+                        {
+                            "name": "MAGENTO_BACKEND_FRONTNAME",
+                            "value": "[parameters('magentoBackendFrontname')]"
+                        },
+                        {
+                            "name": "MAGENTO_BASE_URL",
+                            "value": "[parameters('magentoBaseUrl')]"
+                        },
+                        {
+                            "name": "MAGENTO_DB_HOST",
+                            "value": "[parameters('magentoDatabaseHost')]"
+                        },
+                        {
+                            "name": "MAGENTO_DB_NAME",
+                            "value": "[parameters('magentoDatabaseName')]"
+                        },
+                        {
+                            "name": "MAGENTO_DB_USERNAME",
+                            "value": "[parameters('magentoDatabaseUsername')]"
+                        },
+                        {
+                            "name": "MAGENTO_DB_PASSWORD",
+                            "value": "[parameters('magentoDatabasePassword')]"
+                        },
+                        {
+                            "name": "MAGENTO_DB_PREFIX",
+                            "value": "[parameters('magentoTablePrefix')]"
+                        },
+                        {
+                            "name": "PHPMYADMIN_USERNAME",
+                            "value": "[parameters('phpmyadminUsername')]"
+                        },
+                        {
+                            "name": "PHPMYADMIN_PASSWORD",
+                            "value": "[parameters('phpmyadminPassword')]"
+                        }
+                    ]
+                },
+                "name": "[parameters('siteName')]",
+                "serverFarmId": "[parameters('servicePlanName')]",
+                "hostingEnvironment": ""
+            },
+            "apiVersion": "2016-03-01",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[parameters('servicePlanName')]"
+            ]
+        },
+        {
+            "apiVersion": "2016-09-01",
+            "name": "[parameters('servicePlanName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "location": "[parameters('location')]",
+            "properties": {
+                "name": "[parameters('servicePlanName')]",
+                "workerSizeId": "1",
+                "reserved": true,
+                "numberOfWorkers": "1",
+                "hostingEnvironment": ""
+            },
+            "sku": {
+                "Name": "[parameters('sku')]"
+            },
+            "kind": "linux"
+        }
+    ],
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0"
+}
