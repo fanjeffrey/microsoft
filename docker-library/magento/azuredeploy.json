@@ -17,12 +17,10 @@
         },
         "sku": {
             "type": "string",
-            "defaultValue": "S2",
+            "defaultValue": "S3",
             "allowedValues": [
-                "B1",
                 "B2",
                 "B3",
-                "S1",
                 "S2",
                 "S3"
             ]

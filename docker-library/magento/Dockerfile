@@ -282,8 +282,8 @@ COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
-	&& echo 'Include conf/httpd-magento.conf' >> $HTTPD_CONF_FILE \
-	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
+	&& test ! -d /var/lib/php/sessions && mkdir -p /var/lib/php/sessions \
+	&& chown www-data:www-data /var/lib/php/sessions
 
 
 # =====================================
@@ -309,7 +309,10 @@ ENV MARIADB_LOG_DIR_AZURE "/home/LogFiles/mariadb"
 COPY entrypoint.sh /usr/local/bin/
 RUN set -ex \
 	&& chmod +x /usr/local/bin/entrypoint.sh \
-	&& test ! -d /var/www && mkdir -p /var/www
+	&& test ! -d /var/www && mkdir -p /var/www \
+	&& echo '<html><head><meta http-equiv="refresh" content="5" /><title>Installing Magento ...</title></head><body>Installing Magento ... This will be done in minutes.</body></html>' > /var/www/index.html \
+	&& chown -R www-data:www-data /var/www \
+	&& chmod 664 /var/www/index.html	
 EXPOSE 80
 ENTRYPOINT ["entrypoint.sh"]
 
