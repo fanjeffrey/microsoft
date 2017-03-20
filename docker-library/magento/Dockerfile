@@ -310,7 +310,7 @@ COPY entrypoint.sh /usr/local/bin/
 RUN set -ex \
 	&& chmod +x /usr/local/bin/entrypoint.sh \
 	&& test ! -d /var/www && mkdir -p /var/www \
-	&& echo '<html><head><meta http-equiv="refresh" content="5" /><title>Installing Magento ...</title></head><body>Installing Magento ... This will be done in minutes.</body></html>' > /var/www/index.html \
+	&& echo '<html><head><meta http-equiv="refresh" content="5" /><title>Installing Magento ...</title></head><body>Installing Magento ... This could be done in minutes. But it will take longer if running on Azure Web App for Linux.</body></html>' > /var/www/index.html \
 	&& chown -R www-data:www-data /var/www \
 	&& chmod 664 /var/www/index.html	
 EXPOSE 80

@@ -42,46 +42,34 @@ setup_httpd_log_dir(){
 	chown -R www-data:www-data $HTTPD_LOG_DIR/
 }
 
-startup_local_servers_if(){
-	# Check if the local MariaDB is used.
-	# If yes, we allow users to use cron and local Redis.
-	if [ $MAGENTO_DB_HOST = "127.0.0.1" ]; then
-		echo "using $MAGENTO_DB_HOST as database host ..."
-		# MariaDB
-		if [ -d "$AZURE_SITE_ROOT" ]; then
-			test ! -d $MARIADB_DATA_DIR_AZURE && mkdir -p $MARIADB_DATA_DIR_AZURE
-			cp -R $MARIADB_DATA_DIR/. $MARIADB_DATA_DIR_AZURE/
-			rm -rf $MARIADB_DATA_DIR && ln -s $MARIADB_DATA_DIR_AZURE $MARIADB_DATA_DIR
-			test ! -d $MARIADB_LOG_DIR_AZURE && mkdir -p $MARIADB_LOG_DIR_AZURE
-			rm -rf $MARIADB_LOG_DIR	&& ln -s $MARIADB_LOG_DIR_AZURE $MARIADB_LOG_DIR
-		fi
-		chown -R mysql:mysql $MARIADB_DATA_DIR/
-		chown -R mysql:mysql $MARIADB_LOG_DIR/
-		service mysql start
-		# Redis
-		redis-server --daemonize yes
-		# cron
-		service cron start
+setup_mariadb(){
+	if [ -d "$AZURE_SITE_ROOT" ]; then
+		test ! -d $MARIADB_DATA_DIR_AZURE && mkdir -p $MARIADB_DATA_DIR_AZURE
+		cp -R $MARIADB_DATA_DIR/. $MARIADB_DATA_DIR_AZURE/
+		rm -rf $MARIADB_DATA_DIR && ln -s $MARIADB_DATA_DIR_AZURE $MARIADB_DATA_DIR
+		test ! -d $MARIADB_LOG_DIR_AZURE && mkdir -p $MARIADB_LOG_DIR_AZURE
+		rm -rf $MARIADB_LOG_DIR	&& ln -s $MARIADB_LOG_DIR_AZURE $MARIADB_LOG_DIR
 	fi
+	chown -R mysql:mysql $MARIADB_DATA_DIR/
+	chown -R mysql:mysql $MARIADB_LOG_DIR/
+	service mysql start
 }
 
-setup_phpmyadmin_if(){
-	if [ $MAGENTO_DB_HOST = "127.0.0.1" ]; then
-		set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
-		set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
+setup_phpmyadmin(){
+	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
+	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
 
-		mysql -u root -e "create user '$PHPMYADMIN_USERNAME'@'127.0.0.1' identified by '$PHPMYADMIN_PASSWORD'; grant all on *.* to '$PHPMYADMIN_USERNAME'@'127.0.0.1' with grant option; flush privileges;"	
-		
-		if [ -d "$AZURE_SITE_ROOT" ]; then
-			test ! -d $PHPMYADMIN_HOME_AZURE && mkdir -p $PHPMYADMIN_HOME_AZURE
-			ln -s $PHPMYADMIN_HOME_AZURE $PHPMYADMIN_HOME
-		else
-			mkdir -p $PHPMYADMIN_HOME
-		fi
-		cp -R $PHPMYADMIN_SOURCE/. $PHPMYADMIN_HOME/
-		rm -rf $PHPMYADMIN_SOURCE
-		chown -R www-data:www-data $PHPMYADMIN_HOME/
+	mysql -u root -e "create user '$PHPMYADMIN_USERNAME'@'127.0.0.1' identified by '$PHPMYADMIN_PASSWORD'; grant all on *.* to '$PHPMYADMIN_USERNAME'@'127.0.0.1' with grant option; flush privileges;"	
+
+	if [ -d "$AZURE_SITE_ROOT" ]; then
+		test ! -d $PHPMYADMIN_HOME_AZURE && mkdir -p $PHPMYADMIN_HOME_AZURE
+		ln -s $PHPMYADMIN_HOME_AZURE $PHPMYADMIN_HOME
+	else
+		mkdir -p $PHPMYADMIN_HOME
 	fi
+	cp -R $PHPMYADMIN_SOURCE/. $PHPMYADMIN_HOME/
+	rm -rf $PHPMYADMIN_SOURCE
+	chown -R www-data:www-data $PHPMYADMIN_HOME/
 
 	echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
 }
@@ -147,15 +135,27 @@ if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 	echo "$MAGENTO_HOME/app/etc/env.app not found. installing magento ..."
 	process_vars
 	setup_httpd_log_dir
-
 	apachectl start
 
-	startup_local_servers_if
-	setup_phpmyadmin_if
+	# If the local MariaDB is used.
+	if [ $MAGENTO_DB_HOST = "127.0.0.1" ]; then
+		echo "using $MAGENTO_DB_HOST as database host ..."
+		setup_mariadb
+	fi
+
 	setup_magento
 
 	echo "killing all httpds ..."
 	kill -TERM `cat /usr/local/httpd/logs/httpd.pid`
+
+	# If the local MariaDB is used,
+	# setup phpMyAdmin, 
+	# start redis and cron.
+	if [ $MAGENTO_DB_HOST = "127.0.0.1" ]; then
+		setup_phpmyadmin
+	        redis-server --daemonize yes
+	        service cron start
+	fi
 else
 	if grep "'host' => '127.0.0.1'" "$MAGENTO_HOME/app/etc/env.php"; then
 		service mysql start
