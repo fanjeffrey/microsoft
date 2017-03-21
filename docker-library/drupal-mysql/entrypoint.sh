@@ -90,9 +90,9 @@ setup_drupal(){
 	echo 'Include conf/httpd-drupal.conf' >> $HTTPD_CONF_FILE
 }
 
-# That app/etc/env.php doesn't exist means Drupal is not installed/configured yet.
-if [ ! -f "$DRUPAL_HOME/app/etc/env.php" ]; then
-	echo "$DRUPAL_HOME/app/etc/env.app not found. installing drupal ..."
+# That sites/default/settings.php doesn't exist means Drupal is not installed/configured yet.
+if [ ! -f "$DRUPAL_HOME/sites/default/settings.php" ]; then
+	echo "$DRUPAL_HOME/sites/default/settings.php not found. installing drupal ..."
 	process_vars
 	setup_httpd_log_dir
 	apachectl start
@@ -105,8 +105,7 @@ if [ ! -f "$DRUPAL_HOME/app/etc/env.php" ]; then
 
 	setup_drupal
 
-	echo "killing all httpds ..."
-	kill -TERM `cat /usr/local/httpd/logs/httpd.pid`
+	apachectl stop
 
 	# If the local MariaDB is used,
 	# setup phpMyAdmin, 
@@ -116,8 +115,10 @@ if [ ! -f "$DRUPAL_HOME/app/etc/env.php" ]; then
 		service cron start
 	fi
 else
-	if grep "'host' => '127.0.0.1'" "$DRUPAL_HOME/app/etc/env.php"; then
+	if grep "'host' => '127.0.0.1" "$DRUPAL_HOME/sites/default/settings.php"; then
+		echo "start mysql on rebooting ..." >> /dockerbuild/log_debug
 		service mysql start
+		echo "start cron on rebooting ..." >> /dockerbuild/log_debug
 		service cron start
 	fi
 fi
