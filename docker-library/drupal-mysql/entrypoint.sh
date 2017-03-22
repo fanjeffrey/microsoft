@@ -109,17 +109,13 @@ if [ ! -f "$DRUPAL_HOME/sites/default/settings.php" ]; then
 
 	# If the local MariaDB is used,
 	# setup phpMyAdmin, 
-	# start redis and cron.
 	if [ $DRUPAL_DB_HOST = "127.0.0.1" ]; then
 		setup_phpmyadmin
-		service cron start
 	fi
 else
 	if grep "'host' => '127.0.0.1" "$DRUPAL_HOME/sites/default/settings.php"; then
 		echo "start mysql on rebooting ..." >> /dockerbuild/log_debug
 		service mysql start
-		echo "start cron on rebooting ..." >> /dockerbuild/log_debug
-		service cron start
 	fi
 fi
 

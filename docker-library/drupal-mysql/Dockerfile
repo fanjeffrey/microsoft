@@ -35,14 +35,6 @@ ENV MARIADB_DATA_DIR="/var/lib/mysql"
 ENV MARIADB_LOG_DIR="/var/log/mysql"
 ENV MARIADB_DATA_DIR_TEMP="/tmp/mariadb"
 
-# redis
-ENV REDIS_VERSION "3.2.8"
-ENV REDIS_DOWNLOAD_URL "http://download.redis.io/releases/redis-$REDIS_VERSION.tar.gz"
-ENV REDIS_SHA1 "6780d1abb66f33a97aad0edbe020403d0a15b67f"
-ENV REDIS_SOURCE "/usr/src/redis"
-ENV REDIS_HOME "/usr/local/redis"
-ENV PATH "$REDIS_HOME/bin":$PATH
-
 # drupal
 ENV DRUPAL_VERSION "8.3.0-rc1"
 ENV DRUPAL_DOWNLOAD_URL "https://ftp.drupal.org/files/projects/drupal-$DRUPAL_VERSION.tar.gz"
@@ -68,7 +60,6 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 # 4. mariadb
 # 5. drupal
 # 6. phpmyadmin
-# 7. cron
 # ====================
 
 WORKDIR $DOCKER_BUILD_HOME
@@ -233,13 +224,6 @@ RUN set -ex \
 	&& tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_SOURCE --strip-components=1 \
 	&& rm $DOCKER_BUILD_HOME/phpmyadmin.tar.gz \
 
-	# -------
-	# 7. cron
-	# -------
-	&& apt-get update \
-	&& apt-get install cron -y -V --no-install-recommends \
-	&& rm -r /var/lib/apt/lists/* \
-
 	# -----------
 	# ~. clean up
 	# -----------
@@ -293,7 +277,7 @@ COPY entrypoint.sh /usr/local/bin/
 RUN set -ex \
 	&& chmod +x /usr/local/bin/entrypoint.sh \
 	&& test ! -d /var/www && mkdir -p /var/www \
-	&& echo '<html><head><meta http-equiv="refresh" content="15" /><title>Installing Drupal ...</title></head><body>Installing Drupal ... This could be done in minutes.</body></html>' > /var/www/index.html \
+	&& echo '<html><head><meta http-equiv="refresh" content="5" /><title>Installing Drupal ...</title></head><body>Installing Drupal ... This could be done in minutes.</body></html>' > /var/www/index.html \
 	&& chown -R www-data:www-data /var/www \
 	&& chmod 664 /var/www/index.html	
 EXPOSE 80
