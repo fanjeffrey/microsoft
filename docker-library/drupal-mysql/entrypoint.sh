@@ -51,7 +51,7 @@ setup_phpmyadmin(){
 	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
 	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
 
-	echo "Creating user for phpMyAdmin ..."
+	echo "`date` Creating user for phpMyAdmin ..."
 	mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
 	if [ -d "$AZURE_SITE_ROOT" ]; then
@@ -77,10 +77,10 @@ setup_drupal(){
 		mkdir -p $DRUPAL_HOME
 	fi
 
-	echo "Copying drupal source files to $DRUPAL_HOME ..."
+	echo "`date` Copying drupal source files to $DRUPAL_HOME ..."
 	cp -R $DRUPAL_SOURCE/. $DRUPAL_HOME/ && rm -rf $DRUPAL_SOURCE
 
-	echo "chown -R www-data:www-data $DRUPAL_HOME/ ..."
+	echo "`date` chown -R www-data:www-data $DRUPAL_HOME/ ..."
 	chown -R www-data:www-data $DRUPAL_HOME/	
 
 	echo 'Include conf/httpd-drupal.conf' >> $HTTPD_CONF_FILE
@@ -88,12 +88,12 @@ setup_drupal(){
 
 set -e
 
-test ! -d "$AZURE_SITE_ROOT" && echo "INFO: $AZURE_SITE_ROOT not found."
+test ! -d "$AZURE_SITE_ROOT" && echo "`date` INFO: $AZURE_SITE_ROOT not found."
 
 # That sites/default/settings.php doesn't exist means Drupal is not installed/configured yet.
 if [ ! -e "$DRUPAL_HOME/sites/default/settings.php" ]; then
-	echo "INFO: $DRUPAL_HOME/sites/default/settings.php not found."
-	echo "Installing drupal for the first time ..."
+	echo "`date` INFO: $DRUPAL_HOME/sites/default/settings.php not found."
+	echo "`date` Installing drupal for the first time ..."
 
 	process_vars
 	setup_httpd_log_dir
@@ -101,25 +101,25 @@ if [ ! -e "$DRUPAL_HOME/sites/default/settings.php" ]; then
 
 	# If the local MariaDB is used.
 	if [ "$DRUPAL_DB_HOST" = "localhost" -o "$DRUPAL_DB_HOST" = "127.0.0.1" ]; then
-                echo "Local MariaDB chosen. setting it up ..."	
+                echo "`date` Local MariaDB chosen. setting it up ..."	
 		setup_mariadb
-		echo "Starting local MariaDB ..."
+		echo "`date` Starting local MariaDB ..."
 		start_mariadb
-		echo "Enabling phpMyAdmin ..."
+		echo "`date` Enabling phpMyAdmin ..."
 		setup_phpmyadmin
-		echo "Creating database and user for Drupal ..."
+		echo "`date` Creating database and user for Drupal ..."
                 mysql -u root -e "CREATE DATABASE \`$DRUPAL_DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci; GRANT ALL ON \`$DRUPAL_DB_NAME\`.* TO \`$DRUPAL_DB_USERNAME\`@\`$DRUPAL_DB_HOST\` IDENTIFIED BY '$DRUPAL_DB_PASSWORD'; FLUSH PRIVILEGES;"
 	fi
 
 	setup_drupal
 	apachectl stop > /dev/null 2>&1
 else
-	if [ grep "'host' => 'localhost'" "$DRUPAL_HOME/sites/default/settings.php" -o grep "'host' => '127.0.0.1'" "$DRUPAL_HOME/sites/default/settings.php" ]; then
-		echo "Starting local MariaDB on rebooting ..." >> /dockerbuild/log_debug
+	if grep -q "^  'host' => 'localhost'\|^  'host' => '127.0.0.1'" "$DRUPAL_HOME/sites/default/settings.php"; then
+		echo "`date` Starting local MariaDB on rebooting ..." >> /dockerbuild/log_debug
 		start_mariadb
 	fi
 fi
 
 # start Apache HTTPD
-echo "Starting httpd -DFOREGROUND ..."
+echo "`date` Starting httpd -DFOREGROUND ..."
 httpd -DFOREGROUND > /dev/null 2>&1 
