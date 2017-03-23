@@ -8,30 +8,24 @@ set_var_if_null(){
 }
 
 process_vars(){
-	
-	set_var_if_null 'DRUPAL_DB_HOST' '127.0.0.1'
+	set_var_if_null 'DRUPAL_DB_HOST' 'localhost'
 	set_var_if_null 'DRUPAL_DB_NAME' 'drupal'
 	set_var_if_null 'DRUPAL_DB_USERNAME' 'drupal'
 	set_var_if_null 'DRUPAL_DB_PASSWORD' 'MS173m_QN'
-	set_var_if_null 'DRUPAL_DB_PREFIX' 'd8_'
 
-	# replace {'localhost',,} with '127.0.0.1'
 	if [ "${DRUPAL_DB_HOST,,}" = "localhost" ]; then
-		export DRUPAL_DB_HOST="127.0.0.1"
-		echo "Replace localhost with 127.0.0.1 ... $DRUPAL_DB_HOST"
+		export DRUPAL_DB_HOST="localhost"
 	fi
 }
 
 setup_httpd_log_dir(){	
 	rm -rf $HTTPD_LOG_DIR
-
 	if [ -d "$AZURE_SITE_ROOT" ]; then
 		test ! -d $HTTPD_LOG_DIR_AZURE && mkdir -p $HTTPD_LOG_DIR_AZURE
 		ln -s $HTTPD_LOG_DIR_AZURE $HTTPD_LOG_DIR
 	else
 		mkdir -p $HTTPD_LOG_DIR
 	fi
-
 	chown -R www-data:www-data $HTTPD_LOG_DIR/
 }
 
@@ -45,14 +39,20 @@ setup_mariadb(){
 	fi
 	chown -R mysql:mysql $MARIADB_DATA_DIR/
 	chown -R mysql:mysql $MARIADB_LOG_DIR/
-	service mysql start
+}
+
+start_mariadb(){
+	service mysql start > /dev/null
+	rm -f /tmp/mysql.sock
+	ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
 }
 
 setup_phpmyadmin(){
 	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
 	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
 
-	mysql -u root -e "create user '$PHPMYADMIN_USERNAME'@'127.0.0.1' identified by '$PHPMYADMIN_PASSWORD'; grant all on *.* to '$PHPMYADMIN_USERNAME'@'127.0.0.1' with grant option; flush privileges;"	
+	echo "Creating user for phpMyAdmin ..."
+	mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
 	if [ -d "$AZURE_SITE_ROOT" ]; then
 		test ! -d $PHPMYADMIN_HOME_AZURE && mkdir -p $PHPMYADMIN_HOME_AZURE
@@ -68,11 +68,6 @@ setup_phpmyadmin(){
 }
 
 setup_drupal(){
-	if [ $DRUPAL_DB_HOST = "127.0.0.1" ]; then
-		# create Drupal database and database user
-		mysql -u root -e "create database $DRUPAL_DB_NAME; grant all on $DRUPAL_DB_NAME.* to '$DRUPAL_DB_USERNAME'@'127.0.0.1' identified by '$DRUPAL_DB_PASSWORD'; flush privileges;"
-	fi
-
 	# Because Azure Web App on Linux uses /home/site/wwwroot,
 	# so if /home/site/wwwroot exists,
 	# we think the container is running on Auzre.
@@ -82,43 +77,49 @@ setup_drupal(){
 		mkdir -p $DRUPAL_HOME
 	fi
 
-	echo "copying drupal source files to $DRUPAL_HOME ..."
+	echo "Copying drupal source files to $DRUPAL_HOME ..."
 	cp -R $DRUPAL_SOURCE/. $DRUPAL_HOME/ && rm -rf $DRUPAL_SOURCE
+
 	echo "chown -R www-data:www-data $DRUPAL_HOME/ ..."
 	chown -R www-data:www-data $DRUPAL_HOME/	
 
 	echo 'Include conf/httpd-drupal.conf' >> $HTTPD_CONF_FILE
 }
 
+set -e
+
+test ! -d "$AZURE_SITE_ROOT" && echo "INFO: $AZURE_SITE_ROOT not found."
+
 # That sites/default/settings.php doesn't exist means Drupal is not installed/configured yet.
-if [ ! -f "$DRUPAL_HOME/sites/default/settings.php" ]; then
-	echo "$DRUPAL_HOME/sites/default/settings.php not found. installing drupal ..."
+if [ ! -e "$DRUPAL_HOME/sites/default/settings.php" ]; then
+	echo "INFO: $DRUPAL_HOME/sites/default/settings.php not found."
+	echo "Installing drupal for the first time ..."
+
 	process_vars
 	setup_httpd_log_dir
-	apachectl start
+	apachectl start > /dev/null 2>&1
 
 	# If the local MariaDB is used.
-	if [ $DRUPAL_DB_HOST = "127.0.0.1" ]; then
-		echo "using $DRUPAL_DB_HOST as database host ..."
+	if [ "$DRUPAL_DB_HOST" = "localhost" -o "$DRUPAL_DB_HOST" = "127.0.0.1" ]; then
+                echo "Local MariaDB chosen. setting it up ..."	
 		setup_mariadb
+		echo "Starting local MariaDB ..."
+		start_mariadb
+		echo "Enabling phpMyAdmin ..."
+		setup_phpmyadmin
+		echo "Creating database and user for Drupal ..."
+                mysql -u root -e "CREATE DATABASE \`$DRUPAL_DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci; GRANT ALL ON \`$DRUPAL_DB_NAME\`.* TO \`$DRUPAL_DB_USERNAME\`@\`$DRUPAL_DB_HOST\` IDENTIFIED BY '$DRUPAL_DB_PASSWORD'; FLUSH PRIVILEGES;"
 	fi
 
 	setup_drupal
-
-	apachectl stop
-
-	# If the local MariaDB is used,
-	# setup phpMyAdmin, 
-	if [ $DRUPAL_DB_HOST = "127.0.0.1" ]; then
-		setup_phpmyadmin
-	fi
+	apachectl stop > /dev/null 2>&1
 else
-	if grep "'host' => '127.0.0.1" "$DRUPAL_HOME/sites/default/settings.php"; then
-		echo "start mysql on rebooting ..." >> /dockerbuild/log_debug
-		service mysql start
+	if [ grep "'host' => 'localhost'" "$DRUPAL_HOME/sites/default/settings.php" -o grep "'host' => '127.0.0.1'" "$DRUPAL_HOME/sites/default/settings.php" ]; then
+		echo "Starting local MariaDB on rebooting ..." >> /dockerbuild/log_debug
+		start_mariadb
 	fi
 fi
 
 # start Apache HTTPD
-echo "starting httpd -DFOREGROUND ..."
-httpd -DFOREGROUND
+echo "Starting httpd -DFOREGROUND ..."
+httpd -DFOREGROUND > /dev/null 2>&1 
