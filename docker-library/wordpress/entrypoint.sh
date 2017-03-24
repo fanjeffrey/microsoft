@@ -7,143 +7,118 @@ set_var_if_null(){
 	fi
 }
 
-process_vars(){
-	set_var_if_null "WORDPRESS_DB_HOST" "localhost"
-	set_var_if_null "WORDPRESS_DB_NAME" "wordpress"
-	set_var_if_null "WORDPRESS_DB_USERNAME" "wordpress"
-	set_var_if_null "WORDPRESS_DB_PASSWORD" "MS173m_QN"
-	set_var_if_null "WORDPRESS_DB_PREFIX" "wp_"
-
-	if [ "${WORDPRESS_DB_HOST,,}" = "localhost" ]; then
-		export WORDPRESS_DB_HOST="localhost"
-	fi
-}
-
-setup_httpd_log_dir(){
-	rm -rf $HTTPD_LOG_DIR
-	if [ -d "$WORDPRESS_HOME_AZURE" ]; then
-		test ! -d $HTTPD_LOG_DIR_AZURE && mkdir -p $HTTPD_LOG_DIR_AZURE
-		ln -s $HTTPD_LOG_DIR_AZURE $HTTPD_LOG_DIR
-	else
-		mkdir -p $HTTPD_LOG_DIR
-	fi
-	chown -R www-data:www-data $HTTPD_LOG_DIR/
-}
-
-setup_mariadb(){
-	if [ -d "$WORDPRESS_HOME_AZURE" ]; then
-		test ! -d $MARIADB_DATA_DIR_AZURE && mkdir -p $MARIADB_DATA_DIR_AZURE
-		cp -R $MARIADB_DATA_DIR/. $MARIADB_DATA_DIR_AZURE/
-		rm -rf $MARIADB_DATA_DIR && ln -s $MARIADB_DATA_DIR_AZURE $MARIADB_DATA_DIR
-		test ! -d $MARIADB_LOG_DIR_AZURE && mkdir -p $MARIADB_LOG_DIR_AZURE
-		rm -rf $MARIADB_LOG_DIR	&& ln -s $MARIADB_LOG_DIR_AZURE $MARIADB_LOG_DIR
-	fi
-	chown -R mysql:mysql $MARIADB_DATA_DIR/
-	chown -R mysql:mysql $MARIADB_LOG_DIR/
+setup_mariadb_data_dir(){
+	cp -R /var/lib/mysql/. $MARIADB_DATA_DIR/
+	rmdir /var/lib/mysql
+	ln -s $MARIADB_DATA_DIR /var/lib/mysql
 }
 
 start_mariadb(){
-	service mysql start > /dev/null
+	service mysql start
 	rm -f /tmp/mysql.sock
 	ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
 }
 
 setup_phpmyadmin(){
-	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
-	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
-
-	echo "Creating user for phpMyAdmin ..."
-	mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-
-	if [ -d "$WORDPRESS_HOME_AZURE" ]; then
-		test ! -d $PHPMYADMIN_HOME_AZURE && mkdir -p $PHPMYADMIN_HOME_AZURE
-		ln -s $PHPMYADMIN_HOME_AZURE $PHPMYADMIN_HOME
-	else
-		mkdir -p $PHPMYADMIN_HOME
-	fi
-
-	cp -R $PHPMYADMIN_SOURCE/. $PHPMYADMIN_HOME/
+	cd $PHPMYADMIN_HOME
+	mv $PHPMYADMIN_SOURCE/phpmyadmin.tar.gz $PHPMYADMIN_HOME/
+	tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_HOME --strip-components=1
+	# create config.inc.php
+	mv $PHPMYADMIN_SOURCE/phpmyadmin-config.inc.php $PHPMYADMIN_HOME/config.inc.php
+	
+	rm $PHPMYADMIN_HOME/phpmyadmin.tar.gz
 	rm -rf $PHPMYADMIN_SOURCE
-	chown -R www-data:www-data $PHPMYADMIN_HOME/
-
-	echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
 }
 
 setup_wordpress(){
-	# Because Azure Web App on Linux uses /home/site/wwwroot,
-	# so if /home/site/wwwroot exists,
-	# we think the container is running on Auzre.
-	if [ -d "$WORDPRESS_HOME_AZURE" ]; then
-		ln -s $WORDPRESS_HOME_AZURE $WORDPRESS_HOME
-	else
-		mkdir -p $WORDPRESS_HOME
-	fi
-
+	cd $WORDPRESS_HOME
+	mv $WORDPRESS_SOURCE/wordpress.tar.gz $WORDPRESS_HOME/
+	tar -xf wordpress.tar.gz -C $WORDPRESS_HOME/ --strip-components=1
 	# create wp-config.php
-	mv $WORDPRESS_SOURCE/wp-config.php.microsoft $WORDPRESS_SOURCE/wp-config.php
-	# update wp-config.php with the vars
-	sed -i "s/connectstr_dbhost = '';/connectstr_dbhost = '$WORDPRESS_DB_HOST';/" "$WORDPRESS_SOURCE/wp-config.php"
-	sed -i "s/connectstr_dbname = '';/connectstr_dbname = '$WORDPRESS_DB_NAME';/" "$WORDPRESS_SOURCE/wp-config.php"
-	sed -i "s/connectstr_dbusername = '';/connectstr_dbusername = '$WORDPRESS_DB_USERNAME';/" "$WORDPRESS_SOURCE/wp-config.php"
-	sed -i "s/connectstr_dbpassword = '';/connectstr_dbpassword = '$WORDPRESS_DB_PASSWORD';/" "$WORDPRESS_SOURCE/wp-config.php"
-	sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$WORDPRESS_DB_PREFIX';/" "$WORDPRESS_SOURCE/wp-config.php"
+	mv $WORDPRESS_SOURCE/wp-config.php.microsoft $WORDPRESS_HOME/wp-config.php
 
-	echo "Copying WordPress source files to $WORDPRESS_HOME ..."
-	cp -R $WORDPRESS_SOURCE/. $WORDPRESS_HOME/ && rm -rf $WORDPRESS_SOURCE
-
-	echo "chown -R www-data:www-data $WORDPRESS_HOME/ ..."
-	chown -R www-data:www-data $WORDPRESS_HOME/
-
-	echo 'Include conf/httpd-wordpress.conf' >> $HTTPD_CONF_FILE
+	rm $WORDPRESS_HOME/wordpress.tar.gz
+	rm -rf $WORDPRESS_SOURCE
 }
 
-set -x 
+update_wp_config(){
+	# update wp-config.php with the vars
+        sed -i "s/connectstr_dbhost = '';/connectstr_dbhost = '$WORDPRESS_DB_HOST';/" "$WORDPRESS_HOME/wp-config.php"
+        sed -i "s/connectstr_dbname = '';/connectstr_dbname = '$WORDPRESS_DB_NAME';/" "$WORDPRESS_HOME/wp-config.php"
+        sed -i "s/connectstr_dbusername = '';/connectstr_dbusername = '$WORDPRESS_DB_USERNAME';/" "$WORDPRESS_HOME/wp-config.php"
+        sed -i "s/connectstr_dbpassword = '';/connectstr_dbpassword = '$WORDPRESS_DB_PASSWORD';/" "$WORDPRESS_HOME/wp-config.php"
+        sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$WORDPRESS_DB_PREFIX';/" "$WORDPRESS_HOME/wp-config.php"
+}
 
-test ! -d /home && echo "INFO: /home not found."
-test ! -d /home/site && echo "INFO: /home/site not found."
-test ! -d /home/LogFiles && echo "INFO: /home/LogFiles not found."
-test ! -d "$WORDPRESS_HOME_AZURE" && echo "INFO: $WORDPRESS_HOME_AZURE not found."
-test ! -e "$WORDPRESS_HOME_AZURE/wp-config.php" && echo "INFO: $WORDPRESS_HOME_AZURE/wp-config.php not found."
-test ! -e "$HTTPD_LOG_DIR_AZURE" && echo "INFO: $HTTPD_LOG_DIR_AZURE not found."
-test ! -e "$MARIADB_DATA_DIR_AZURE" && echo "INFO: $MARIADB_DATA_DIR_AZURE not found."
-test ! -e "$MARIADB_LOG_DIR_AZURE" && echo "INFO: $MARIADB_LOG_DIR_AZURE not found."
-test ! -e "$PHPMYADMIN_HOME_AZURE" && echo "INFO: $PHPMYADMIN_HOME_AZURE not found."
+set -ex 
+
+test ! -d "$WORDPRESS_HOME" && echo "INFO: $WORDPRESS_HOME not found. creating ..." && mkdir -p "$WORDPRESS_HOME"
+test ! -d "$PHPMYADMIN_HOME" && echo "INFO: $PHPMYADMIN_HOME not found. creating ..." && mkdir -p "$PHPMYADMIN_HOME"
+test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ..." && mkdir -p "$HTTPD_LOG_DIR"
+test ! -d "$MARIADB_DATA_DIR" && echo "INFO: $MARIADB_DATA_DIR not found. creating ..." && mkdir -p "$MARIADB_DATA_DIR"
+test ! -d "$MARIADB_LOG_DIR" && echo "INFO: $MARIADB_LOG_DIR not found. creating ..." && mkdir -p "$MARIADB_LOG_DIR"
 
 # That wp-config.php doesn't exist means WordPress is not installed/configured yet.
 if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
+	apachectl start
+
 	echo "INFO: $WORDPRESS_HOME/wp-config.php not found."
 	echo "Installing WordPress for the first time ..."
-
-	process_vars
-	setup_httpd_log_dir
-	apachectl start > /dev/null 2>&1
-
+	
+	set_var_if_null "WORDPRESS_DB_HOST" "localhost"
+        set_var_if_null "WORDPRESS_DB_NAME" "wordpress"
+        set_var_if_null "WORDPRESS_DB_USERNAME" "wordpress"
+        set_var_if_null "WORDPRESS_DB_PASSWORD" "MS173m_QN"
+        set_var_if_null "WORDPRESS_DB_PREFIX" "wp_"
+	if [ "${WORDPRESS_DB_HOST,,}" = "localhost" ]; then
+                export WORDPRESS_DB_HOST="localhost"
+        fi
+	
 	# If the local MariaDB is used.
 	if [ "$WORDPRESS_DB_HOST" = "localhost" -o "$WORDPRESS_DB_HOST" = "127.0.0.1" ]; then
-        echo "Local MariaDB chosen. setting it up ..."
-		setup_mariadb
+		echo "Local MariaDB chosen."
+		if [ ! -d "$MARIADB_DATA_DIR/mysql" ]; then
+			echo "INFO: $MARIADB_DATA_DIR not in use."
+			echo "Setting up MariaDB data dir ..."
+			setup_mariadb_data_dir
+			echo "Starting local MariaDB ..."
+			start_mariadb
+		
+			echo "Creating user for phpMyAdmin ..."
+			set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
+                        set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
+                        mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+			
+			echo "Creating database and user for WordPress ..."
+	                mysql -u root -e "CREATE DATABASE \`$WORDPRESS_DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci; GRANT ALL ON \`$WORDPRESS_DB_NAME\`.* TO \`$WORDPRESS_DB_USERNAME\`@\`$WORDPRESS_DB_HOST\` IDENTIFIED BY '$WORDPRESS_DB_PASSWORD'; FLUSH PRIVILEGES;"
+		else
+			echo "Starting local MariaDB ..."
+                        start_mariadb
+		fi
 
-		echo "Starting local MariaDB ..."
-		start_mariadb
 
-		echo "Enabling phpMyAdmin ..."
-		setup_phpmyadmin
-
-		echo "Creating database and user for WordPress ..."
-        mysql -u root -e "CREATE DATABASE \`$WORDPRESS_DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci; GRANT ALL ON \`$WORDPRESS_DB_NAME\`.* TO \`$WORDPRESS_DB_USERNAME\`@\`$WORDPRESS_DB_HOST\` IDENTIFIED BY '$WORDPRESS_DB_PASSWORD'; FLUSH PRIVILEGES;"
-
+		if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
+			echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."	
+			echo "Installing phpMyAdmin ..."
+			setup_phpmyadmin
+		fi
+	
 		echo "Starting local Redis ..."
 		redis-server --daemonize yes
 	fi
 
 	setup_wordpress
-	apachectl stop > /dev/null 2>&1
+	update_wp_config
+
+	apachectl stop
 else
+	echo "INFO: $WORDPRESS_HOME/wp-config.php exists."
+	
 	if grep -q "connectstr_dbhost = 'localhost'" "$WORDPRESS_HOME/wp-config.php"; then
-		echo "Starting local MariaDB ..." >> /dockerbuild/log_debug
+		echo "Starting local MariaDB ..."
 		start_mariadb
 
-		echo "Starting local Redis ..." >> /dockerbuild/log_debug
+		echo "Starting local Redis ..."
 		redis-server --daemonize yes
 	fi
 fi

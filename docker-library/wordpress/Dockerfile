@@ -17,15 +17,12 @@ ENV HTTPD_SOURCE "/usr/src/httpd"
 ENV HTTPD_HOME "/usr/local/httpd"
 ENV HTTPD_CONF_DIR "$HTTPD_HOME/conf"
 ENV HTTPD_CONF_FILE "$HTTPD_CONF_DIR/httpd.conf"
-ENV HTTPD_LOG_DIR_AZURE "/home/LogFiles/httpd"
-ENV HTTPD_LOG_DIR="/var/log/httpd"
+ENV HTTPD_LOG_DIR "/home/LogFiles/httpd"
 ENV PATH "$HTTPD_HOME/bin":$PATH
 
 # mariadb
-ENV MARIADB_DATA_DIR_AZURE "/home/data/mysql"
-ENV MARIADB_DATA_DIR="/var/lib/mysql"
-ENV MARIADB_LOG_DIR_AZURE "/home/LogFiles/mysql"
-ENV MARIADB_LOG_DIR="/var/log/mysql"
+ENV MARIADB_DATA_DIR "/home/data/mysql"
+ENV MARIADB_LOG_DIR "/home/LogFiles/mysql"
 
 # php
 ENV PHP_VERSION "7.1.2"
@@ -50,16 +47,14 @@ ENV PHPMYADMIN_VERSION "4.6.6"
 ENV PHPMYADMIN_DOWNLOAD_URL "https://files.phpmyadmin.net/phpMyAdmin/$PHPMYADMIN_VERSION/phpMyAdmin-$PHPMYADMIN_VERSION-all-languages.tar.gz"
 ENV PHPMYADMIN_SHA256 "54086600558613b31c4daddf4ae58fbc1c252a2b8e3e6fae12f851f78677d72e"
 ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
-ENV PHPMYADMIN_HOME_AZURE "/home/phpmyadmin"
-ENV PHPMYADMIN_HOME "/var/www/phpmyadmin"
+ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 
 # wordpress
 ENV WORDPRESS_VERSION "4.7.2"
 ENV WORDPRESS_DOWNLOAD_URL "https://wordpress.org/wordpress-$WORDPRESS_VERSION.tar.gz"
 ENV WORDPRESS_SHA1 "7b687f1af589c337124e6247229af209ec1d52c3"
 ENV WORDPRESS_SOURCE "/usr/src/wordpress"
-ENV WORDPRESS_HOME_AZURE "/home/site/wwwroot"
-ENV WORDPRESS_HOME "/var/www/wordpress"
+ENV WORDPRESS_HOME "/home/site/wwwroot"
 
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
@@ -152,12 +147,12 @@ RUN set -ex \
 	## buildtime deps
 	### libbz2-dev >> --with-bz2 >> [phpmyadmin] Bzip2 compression and decompression requires functions (bzopen, bzcompress) which are unavailable on this system.
 	### libgmp-dev >> --with-gmp
-    ### libicu-dev >> --enable-intl
+	### libicu-dev >> --enable-intl
 	### libldap2-dev >> --with-ldap
 	&& phpBuildtimeDeps="\
 		libbz2-dev \
 		libgmp-dev \
-        libicu-dev \
+		libicu-dev \
 		libldap2-dev \
 		libssl-dev \
 		libxml2-dev \
@@ -169,7 +164,7 @@ RUN set -ex \
 	&& phpRuntimeDeps=" \
 		libcurl4-openssl-dev \
 		libjpeg-dev \
-        libpng12-dev \
+		libpng12-dev \
 		libxml2 \
 	" \
 	&& apt-get update \
@@ -206,7 +201,7 @@ RUN set -ex \
 		--with-gmp \
 		--with-ldap \
 		### see http://php.net/manual/en/mysqlnd.overview.php
-        ### see http://php.net/manual/en/mysqlinfo.api.choosing.php
+		### see http://php.net/manual/en/mysqlinfo.api.choosing.php
 		--with-mysqli=mysqlnd \
 		--with-openssl \
 	&& make -j "$(nproc)" \
@@ -231,33 +226,29 @@ RUN set -ex \
 	&& make -j "$(nproc)" \
 	&& make PREFIX=$REDIS_HOME install \
 	&& rm -rf $REDIS_SOURCE \
-	&& rm $DOCKER_BUILD_HOME/redis.tar.gz \
+	E&& rm $DOCKER_BUILD_HOME/redis.tar.gz \
 
 	# -------------
 	# 6. phpmyadmin
 	# -------------
 	&& mkdir -p $PHPMYADMIN_SOURCE \
-	&& cd $DOCKER_BUILD_HOME \
+	&& cd $PHPMYADMIN_SOURCE \
 	&& wget -O phpmyadmin.tar.gz "$PHPMYADMIN_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
-	&& tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_SOURCE --strip-components=1 \
-	&& rm $DOCKER_BUILD_HOME/phpmyadmin.tar.gz \
 
 	# ------------	
 	# 7. wordpress
 	# ------------
 	&& mkdir -p $WORDPRESS_SOURCE \
-	&& cd $DOCKER_BUILD_HOME \
+	&& cd $WORDPRESS_SOURCE \
 	&& wget -O wordpress.tar.gz "$WORDPRESS_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$WORDPRESS_SHA1 *wordpress.tar.gz" | sha1sum -c - \
-	&& tar -xf wordpress.tar.gz -C $WORDPRESS_SOURCE --strip-components=1 \
-	&& rm $DOCKER_BUILD_HOME/wordpress.tar.gz \
 
 	# ----------
 	# ~. clean up
 	# ----------
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $tools \
-	&& apt-get autoremove -y	
+	&& apt-get autoremove -y
 
 
 # =========
@@ -276,24 +267,36 @@ COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 # wordpress conf
 COPY wp-config.php.microsoft $WORDPRESS_SOURCE/
 # phpmyadmin conf
-COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
+COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/
 
 RUN set -ex \
 	## include php.conf
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
+	&& echo 'Include conf/httpd-wordpress.conf' >> $HTTPD_CONF_FILE \
+	&& echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE \
 	&& test ! -d /var/lib/php/sessions && mkdir -p /var/lib/php/sessions \
-	&& chown www-data:www-data /var/lib/php/sessions
+	&& chown www-data:www-data /var/lib/php/sessions \
+	##
+	&& test ! -d /var/www && mkdir -p /var/www \
+        && echo '<html><head><meta http-equiv="refresh" content="5" /><title>Installing WordPress ...</title></head><body>Installing WordPress ... This could be done in minutes.</body></html>' > /var/www/index.html \
+        && chown -R www-data:www-data /var/www \
+        && chmod 664 /var/www/index.html \
+	##
+	&& ln -s $WORDPRESS_HOME /var/www/wordpress \
+	##
+	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
+	##
+	&& rm -rf /var/log/mysql \
+	&& ln -s $MARIADB_LOG_DIR /var/log/mysql \
+	##
+	&& rm -rf /var/log/httpd \
+	&& ln -s $HTTPD_LOG_DIR /var/log/httpd
 
 
 # =====
 # final
 # =====
 COPY entrypoint.sh /usr/local/bin/
-RUN set -ex \
-	&& chmod +x /usr/local/bin/entrypoint.sh \
-	&& test ! -d /var/www && mkdir -p /var/www \
-	&& echo '<html><head><meta http-equiv="refresh" content="5" /><title>Installing WordPress ...</title></head><body>Installing WordPress ... This could be done in minutes.</body></html>' > /var/www/index.html \
-	&& chown -R www-data:www-data /var/www \
-	&& chmod 664 /var/www/index.html
+RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 80
 ENTRYPOINT ["entrypoint.sh"]
