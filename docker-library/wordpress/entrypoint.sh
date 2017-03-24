@@ -99,7 +99,15 @@ setup_wordpress(){
 
 set -x 
 
+test ! -d /home && echo "INFO: /home not found."
+test ! -d /home/site && echo "INFO: /home/site not found."
+test ! -d /home/LogFiles && echo "INFO: /home/LogFiles not found."
 test ! -d "$WORDPRESS_HOME_AZURE" && echo "INFO: $WORDPRESS_HOME_AZURE not found."
+test ! -e "$WORDPRESS_HOME_AZURE/wp-config.php" && echo "INFO: $WORDPRESS_HOME_AZURE/wp-config.php not found."
+test ! -e "$HTTPD_LOG_DIR_AZURE" && echo "INFO: $HTTPD_LOG_DIR_AZURE not found."
+test ! -e "$MARIADB_DATA_DIR_AZURE" && echo "INFO: $MARIADB_DATA_DIR_AZURE not found."
+test ! -e "$MARIADB_LOG_DIR_AZURE" && echo "INFO: $MARIADB_LOG_DIR_AZURE not found."
+test ! -e "$PHPMYADMIN_HOME_AZURE" && echo "INFO: $PHPMYADMIN_HOME_AZURE not found."
 
 # That wp-config.php doesn't exist means WordPress is not installed/configured yet.
 if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
@@ -142,4 +150,4 @@ fi
 
 # start Apache HTTPD
 echo "Starting httpd -DFOREGROUND ..."
-httpd -DFOREGROUND 
+httpd -DFOREGROUND > /dev/null
