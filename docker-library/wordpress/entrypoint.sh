@@ -38,7 +38,9 @@ setup_wordpress(){
 	mv $WORDPRESS_SOURCE/wp-config.php.microsoft $WORDPRESS_HOME/wp-config.php
 
 	rm $WORDPRESS_HOME/wordpress.tar.gz
-	rm -rf $WORDPRESS_SOURCE
+	rm -rf $WORDPRESS_SOURCEi
+
+	chown -R www-data:www-data $WORDPRESS_HOME
 }
 
 update_wp_config(){

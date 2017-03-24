@@ -283,6 +283,7 @@ RUN set -ex \
         && chmod 664 /var/www/index.html \
 	##
 	&& ln -s $WORDPRESS_HOME /var/www/wordpress \
+	&& chown -R www-data:www-data /var/www/wordpress \
 	##
 	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
 	##
