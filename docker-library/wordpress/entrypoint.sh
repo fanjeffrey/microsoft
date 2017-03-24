@@ -8,11 +8,11 @@ set_var_if_null(){
 }
 
 process_vars(){
-	set_var_if_null "WORDPRESS_DB_HOST" "127.0.0.1"
-    set_var_if_null "WORDPRESS_DB_NAME" "wordpress"
-    set_var_if_null "WORDPRESS_DB_USERNAME" "wordpress"
-    set_var_if_null "WORDPRESS_DB_PASSWORD" "MS173m_QN"
-    set_var_if_null "WORDPRESS_DB_PREFIX" "wp_"
+	set_var_if_null "WORDPRESS_DB_HOST" "localhost"
+	set_var_if_null "WORDPRESS_DB_NAME" "wordpress"
+	set_var_if_null "WORDPRESS_DB_USERNAME" "wordpress"
+	set_var_if_null "WORDPRESS_DB_PASSWORD" "MS173m_QN"
+	set_var_if_null "WORDPRESS_DB_PREFIX" "wp_"
 
 	if [ "${WORDPRESS_DB_HOST,,}" = "localhost" ]; then
 		export WORDPRESS_DB_HOST="localhost"
@@ -97,7 +97,7 @@ setup_wordpress(){
 	echo 'Include conf/httpd-wordpress.conf' >> $HTTPD_CONF_FILE
 }
 
-set -e
+set -x 
 
 test ! -d "$WORDPRESS_HOME_AZURE" && echo "INFO: $WORDPRESS_HOME_AZURE not found."
 
@@ -142,4 +142,4 @@ fi
 
 # start Apache HTTPD
 echo "Starting httpd -DFOREGROUND ..."
-httpd -DFOREGROUND > /dev/null 2>&1
+httpd -DFOREGROUND 
