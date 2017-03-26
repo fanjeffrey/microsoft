@@ -279,11 +279,10 @@ RUN set -ex \
 	##
 	&& test ! -d /var/www && mkdir -p /var/www \
         && echo '<html><head><meta http-equiv="refresh" content="5" /><title>Installing WordPress ...</title></head><body>Installing WordPress ... This could be done in minutes.</body></html>' > /var/www/index.html \
+	&& chmod 664 /var/www/index.html \
         && chown -R www-data:www-data /var/www \
-        && chmod 664 /var/www/index.html \
 	##
 	&& ln -s $WORDPRESS_HOME /var/www/wordpress \
-	&& chown -R www-data:www-data /var/www/wordpress \
 	##
 	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
 	##

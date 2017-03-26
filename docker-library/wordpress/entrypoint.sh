@@ -7,10 +7,19 @@ set_var_if_null(){
 	fi
 }
 
+setup_httpd_log_dir(){
+	chown -R www-data:www-data $HTTPD_LOG_DIR
+}
+
 setup_mariadb_data_dir(){
-	cp -R /var/lib/mysql/. $MARIADB_DATA_DIR/
-	rmdir /var/lib/mysql
+	cp -R /var/lib/mysql/. $MARIADB_DATA_DIR
+	rm -rf /var/lib/mysql
 	ln -s $MARIADB_DATA_DIR /var/lib/mysql
+	chown -R mysql:mysql $MARIADB_DATA_DIR
+}
+
+setup_mariadb_log_dir(){
+	chown -R mysql:mysql $MARIADB_LOG_DIR
 }
 
 start_mariadb(){
@@ -40,7 +49,7 @@ setup_wordpress(){
 	rm $WORDPRESS_HOME/wordpress.tar.gz
 	rm -rf $WORDPRESS_SOURCEi
 
-	chown -R www-data:www-data $WORDPRESS_HOME
+	chown -R www-data:www-data $WORDPRESS_HOME 
 }
 
 update_wp_config(){
@@ -59,6 +68,8 @@ test ! -d "$PHPMYADMIN_HOME" && echo "INFO: $PHPMYADMIN_HOME not found. creating
 test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ..." && mkdir -p "$HTTPD_LOG_DIR"
 test ! -d "$MARIADB_DATA_DIR" && echo "INFO: $MARIADB_DATA_DIR not found. creating ..." && mkdir -p "$MARIADB_DATA_DIR"
 test ! -d "$MARIADB_LOG_DIR" && echo "INFO: $MARIADB_LOG_DIR not found. creating ..." && mkdir -p "$MARIADB_LOG_DIR"
+
+setup_httpd_log_dir
 
 # That wp-config.php doesn't exist means WordPress is not installed/configured yet.
 if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
@@ -83,6 +94,8 @@ if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
 			echo "INFO: $MARIADB_DATA_DIR not in use."
 			echo "Setting up MariaDB data dir ..."
 			setup_mariadb_data_dir
+			echo "Setting up MariaDB log dir ..."
+			setup_mariadb_log_dir
 			echo "Starting local MariaDB ..."
 			start_mariadb
 		
@@ -94,6 +107,7 @@ if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
 			echo "Creating database and user for WordPress ..."
 	                mysql -u root -e "CREATE DATABASE \`$WORDPRESS_DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci; GRANT ALL ON \`$WORDPRESS_DB_NAME\`.* TO \`$WORDPRESS_DB_USERNAME\`@\`$WORDPRESS_DB_HOST\` IDENTIFIED BY '$WORDPRESS_DB_PASSWORD'; FLUSH PRIVILEGES;"
 		else
+			echo "INFO: $MARIADB_DATA_DIR already exists."
 			echo "Starting local MariaDB ..."
                         start_mariadb
 		fi
@@ -114,7 +128,7 @@ if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
 
 	apachectl stop
 else
-	echo "INFO: $WORDPRESS_HOME/wp-config.php exists."
+	echo "INFO: $WORDPRESS_HOME/wp-config.php already exists."
 	
 	if grep -q "connectstr_dbhost = 'localhost'" "$WORDPRESS_HOME/wp-config.php"; then
 		echo "Starting local MariaDB ..."
@@ -126,5 +140,5 @@ else
 fi
 
 # start Apache HTTPD
-echo "Starting httpd -DFOREGROUND ..."
-httpd -DFOREGROUND > /dev/null
+echo "Starting apache httpd -D FOREGROUND ..."
+apachectl start -D FOREGROUND
