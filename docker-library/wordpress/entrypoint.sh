@@ -108,7 +108,6 @@ echo "INFO: WORDPRESS_DB_NAME:" $WORDPRESS_DB_NAME
 echo "INFO: WORDPRESS_DB_USERNAME:" $WORDPRESS_DB_USERNAME
 echo "INFO: WORDPRESS_DB_PREFIX:" $WORDPRESS_DB_PREFIX
 echo "INFO: PHPMYADMIN_USERNAME:" $PHPMYADMIN_USERNAME
-echo "INFO: PHPMYADMIN_PASSWORD:" $PHPMYADMIN_PASSWORD
 
 setup_httpd_log_dir
 apachectl start
@@ -122,8 +121,6 @@ if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
 else
 	echo "INFO: $WORDPRESS_HOME/wp-config.php already exists."
 fi	
-
-echo "INFO: WordPress DB Host:" $WORDPRESS_DB_HOST
 
 # If local MariaDB is used in wp-config.php
 if grep -q "^\$connectstr_dbhost = 'localhost'\|^\$connectstr_dbhost = '127.0.0.1'" "$WORDPRESS_HOME/wp-config.php"; then
