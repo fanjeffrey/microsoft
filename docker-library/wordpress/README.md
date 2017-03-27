@@ -60,7 +60,7 @@ docker run -d -t -p 80:80 \
     -e "WORDPRESS_DB_USERNAME=<your_db_username>" \
     -e "WORDPRESS_DB_PASSWORD=<your_db_password>" \
     -e "WORDPRESS_DB_TABLE_NAME_PREFIX=<your_table_name_prefix>" \
-    fanjeffrey/wordpress:4.7.2
+    fanjeffrey/wordpress:latest
 ```
 
 When you use "localhost" as the database host, you can customize phpMyAdmin username and password.
