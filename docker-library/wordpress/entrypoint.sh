@@ -5,7 +5,6 @@ set_var_if_null(){
 	if [ ! "${!varname:-}" ]; then
 		export "$varname"="$2"
 	fi
-	echo "$1 = ${!varname}"
 }
 
 setup_httpd_log_dir(){
@@ -79,6 +78,15 @@ setup_wordpress(){
 }
 
 update_wordpress_config(){
+	set_var_if_null "WORDPRESS_DB_HOST" "localhost"
+	set_var_if_null "WORDPRESS_DB_NAME" "wordpress"
+	set_var_if_null "WORDPRESS_DB_USERNAME" "wordpress"
+	set_var_if_null "WORDPRESS_DB_PASSWORD" "MS173m_QN"
+	set_var_if_null "WORDPRESS_DB_PREFIX" "wp_"
+	if [ "${WORDPRESS_DB_HOST,,}" = "localhost" ]; then
+		export WORDPRESS_DB_HOST="localhost"
+	fi
+
 	# update wp-config.php with the vars
         sed -i "s/connectstr_dbhost = '';/connectstr_dbhost = '$WORDPRESS_DB_HOST';/" "$WORDPRESS_HOME/wp-config.php"
         sed -i "s/connectstr_dbname = '';/connectstr_dbname = '$WORDPRESS_DB_NAME';/" "$WORDPRESS_HOME/wp-config.php"
@@ -93,19 +101,17 @@ load_wordpress(){
         fi
 }
 
-set -ex
+set -e
+
+echo "INFO: WORDPRESS_DB_HOST:" $WORDPRESS_DB_HOST
+echo "INFO: WORDPRESS_DB_NAME:" $WORDPRESS_DB_NAME
+echo "INFO: WORDPRESS_DB_USERNAME:" $WORDPRESS_DB_USERNAME
+echo "INFO: WORDPRESS_DB_PREFIX:" $WORDPRESS_DB_PREFIX
+echo "INFO: PHPMYADMIN_USERNAME:" $PHPMYADMIN_USERNAME
+echo "INFO: PHPMYADMIN_PASSWORD:" $PHPMYADMIN_PASSWORD
 
 setup_httpd_log_dir
 apachectl start
-
-set_var_if_null "WORDPRESS_DB_HOST" "localhost"
-set_var_if_null "WORDPRESS_DB_NAME" "wordpress"
-set_var_if_null "WORDPRESS_DB_USERNAME" "wordpress"
-set_var_if_null "WORDPRESS_DB_PASSWORD" "MS173m_QN"
-set_var_if_null "WORDPRESS_DB_PREFIX" "wp_"
-if [ "${WORDPRESS_DB_HOST,,}" = "localhost" ]; then
-	export WORDPRESS_DB_HOST="localhost"
-fi
 
 # That wp-config.php doesn't exist means WordPress is not installed/configured yet.
 if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
@@ -116,6 +122,8 @@ if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
 else
 	echo "INFO: $WORDPRESS_HOME/wp-config.php already exists."
 fi	
+
+echo "INFO: WordPress DB Host:" $WORDPRESS_DB_HOST
 
 # If local MariaDB is used in wp-config.php
 if grep -q "^\$connectstr_dbhost = 'localhost'\|^\$connectstr_dbhost = '127.0.0.1'" "$WORDPRESS_HOME/wp-config.php"; then
