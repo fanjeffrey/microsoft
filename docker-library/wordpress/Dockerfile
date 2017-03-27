@@ -276,7 +276,7 @@ RUN set -ex \
 	&& chown www-data:www-data /var/lib/php/sessions \
 	##
 	&& test ! -d /var/www && mkdir -p /var/www \
-        && echo '<html><head><meta http-equiv="refresh" content="5" /><title>Installing WordPress ...</title></head><body>Installing WordPress ... This could be done in minutes.</body></html>' > /var/www/index.html \
+        && echo '<html><head><meta http-equiv="refresh" content="30" /><title>Installing WordPress ...</title></head><body>Installing WordPress ... This could be done in minutes. Please refresh your browser later.</body></html>' > /var/www/index.html \
         && chown -R www-data:www-data /var/www \
 	##
 	&& ln -s $WORDPRESS_HOME /var/www/wordpress \

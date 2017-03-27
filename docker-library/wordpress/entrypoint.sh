@@ -5,20 +5,34 @@ set_var_if_null(){
 	if [ ! "${!varname:-}" ]; then
 		export "$varname"="$2"
 	fi
+	echo "$1 = ${!varname}"
 }
 
 setup_httpd_log_dir(){
+	test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ..." && mkdir -p "$HTTPD_LOG_DIR"
 	chown -R www-data:www-data $HTTPD_LOG_DIR
 }
 
 setup_mariadb_data_dir(){
-	cp -R /var/lib/mysql/. $MARIADB_DATA_DIR
+	test ! -d "$MARIADB_DATA_DIR" && echo "INFO: $MARIADB_DATA_DIR not found. creating ..." && mkdir -p "$MARIADB_DATA_DIR"
+        
+	# check if 'mysql' database exists
+	if [ ! -d "$MARIADB_DATA_DIR/mysql" ]; then
+                echo "INFO: 'mysql' database doesn't exist under $MARIADB_DATA_DIR. So we think $MARIADB_DATA_DIR is empty."
+                echo "Copying all data files from the original folder /var/lib/mysql to $MARIADB_DATA_DIR ..."
+                cp -R /var/lib/mysql/. $MARIADB_DATA_DIR
+        else
+                echo "INFO: 'mysql' database already exists under $MARIADB_DATA_DIR."
+        fi
+
 	rm -rf /var/lib/mysql
 	ln -s $MARIADB_DATA_DIR /var/lib/mysql
+	
 	chown -R mysql:mysql $MARIADB_DATA_DIR
 }
 
 setup_mariadb_log_dir(){
+	test ! -d "$MARIADB_LOG_DIR" && echo "INFO: $MARIADB_LOG_DIR not found. creating ..." && mkdir -p "$MARIADB_LOG_DIR"
 	chown -R mysql:mysql $MARIADB_LOG_DIR
 }
 
@@ -29,6 +43,8 @@ start_mariadb(){
 }
 
 setup_phpmyadmin(){
+	test ! -d "$PHPMYADMIN_HOME" && echo "INFO: $PHPMYADMIN_HOME not found. creating ..." && mkdir -p "$PHPMYADMIN_HOME"
+
 	cd $PHPMYADMIN_HOME
 	mv $PHPMYADMIN_SOURCE/phpmyadmin.tar.gz $PHPMYADMIN_HOME/
 	tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_HOME --strip-components=1
@@ -48,6 +64,8 @@ load_phpmyadmin(){
 }
 
 setup_wordpress(){
+	test ! -d "$WORDPRESS_HOME" && echo "INFO: $WORDPRESS_HOME not found. creating ..." && mkdir -p "$WORDPRESS_HOME"
+
 	cd $WORDPRESS_HOME
 	mv $WORDPRESS_SOURCE/wordpress.tar.gz $WORDPRESS_HOME/
 	tar -xf wordpress.tar.gz -C $WORDPRESS_HOME/ --strip-components=1
@@ -77,93 +95,71 @@ load_wordpress(){
 
 set -ex
 
-# Test if the folders exist. Create them if not.
-test ! -d "$WORDPRESS_HOME" && echo "INFO: $WORDPRESS_HOME not found. creating ..." && mkdir -p "$WORDPRESS_HOME"
-test ! -d "$PHPMYADMIN_HOME" && echo "INFO: $PHPMYADMIN_HOME not found. creating ..." && mkdir -p "$PHPMYADMIN_HOME"
-test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ..." && mkdir -p "$HTTPD_LOG_DIR"
-test ! -d "$MARIADB_DATA_DIR" && echo "INFO: $MARIADB_DATA_DIR not found. creating ..." && mkdir -p "$MARIADB_DATA_DIR"
-test ! -d "$MARIADB_LOG_DIR" && echo "INFO: $MARIADB_LOG_DIR not found. creating ..." && mkdir -p "$MARIADB_LOG_DIR"
-
 setup_httpd_log_dir
+apachectl start
+
+set_var_if_null "WORDPRESS_DB_HOST" "localhost"
+set_var_if_null "WORDPRESS_DB_NAME" "wordpress"
+set_var_if_null "WORDPRESS_DB_USERNAME" "wordpress"
+set_var_if_null "WORDPRESS_DB_PASSWORD" "MS173m_QN"
+set_var_if_null "WORDPRESS_DB_PREFIX" "wp_"
+if [ "${WORDPRESS_DB_HOST,,}" = "localhost" ]; then
+	export WORDPRESS_DB_HOST="localhost"
+fi
 
 # That wp-config.php doesn't exist means WordPress is not installed/configured yet.
 if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
-	apachectl start
-
 	echo "INFO: $WORDPRESS_HOME/wp-config.php not found."
 	echo "Installing WordPress for the first time ..."
-	
-	set_var_if_null "WORDPRESS_DB_HOST" "localhost"
-        set_var_if_null "WORDPRESS_DB_NAME" "wordpress"
-        set_var_if_null "WORDPRESS_DB_USERNAME" "wordpress"
-        set_var_if_null "WORDPRESS_DB_PASSWORD" "MS173m_QN"
-        set_var_if_null "WORDPRESS_DB_PREFIX" "wp_"
-	if [ "${WORDPRESS_DB_HOST,,}" = "localhost" ]; then
-                export WORDPRESS_DB_HOST="localhost"
-        fi
-	
 	setup_wordpress
         update_wordpress_config
-	
-	# If local MariaDB is used in wp-config.php
-	if grep -q "connectstr_dbhost = 'localhost'" "$WORDPRESS_HOME/wp-config.php"; then
-		echo "Local MariaDB chosen."
-		if [ ! -d "$MARIADB_DATA_DIR/mysql" ]; then
-			echo "INFO: $MARIADB_DATA_DIR not in use."
-			echo "Setting up MariaDB data dir ..."
-			setup_mariadb_data_dir
-			echo "Setting up MariaDB log dir ..."
-			setup_mariadb_log_dir
-			echo "Starting local MariaDB ..."
-			start_mariadb
-		
-			echo "Creating user for phpMyAdmin ..."
-			set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
-                        set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
-                        mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-			
-			echo "Creating database and user for WordPress ..."
-	                mysql -u root -e "CREATE DATABASE \`$WORDPRESS_DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci; GRANT ALL ON \`$WORDPRESS_DB_NAME\`.* TO \`$WORDPRESS_DB_USERNAME\`@\`$WORDPRESS_DB_HOST\` IDENTIFIED BY '$WORDPRESS_DB_PASSWORD'; FLUSH PRIVILEGES;"
-		else
-			echo "INFO: $MARIADB_DATA_DIR already exists."
-			echo "Starting local MariaDB ..."
-                        start_mariadb
-		fi
-
-
-		if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
-			echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."	
-			echo "Installing phpMyAdmin ..."
-			setup_phpmyadmin
-		fi
-	
-		echo "Starting local Redis ..."
-		redis-server --daemonize yes
-
-		echo "Loading phpMyAdmin conf ..."
-                load_phpmyadmin
-	fi
-
-	apachectl stop
-	# give 3 more second to avoid "httpd (pid XX) already running"
-	sleep 3s
 else
 	echo "INFO: $WORDPRESS_HOME/wp-config.php already exists."
+fi	
+
+# If local MariaDB is used in wp-config.php
+if grep -q "^\$connectstr_dbhost = 'localhost'\|^\$connectstr_dbhost = '127.0.0.1'" "$WORDPRESS_HOME/wp-config.php"; then
+	echo "INFO: local MariaDB is used as DB_HOST in wp-config.php."
+	echo "Setting up MariaDB data dir ..."
+	setup_mariadb_data_dir
+	echo "Setting up MariaDB log dir ..."
+	setup_mariadb_log_dir
+	echo "Starting local MariaDB ..."
+	start_mariadb
 	
-	if grep -q "connectstr_dbhost = 'localhost'" "$WORDPRESS_HOME/wp-config.php"; then
-		echo "Starting local MariaDB ..."
-		start_mariadb
-
-		echo "Starting local Redis ..."
-		redis-server --daemonize yes
-
-		echo "Loading phpMyAdmin conf ..."
-		load_phpmyadmin
+	echo "Granting user for phpMyAdmin ..."
+	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
+	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
+	mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+	
+	echo "Creating database for WordPress if not exists ..."
+	mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$WORDPRESS_DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
+	echo "Granting user for WordPress ..."
+	mysql -u root -e "GRANT ALL ON \`$WORDPRESS_DB_NAME\`.* TO \`$WORDPRESS_DB_USERNAME\`@\`$WORDPRESS_DB_HOST\` IDENTIFIED BY '$WORDPRESS_DB_PASSWORD'; FLUSH PRIVILEGES;"
+	
+	echo "Starting local Redis ..."
+	redis-server --daemonize yes
+	
+	if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
+	        echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."
+        	echo "Installing phpMyAdmin ..."
+	        setup_phpmyadmin
+        else
+		echo "INFO: $PHPMYADMIN_HOME/config.inc.php already exists."
 	fi
+	
+	echo "Loading phpMyAdmin conf ..."
+	load_phpmyadmin
+else
+	echo "INFO: local MariaDB is NOT used as DB_HOST in wp-config.php."
 fi
 
+apachectl stop
+# delay 2 seconds to try to avoid "httpd (pid XX) already running"
+sleep 2s
+
+echo "Loading WordPress conf ..."
 load_wordpress
 
-# start Apache HTTPD
-echo "Starting apache httpd -D FOREGROUND ..."
+echo "Starting Apache httpd -D FOREGROUND ..."
 apachectl start -D FOREGROUND
