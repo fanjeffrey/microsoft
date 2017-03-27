@@ -37,6 +37,14 @@ setup_phpmyadmin(){
 	
 	rm $PHPMYADMIN_HOME/phpmyadmin.tar.gz
 	rm -rf $PHPMYADMIN_SOURCE
+
+	chown -R www-data:www-data $PHPMYADMIN_HOME
+}
+
+load_phpmyadmin(){
+        if ! grep -q "^Include conf/httpd-phpmyadmin.conf" $HTTPD_CONF_FILE; then
+                echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
+        fi
 }
 
 setup_wordpress(){
@@ -47,12 +55,12 @@ setup_wordpress(){
 	mv $WORDPRESS_SOURCE/wp-config.php.microsoft $WORDPRESS_HOME/wp-config.php
 
 	rm $WORDPRESS_HOME/wordpress.tar.gz
-	rm -rf $WORDPRESS_SOURCEi
+	rm -rf $WORDPRESS_SOURCE
 
 	chown -R www-data:www-data $WORDPRESS_HOME 
 }
 
-update_wp_config(){
+update_wordpress_config(){
 	# update wp-config.php with the vars
         sed -i "s/connectstr_dbhost = '';/connectstr_dbhost = '$WORDPRESS_DB_HOST';/" "$WORDPRESS_HOME/wp-config.php"
         sed -i "s/connectstr_dbname = '';/connectstr_dbname = '$WORDPRESS_DB_NAME';/" "$WORDPRESS_HOME/wp-config.php"
@@ -61,8 +69,15 @@ update_wp_config(){
         sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$WORDPRESS_DB_PREFIX';/" "$WORDPRESS_HOME/wp-config.php"
 }
 
-set -ex 
+load_wordpress(){
+        if ! grep -q "^Include conf/httpd-wordpress.conf" $HTTPD_CONF_FILE; then
+                echo 'Include conf/httpd-wordpress.conf' >> $HTTPD_CONF_FILE
+        fi
+}
 
+set -ex
+
+# Test if the folders exist. Create them if not.
 test ! -d "$WORDPRESS_HOME" && echo "INFO: $WORDPRESS_HOME not found. creating ..." && mkdir -p "$WORDPRESS_HOME"
 test ! -d "$PHPMYADMIN_HOME" && echo "INFO: $PHPMYADMIN_HOME not found. creating ..." && mkdir -p "$PHPMYADMIN_HOME"
 test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ..." && mkdir -p "$HTTPD_LOG_DIR"
@@ -87,8 +102,11 @@ if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
                 export WORDPRESS_DB_HOST="localhost"
         fi
 	
-	# If the local MariaDB is used.
-	if [ "$WORDPRESS_DB_HOST" = "localhost" -o "$WORDPRESS_DB_HOST" = "127.0.0.1" ]; then
+	setup_wordpress
+        update_wordpress_config
+	
+	# If local MariaDB is used in wp-config.php
+	if grep -q "connectstr_dbhost = 'localhost'" "$WORDPRESS_HOME/wp-config.php"; then
 		echo "Local MariaDB chosen."
 		if [ ! -d "$MARIADB_DATA_DIR/mysql" ]; then
 			echo "INFO: $MARIADB_DATA_DIR not in use."
@@ -121,12 +139,14 @@ if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
 	
 		echo "Starting local Redis ..."
 		redis-server --daemonize yes
+
+		echo "Loading phpMyAdmin conf ..."
+                load_phpmyadmin
 	fi
 
-	setup_wordpress
-	update_wp_config
-
 	apachectl stop
+	# give 3 more second to avoid "httpd (pid XX) already running"
+	sleep 3s
 else
 	echo "INFO: $WORDPRESS_HOME/wp-config.php already exists."
 	
@@ -136,8 +156,13 @@ else
 
 		echo "Starting local Redis ..."
 		redis-server --daemonize yes
+
+		echo "Loading phpMyAdmin conf ..."
+		load_phpmyadmin
 	fi
 fi
+
+load_wordpress
 
 # start Apache HTTPD
 echo "Starting apache httpd -D FOREGROUND ..."
