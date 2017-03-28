@@ -17,13 +17,12 @@ ENV HTTPD_SOURCE "/usr/src/httpd"
 ENV HTTPD_HOME "/usr/local/httpd"
 ENV HTTPD_CONF_DIR "$HTTPD_HOME/conf"
 ENV HTTPD_CONF_FILE "$HTTPD_CONF_DIR/httpd.conf"
-ENV HTTPD_LOG_DIR="/var/log/httpd"
+ENV HTTPD_LOG_DIR="/home/LogFiles/httpd"
 ENV PATH "$HTTPD_HOME/bin":$PATH
 
 # mariadb
-ENV MARIADB_DATA_DIR="/var/lib/mysql"
-ENV MARIADB_LOG_DIR="/var/log/mysql"
-ENV MARIADB_DATA_DIR_TEMP="/tmp/mariadb"
+ENV MARIADB_DATA_DIR="/home/data/mysql"
+ENV MARIADB_LOG_DIR="/home/LogFiles/mysql"
 
 # php
 ENV PHP_VERSION "7.1.2"
@@ -40,14 +39,14 @@ ENV PHPMYADMIN_VERSION "4.6.6"
 ENV PHPMYADMIN_DOWNLOAD_URL "https://files.phpmyadmin.net/phpMyAdmin/$PHPMYADMIN_VERSION/phpMyAdmin-$PHPMYADMIN_VERSION-all-languages.tar.gz"
 ENV PHPMYADMIN_SHA256 "54086600558613b31c4daddf4ae58fbc1c252a2b8e3e6fae12f851f78677d72e"
 ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
-ENV PHPMYADMIN_HOME "/var/www/phpmyadmin"
+ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 
 # drupal
 ENV DRUPAL_VERSION "8.3.0-rc2"
 ENV DRUPAL_DOWNLOAD_URL "https://ftp.drupal.org/files/projects/drupal-$DRUPAL_VERSION.tar.gz"
 ENV DRUPAL_MD5 "3bcddc9a48801f7035c7cb0e6f02f6d0"
 ENV DRUPAL_SOURCE "/usr/src/drupal"
-ENV DRUPAL_HOME "/var/www/drupal"
+ENV DRUPAL_HOME "/home/site/wwwroot"
 
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
@@ -212,21 +211,17 @@ RUN set -ex \
         # 5. phpmyadmin
         # -------------
         && mkdir -p $PHPMYADMIN_SOURCE \
-        && cd $DOCKER_BUILD_HOME \
+        && cd $PHPMYADMIN_SOURCE \
         && wget -O phpmyadmin.tar.gz "$PHPMYADMIN_DOWNLOAD_URL" --no-check-certificate \
         && echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
-        && tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_SOURCE --strip-components=1 \
-        && rm $DOCKER_BUILD_HOME/phpmyadmin.tar.gz \
 
 	# ---------
 	# 6. drupal 
 	# ---------
 	&& mkdir -p $DRUPAL_SOURCE \
-	&& cd $DOCKER_BUILD_HOME \
+	&& cd $DRUPAL_SOURCE \
 	&& wget -O drupal.tar.gz "$DRUPAL_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$DRUPAL_MD5 *drupal.tar.gz" | md5sum -c - \
-	&& tar -xf drupal.tar.gz -C $DRUPAL_SOURCE --strip-components=1 \
-	&& rm $DOCKER_BUILD_HOME/drupal.tar.gz \
 
 	# -----------
 	# ~. clean up
@@ -235,53 +230,46 @@ RUN set -ex \
 	&& apt-get autoremove -y	
 
 
-# ==============
-# Configurations 
-# ==============
+# =========
+# Configure
+# =========
 
-# httpd confs
+# httpd
 COPY httpd.conf $HTTPD_CONF_DIR/
 COPY httpd-modules.conf $HTTPD_CONF_DIR/
 COPY httpd-php.conf $HTTPD_CONF_DIR/
-COPY httpd-drupal.conf $HTTPD_CONF_DIR/
-COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
-# php confs
+# php
 COPY php.ini $PHP_CONF_DIR/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
-# phpmyadmin config
+# phpmyadmin
+COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
+# drupal
+COPY httpd-drupal.conf $HTTPD_CONF_DIR/
+
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
 	&& test ! -d /var/lib/php/sessions && mkdir -p /var/lib/php/sessions \
-	&& chown www-data:www-data /var/lib/php/sessions
-
-
-# =====================================
-# Azure Web App on Linux configurations
-# =====================================
-# /home is a shared directory among multiple web app instances
-# /home/site/wwwroot for Drupal site
-# /home/phpmyadmin for phpMyAdmin site
-# /home/data for native MariaDB data dir
-# /home/LogFiles/httpd for httpd/php/drupal/phpmyadmin logs
-# /home/LogFiles/mariadb for mariadb logs
-
-ENV AZURE_SITE_ROOT "/home/site/wwwroot"
-ENV PHPMYADMIN_HOME_AZURE "/home/phpmyadmin"
-ENV MARIADB_DATA_DIR_AZURE "/home/data"
-ENV HTTPD_LOG_DIR_AZURE "/home/LogFiles/httpd"
-ENV MARIADB_LOG_DIR_AZURE "/home/LogFiles/mariadb"
-
+	&& chown www-data:www-data /var/lib/php/sessions \
+	##
+	&& test ! -d /var/www && mkdir -p /var/www \
+        && echo '<html><head><meta http-equiv="refresh" content="30" /><title>Installing Drupal</title></head><body>Installing Drupal ... This could be done in minutes. Please refresh your browser later.</body></html>' > /var/www/index.html \
+        && chown -R www-data:www-data /var/www \
+	##
+	&& rm -rf /var/log/httpd \
+	&& ln -s $HTTPD_LOG_DIR /var/log/httpd \
+	##
+	&& rm -rf /var/log/mysql \
+	&& ln -s $MARIADB_LOG_DIR /var/log/mysql \
+	##
+	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
+	##
+	&& ln -s $WORDPRESS_HOME /var/www/wordpress
 
 # =====
 # final
 # =====
 COPY entrypoint.sh /usr/local/bin/
-RUN set -ex \
-	&& chmod +x /usr/local/bin/entrypoint.sh \
-	&& test ! -d /var/www && mkdir -p /var/www \
-	&& echo '<html><head><meta http-equiv="refresh" content="5" /><title>Installing Drupal ...</title></head><body>Installing Drupal ... This could be done in minutes.</body></html>' > /var/www/index.html \
-	&& chown -R www-data:www-data /var/www \
-	&& chmod 664 /var/www/index.html	
+RUN chmod u+x /usr/local/bin/entrypoint.sh
 EXPOSE 80
 ENTRYPOINT ["entrypoint.sh"]
