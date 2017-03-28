@@ -247,7 +247,6 @@ COPY httpd-drupal.conf $HTTPD_CONF_DIR/
 COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
 # php confs
 COPY php.ini $PHP_CONF_DIR/
-COPY php-log.ini $PHP_CONF_DIR_SCAN/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 # phpmyadmin config
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
