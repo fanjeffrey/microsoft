@@ -78,8 +78,8 @@ setup_drupal(){
 
 update_settings(){
 	set_var_if_null "DRUPAL_DB_HOST" "localhost"
-	set_var_if_null "DRUPAL_DB_NAME" "wordpress"
-	set_var_if_null "DRUPAL_DB_USERNAME" "wordpress"
+	set_var_if_null "DRUPAL_DB_NAME" "drupal"
+	set_var_if_null "DRUPAL_DB_USERNAME" "drupal"
 	set_var_if_null "DRUPAL_DB_PASSWORD" "MS173m_QN"
 	if [ "${DRUPAL_DB_HOST,,}" = "localhost" -o "$DRUPAL_DB_HOST" = "127.0.0.1" ]; then
 		export DRUPAL_DB_HOST="localhost"
