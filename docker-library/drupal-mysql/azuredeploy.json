@@ -35,11 +35,11 @@
         },
         "drupalDatabaseName": {
             "type": "string",
-            "defaultValue": "wordpress"
+            "defaultValue": "drupal"
         },
         "drupalDatabaseUsername": {
             "type": "string",
-            "defaultValue": "wordpress"
+            "defaultValue": "drupal"
         },
         "drupalDatabasePassword": {
             "type": "securestring",
