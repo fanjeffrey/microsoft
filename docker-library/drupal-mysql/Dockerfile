@@ -243,7 +243,7 @@ COPY php.ini $PHP_CONF_DIR/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 # phpmyadmin
 COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
-COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
+COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/
 # drupal
 COPY httpd-drupal.conf $HTTPD_CONF_DIR/
 
