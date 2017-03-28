@@ -70,7 +70,23 @@ setup_drupal(){
 	rm $DRUPAL_HOME/drupal.tar.gz
 	rm -rf $DRUPAL_SOURCE
 
+	# create settings.php
+	cp $DRUPAL_HOME/sites/default/default.settings.php $DRUPAL_HOME/sites/default/settings.php
+
 	chown -R www-data:www-data $DRUPAL_HOME 
+}
+
+update_settings(){
+	set_var_if_null "DRUPAL_DB_HOST" "localhost"
+	set_var_if_null "DRUPAL_DB_NAME" "drupal"
+	set_var_if_null "DRUPAL_DB_USERNAME" "drupal"
+	set_var_if_null "DRUPAL_DB_PASSWORD" "MS173m_QN"
+	if [ "${DRUPAL_DB_HOST,,}" = "localhost" -o "$DRUPAL_DB_HOST" = "127.0.0.1" ]; then
+		export DRUPAL_DB_HOST="localhost"
+	fi
+
+	echo "#do not remove/uncomment the following line." >> $DRUPAL_HOME/sites/default/settings.php
+	echo "#docker: DRUPAL_DB_HOST=$DRUPAL_DB_HOST" >> $DRUPAL_HOME/sites/default/settings.php
 }
 
 load_drupal(){
@@ -94,12 +110,13 @@ if [ ! -e "$DRUPAL_HOME/sites/default/settings.php" ]; then
 	echo "INFO: $DRUPAL_HOME/sites/default/settings.php not found."
 	echo "Installing Drupal for the first time ..."
 	setup_drupal
+	update_settings
 else
 	echo "INFO: $DRUPAL_HOME/sites/default/settings.php already exists."
 fi
 
 # If local MariaDB is used in settings.php
-if grep -q "^  'host' => 'localhost'\|^  'host' => '127.0.0.1'" "$DRUPAL_HOME/sites/default/settings.php"; then
+if grep -q "^#docker: DRUPAL_DB_HOST=localhost\|^#docker: DRUPAL_DB_HOST=127.0.0.1" "$DRUPAL_HOME/sites/default/settings.php"; then
 	echo "INFO: local MariaDB is used as DB_HOST in settings.php."
 	echo "Setting up MariaDB data dir ..."
 	setup_mariadb_data_dir
