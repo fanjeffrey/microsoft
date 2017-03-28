@@ -264,7 +264,7 @@ RUN set -ex \
 	##
 	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
 	##
-	&& ln -s $WORDPRESS_HOME /var/www/wordpress
+	&& ln -s $DRUPAL_HOME /var/www/drupal
 
 # =====
 # final
