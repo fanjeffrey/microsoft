@@ -253,7 +253,7 @@ RUN set -ex \
 	&& chown www-data:www-data /var/lib/php/sessions \
 	##
 	&& test ! -d /var/www && mkdir -p /var/www \
-        && echo '<html><head><meta http-equiv="refresh" content="30" /><title>Installing Drupal</title></head><body>Installing Drupal ... This could be done in minutes. Please refresh your browser later.</body></html>' > /var/www/index.html \
+        && echo '<html><head><meta http-equiv="refresh" content="30" /><meta http-equiv="pragma" content="no-cache" /><meta http-equiv="cache-control" content="no-cache" /><title>Installing Drupal</title></head><body>Installing Drupal ... This could be done in minutes. Please refresh your browser later.</body></html>' > /var/www/index.html \
         && chown -R www-data:www-data /var/www \
 	##
 	&& rm -rf /var/log/httpd \
