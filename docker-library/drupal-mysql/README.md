@@ -47,7 +47,7 @@ At the SETUP page, as shown below, you can change default values of these enviro
 ### Running on Docker engine's host
 The **docker run** command below will get you a container that has a Drupal site connected to the builtin MariaDB, and has the builtin phpMyAdmin site enabled.
 ```
-docker run -d -t -p 80:80 fanjeffrey/drupal:latest_mysql
+docker run -d -t -p 80:80 fanjeffrey/drupal-mysql:latest
 ```
 
 The command below will connect the Drupal site within your Docker container to an Azure ClearDb.
@@ -57,7 +57,7 @@ docker run -d -t -p 80:80 \
     -e "DRUPAL_DB_NAME=<your_db_name>" \
     -e "DRUPAL_DB_USERNAME=<your_db_username>" \
     -e "DRUPAL_DB_PASSWORD=<your_db_password>" \
-    fanjeffrey/drupal:latest_mysql
+    fanjeffrey/drupal-mysql:latest
 ```
 
 When you use "localhost" as the database host, you can customize phpMyAdmin username and password.
@@ -69,7 +69,7 @@ docker run -d -t -p 80:80 \
     -e "DRUPAL_DB_PASSWORD=<your_db_password>" \
     -e "PHPMYADMIN_USERNAME=<your_phpmyadmin_username>" \
     -e "PHPMYADMIN_PASSWORD=<your_phpmyadmin_password>" \
-    fanjeffrey/drupal:latest_mysql
+    fanjeffrey/drupal-mysql:latest
 ```
 
 ## The Builtin MariaDB server

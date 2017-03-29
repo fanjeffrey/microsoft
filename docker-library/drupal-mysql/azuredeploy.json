@@ -27,7 +27,7 @@
         },
         "dockerRegistryImageName": {
             "type": "string",
-            "defaultValue": "fanjeffrey/drupal:latest_mysql"
+            "defaultValue": "fanjeffrey/drupal-mysql:latest"
         },
         "drupalDatabaseHost": {
             "type": "string",
