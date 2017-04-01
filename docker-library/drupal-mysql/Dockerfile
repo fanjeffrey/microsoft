@@ -2,7 +2,7 @@
 # Dockerfile for Drupal with MariaDB
 #
 FROM ubuntu:16.04
-LABEL maintainer "v-jifan@microsoft.com"
+MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
 
 
 # ========
@@ -54,7 +54,8 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 
 # ====================
 # Download and Install
-# 1. tools
+# ~. tools
+# 1. essentials
 # 2. apache httpd
 # 3. mariadb
 # 4. php
@@ -64,9 +65,9 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 
 WORKDIR $DOCKER_BUILD_HOME
 RUN set -ex \
-	# ------------------
-	# 1. tools
-	# ------------------
+	# --------
+	# ~. tools
+	# --------
 	&& tools=" \
 		g++ \
 		gcc \
@@ -76,6 +77,16 @@ RUN set -ex \
 	" \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends $tools \
+	&& rm -r /var/lib/apt/lists/* \
+
+	# -------------
+	# 1. essentials
+	# -------------
+	&& essentials=" \
+		ca-certificates \
+	" \
+	&& apt-get update \
+	&& apt-get install -y -V --no-install-recommends $essentials \
 	&& rm -r /var/lib/apt/lists/* \
 
 	# ---------------
@@ -121,12 +132,12 @@ RUN set -ex \
 	&& rm $DOCKER_BUILD_HOME/httpd.tar.gz \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $httpdBuildtimeDeps \
 
-        # ----------
-        # 3. mariadb
-        # ----------
-        && apt-get update \
-        && DEBIAN_FRONTEND=noninteractive apt-get install mariadb-server -y -V --no-install-recommends \
-        && rm -r /var/lib/apt/lists/* \
+	# ----------
+	# 3. mariadb
+	# ----------
+	&& apt-get update \
+	&& DEBIAN_FRONTEND=noninteractive apt-get install mariadb-server -y -V --no-install-recommends \
+	&& rm -r /var/lib/apt/lists/* \
 
 	# ------
 	# 4. php
@@ -177,6 +188,7 @@ RUN set -ex \
 		--disable-cgi \
 		--enable-bcmath \
 		--enable-intl \
+		--enable-ftp \
 		--enable-mbstring \
 		--enable-soap \
 		--enable-zip \
@@ -198,6 +210,7 @@ RUN set -ex \
 		### see http://php.net/manual/en/mysqlinfo.library.choosing.php
 		--with-pdo-mysql=mysqlnd \
 		--with-xsl \
+		--with-zlib \
 	&& make -j "$(nproc)" \
 	&& make install \
 	&& make clean \
@@ -207,13 +220,13 @@ RUN set -ex \
 	&& rm $DOCKER_BUILD_HOME/php.tar.gz \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $phpBuildtimeDeps \
 
-        # -------------
-        # 5. phpmyadmin
-        # -------------
-        && mkdir -p $PHPMYADMIN_SOURCE \
-        && cd $PHPMYADMIN_SOURCE \
-        && wget -O phpmyadmin.tar.gz "$PHPMYADMIN_DOWNLOAD_URL" --no-check-certificate \
-        && echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
+	# -------------
+	# 5. phpmyadmin
+	# -------------
+	&& mkdir -p $PHPMYADMIN_SOURCE \
+	&& cd $PHPMYADMIN_SOURCE \
+	&& wget -O phpmyadmin.tar.gz "$PHPMYADMIN_DOWNLOAD_URL" --no-check-certificate \
+	&& echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
 
 	# ---------
 	# 6. drupal 

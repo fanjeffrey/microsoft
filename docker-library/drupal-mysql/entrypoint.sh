@@ -73,7 +73,7 @@ setup_drupal(){
 	# create settings.php
 	cp $DRUPAL_HOME/sites/default/default.settings.php $DRUPAL_HOME/sites/default/settings.php
 
-	chown -R www-data:www-data $DRUPAL_HOME 
+	chown -R www-data:www-data $DRUPAL_HOME
 }
 
 update_settings(){
