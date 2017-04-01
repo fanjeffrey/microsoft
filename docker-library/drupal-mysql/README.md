@@ -1,6 +1,6 @@
 # Docker Image for Drupal with MySQL
 ## Overview
-A Drupal (with MySQL) Docker image which is built with the Dockerfile under this repo can run on both [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro) and your Docker engines's host.
+This Drupal (with MySQL) Docker image is built for [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro).
 
 ## Components
 This docker image contains the following components:
@@ -16,7 +16,7 @@ Ubuntu 16.04 is used as the base image.
 ## Features
 This docker image enables you to:
 
-- run a Drupal site on **Azure Web App on Linux** or your Docker engine's host;
+- run a Drupal site on **Azure Web App on Linux**;
 - connect your Drupal site to **Azure ClearDB** or the builtin MariaDB;
 
 ## Limitations
@@ -44,34 +44,6 @@ At the SETUP page, as shown below, you can change default values of these enviro
 
 ![Drupal Deploy to Azure SETUP page](https://raw.githubusercontent.com/fanjeffrey/Images/master/Microsoft/docker-library/drupal_deploy_setup.PNG)
 
-### Running on Docker engine's host
-The **docker run** command below will get you a container that has a Drupal site connected to the builtin MariaDB, and has the builtin phpMyAdmin site enabled.
-```
-docker run -d -t -p 80:80 fanjeffrey/drupal-mysql:latest
-```
-
-The command below will connect the Drupal site within your Docker container to an Azure ClearDb.
-```
-docker run -d -t -p 80:80 \
-    -e "DRUPAL_DB_HOST=<your_cleardb_host_name>" \
-    -e "DRUPAL_DB_NAME=<your_db_name>" \
-    -e "DRUPAL_DB_USERNAME=<your_db_username>" \
-    -e "DRUPAL_DB_PASSWORD=<your_db_password>" \
-    fanjeffrey/drupal-mysql:latest
-```
-
-When you use "localhost" as the database host, you can customize phpMyAdmin username and password.
-```
-docker run -d -t -p 80:80 \
-    -e "DRUPAL_DB_HOST=localhost" \
-    -e "DRUPAL_DB_NAME=<your_db_name>" \
-    -e "DRUPAL_DB_USERNAME=<your_db_username>" \
-    -e "DRUPAL_DB_PASSWORD=<your_db_password>" \
-    -e "PHPMYADMIN_USERNAME=<your_phpmyadmin_username>" \
-    -e "PHPMYADMIN_PASSWORD=<your_phpmyadmin_password>" \
-    fanjeffrey/drupal-mysql:latest
-```
-
 ## The Builtin MariaDB server
 The builtin MariaDB server uses port 3306.
 
@@ -79,3 +51,32 @@ The builtin MariaDB server uses port 3306.
 If you're using the builtin MariaDB, you can access the builtin phpMyAdmin site with a URL like below:
 
 **http://hostname[:port]/phpmyadmin**
+
+## How to change database connection to a remote server
+1. Use any FTP tool you prefer to connect to the site (you can get the credentials on Azure portal);
+2. Download /home/site/wwwroot/sites/default/settings.php to your local folder;
+3. Open settings.php, find the following lines, and then update them;
+    ```
+    #do not remove/uncomment the following line.
+    #docker: DRUPAL_DB_HOST=localhost
+    $databases['default']['default'] = array (
+        'database' => 'drupal',
+        'username' => 'drupal',
+        'password' => 'MS173m_QN',
+        'prefix' => 'dp_',
+        'host' => 'localhost',
+        'port' => '3306',
+        'namespace' => 'Drupal\\Core\\Database\\Driver\\mysql',
+        'driver' => 'mysql',
+    );
+    ```
+    NOTE: you need also change the line "#docker: DRUPAL_DB_HOST=localhost" to "#docker: DRUPAL_DB_HOST=<your-db-server-name/IP address>". This line is required by entrypoint.sh.
+
+4. Upload settings.php back to overwrite;
+
+## How to install modules
+1. Use any FTP tool you prefer to connect to the site (you can get the credentials on Azure portal);
+2. Upload the tar file of the module that you want to install to the folder /home/site/wwwroot/modules;
+3. Extract the contents into a sub-folder under /home/site/wwwroot/modules;
+
+For more information, please see the README.txt under /home/site/wwwroot/modules.
