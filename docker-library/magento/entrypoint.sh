@@ -109,9 +109,10 @@ setup_magento(){
 	test ! -d "$MAGENTO_HOME" && echo "INFO: $MAGENTO_HOME not found. creating ..." && mkdir -p "$MAGENTO_HOME"
 
 	cd $MAGENTO_HOME
-	echo "copying Magento source files to $MAGENTO_HOME ..."
-	cp -R $MAGENTO_SOURCE/. $MAGENTO_HOME/
-	rm -rf $MAGENTO_SOURCE
+	mv $MAGENTO_SOURCE/magento.tar.gz $MAGENTO_HOME/
+	tar -xf magento.tar.gz -C $MAGENTO_HOME/ 
+	rm $MAGENTO_HOME/magento.tar.gz
+	rm -rf $MAGENTO_SOURC
 }
 
 update_defaultvars(){

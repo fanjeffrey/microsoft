@@ -236,7 +236,7 @@ RUN set -ex \
 	# ------------
 	&& mkdir -p $MAGENTO_SOURCE \
 	&& cd $DOCKER_BUILD_HOME \
-	&& tar -xf $MAGENTO_PACKAGE -C $MAGENTO_SOURCE \
+	&& cp $MAGENTO_PACKAGE $MAGENTO_SOURCE/magento.tar.gz \
 	&& rm $DOCKER_BUILD_HOME/$MAGENTO_PACKAGE \
 
 	# -------------
@@ -284,7 +284,7 @@ RUN set -ex \
 	&& chown www-data:www-data /var/lib/php/sessions \
 	## install show page
 	&& test ! -d /var/www && mkdir -p /var/www \
-	&& echo '<html><head><meta http-equiv="refresh" content="15" /><meta http-equiv="pragma" content="no-cache" /><meta http-equiv="cache-control" content="no-cache" /><title>Installing Magento ...</title></head><body>Installing Magento ... This could be done in minutes. But it will take longer if running on Azure Web App for Linux.</body></html>' > /var/www/index.html \
+	&& echo '<html><head><meta http-equiv="refresh" content="15" /><title>Installing Magento ...</title></head><body>Installing Magento ... This could be done in minutes. But it will take longer if running on Azure Web App for Linux.</body></html>' > /var/www/index.html \
 	&& chown -R www-data:www-data /var/www \
 	&& chmod 664 /var/www/index.html \
 	##
