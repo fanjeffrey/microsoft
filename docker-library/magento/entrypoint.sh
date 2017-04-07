@@ -112,7 +112,7 @@ setup_magento(){
 	mv $MAGENTO_SOURCE/magento.tar.gz $MAGENTO_HOME/
 	tar -xf magento.tar.gz -C $MAGENTO_HOME/ 
 	rm $MAGENTO_HOME/magento.tar.gz
-	rm -rf $MAGENTO_SOURC
+	rm -rf $MAGENTO_SOURCE
 }
 
 update_defaultvars(){
