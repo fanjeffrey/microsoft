@@ -243,11 +243,9 @@ RUN set -ex \
 	# 7. phpmyadmin
 	# -------------
 	&& mkdir -p $PHPMYADMIN_SOURCE \
-	&& cd $DOCKER_BUILD_HOME \
+	&& cd $PHPMYADMIN_SOURCE \
 	&& wget -O phpmyadmin.tar.gz "$PHPMYADMIN_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
-	&& tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_SOURCE --strip-components=1 \
-	&& rm $DOCKER_BUILD_HOME/phpmyadmin.tar.gz \
 
 	# -------
 	# 8. cron
@@ -266,19 +264,18 @@ RUN set -ex \
 # ==============
 # Configurations 
 # ==============
-
-# httpd confs
+# httpd
 COPY httpd.conf $HTTPD_CONF_DIR/
 COPY httpd-modules.conf $HTTPD_CONF_DIR/
 COPY httpd-php.conf $HTTPD_CONF_DIR/
-COPY httpd-magento.conf $HTTPD_CONF_DIR/
-COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
-# php confs
+# php
 COPY php.ini $PHP_CONF_DIR/
-COPY php-log.ini $PHP_CONF_DIR_SCAN/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
-# phpmyadmin config
-COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
+# phpmyadmin
+COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
+COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/
+# magento
+COPY httpd-magento.conf $HTTPD_CONF_DIR/
 
 RUN set -ex \
 	## include php.conf

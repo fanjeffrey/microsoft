@@ -62,6 +62,48 @@ load_phpmyadmin(){
         fi
 }
 
+setup_localenv(){
+	# If local MariaDB is used in settings.php
+	if [ "${MAGENTO_DB_HOST,,}" = "127.0.0.1" ]; then
+	#if grep "'host' => '127.0.0.1'" "$MAGENTO_HOME/app/etc/env.php"; then
+		echo "INFO: local MariaDB is used as DB_HOST in settings.php."
+		echo "Setting up MariaDB data dir ..."
+		setup_mariadb_data_dir
+		echo "Setting up MariaDB log dir ..."
+		setup_mariadb_log_dir
+		echo "Starting local MariaDB ..."
+		start_mariadb
+		echo "Granting user for phpMyAdmin ..."
+		set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
+		set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
+		mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+
+		echo "Creating database for MAGENTO if not exists ..."
+		mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$MAGENTO_DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
+		echo "Granting user for MAGENTO ..."
+		mysql -u root -e "GRANT ALL ON \`$MAGENTO_DB_NAME\`.* TO \`$MAGENTO_DB_USERNAME\`@\`$MAGENTO_DB_HOST\` IDENTIFIED BY '$MAGENTO_DB_PASSWORD'; FLUSH PRIVILEGES;"
+
+		# start redis and cron.
+		redis-server --daemonize yes
+		service cron start
+
+		# setup phpMyAdmin.
+		if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
+			echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."
+			echo "Installing phpMyAdmin ..."
+			setup_phpmyadmin
+		else
+			echo "INFO: $PHPMYADMIN_HOME/config.inc.php already exists."
+		fi
+
+		echo "Loading phpMyAdmin conf ..."
+		load_phpmyadmin
+	else
+		echo "INFO: local MariaDB is NOT used as DB_HOST in settings.php."
+	fi
+}
+
+
 #magento
 setup_magento(){
 	test ! -d "$MAGENTO_HOME" && echo "INFO: $MAGENTO_HOME not found. creating ..." && mkdir -p "$MAGENTO_HOME"
@@ -70,19 +112,9 @@ setup_magento(){
 	echo "copying Magento source files to $MAGENTO_HOME ..."
 	cp -R $MAGENTO_SOURCE/. $MAGENTO_HOME/
 	rm -rf $MAGENTO_SOURCE
-
-	# see http://devdocs.magento.com/guides/v2.1/install-gde/prereq/file-system-perms.html
-	echo "chown -R www-data:www-data $MAGENTO_HOME/ ..."
-	chown -R www-data:www-data $MAGENTO_HOME
-
-	echo "chmod g+ws for the dirs: app/etc, public/media, public/static, var, and vendor ..."
-	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type d -exec chmod g+ws {} \;
-	echo "chmod g+w for the files: app/etc, public/media, public/static, var, and vendor ..."
-	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type f -exec chmod g+w {} \;
-	chmod ug+x $MAGENTO_HOME/bin/magento
 }
 
-update_settings(){
+update_defaultvars(){
 	# see http://devdocs.magento.com/guides/v2.1/install-gde/install/cli/install-cli-install.html
 	set_var_if_null 'MAGENTO_ADMIN_USER' 'admin'
 	set_var_if_null 'MAGENTO_ADMIN_PASSWORD' 'MS173m_QN'
@@ -101,6 +133,19 @@ update_settings(){
 		export MAGENTO_DB_HOST="127.0.0.1"
 		echo "Replace localhost with 127.0.0.1 ... $MAGENTO_DB_HOST"
 	fi
+}
+
+update_settings(){
+
+	# see http://devdocs.magento.com/guides/v2.1/install-gde/prereq/file-system-perms.html
+	echo "chown -R www-data:www-data $MAGENTO_HOME/ ..."
+	chown -R www-data:www-data $MAGENTO_HOME
+
+	echo "chmod g+ws for the dirs: app/etc, public/media, public/static, var, and vendor ..."
+	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type d -exec chmod g+ws {} \;
+	echo "chmod g+w for the files: app/etc, public/media, public/static, var, and vendor ..."
+	find $MAGENTO_HOME/app/etc $MAGENTO_HOME/pub/media $MAGENTO_HOME/pub/static $MAGENTO_HOME/var $MAGENTO_HOME/vendor -type f -exec chmod g+w {} \;
+	chmod ug+x $MAGENTO_HOME/bin/magento
 
 	$MAGENTO_HOME/bin/magento setup:install \
 		--admin-user=$MAGENTO_ADMIN_USER \
@@ -150,47 +195,12 @@ apachectl start
 if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 	echo "$MAGENTO_HOME/app/etc/env.app not found. installing magento ..."
 	setup_magento
+	update_defaultvars
+	setup_localenv
 	update_settings
 else
 	echo  "$MAGENTO_HOME/app/etc/env.app already exists."
-fi
-
-# If local MariaDB is used in settings.php
-if grep "'host' => '127.0.0.1'" "$MAGENTO_HOME/app/etc/env.php"; then
-	echo "INFO: local MariaDB is used as DB_HOST in settings.php."
-	echo "Setting up MariaDB data dir ..."
-	setup_mariadb_data_dir
-	echo "Setting up MariaDB log dir ..."
-	setup_mariadb_log_dir
-	echo "Starting local MariaDB ..."
-	start_mariadb
-	echo "Granting user for phpMyAdmin ..."
-	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
-	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
-	mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-
-	echo "Creating database for MAGENTO if not exists ..."
-	mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$MAGENTO_DB_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
-	echo "Granting user for MAGENTO ..."
-	mysql -u root -e "GRANT ALL ON \`$MAGENTO_DB_NAME\`.* TO \`$MAGENTO_DB_USERNAME\`@\`$MAGENTO_DB_HOST\` IDENTIFIED BY '$MAGENTO_DB_PASSWORD'; FLUSH PRIVILEGES;"
-
-	# start redis and cron.
-	redis-server --daemonize yes
-	service cron start
-
-	# setup phpMyAdmin.
-	if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
-		echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."
-		echo "Installing phpMyAdmin ..."
-		setup_phpmyadmin
-	else
-		echo "INFO: $PHPMYADMIN_HOME/config.inc.php already exists."
-	fi
-
-	echo "Loading phpMyAdmin conf ..."
-	load_phpmyadmin
-else
-	echo "INFO: local MariaDB is NOT used as DB_HOST in settings.php."
+	setup_localenv
 fi
 
 apachectl stop
