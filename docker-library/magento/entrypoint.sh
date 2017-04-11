@@ -195,6 +195,7 @@ apachectl start
 # That app/etc/env.php doesn't exist means Magento is not installed/configured yet.
 if [ ! -f "$MAGENTO_HOME/app/etc/env.php" ]; then
 	echo "$MAGENTO_HOME/app/etc/env.app not found. installing magento ..."
+
 	setup_magento
 	update_defaultvars
 	setup_localenv
@@ -205,11 +206,11 @@ else
 fi
 
 apachectl stop
-# delay 2 seconds to try to avoid "httpd (pid XX) already running"
+#delay 2 seconds to avoid 'httpd (pid XX) already running'
 sleep 2s
 
 echo "Loading MAGENTO conf ..."
 load_magento
 
-echo "Starting Apache httpd -D FOREGROUND ..."
+echo "Starting httpd -DFOREGROUND ..."
 apachectl start -D FOREGROUND
