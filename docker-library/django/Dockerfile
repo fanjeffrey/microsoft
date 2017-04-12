@@ -8,7 +8,10 @@ MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
 WORKDIR $DOCKER_BUILD_HOME
-
+RUN set -ex \
+	&& apt-get update \
+        && apt-get install -y -V --no-install-recommends wget \
+        && rm -r /var/lib/apt/lists/*
 
 # nginx
 ENV NGINX_LOG_DIR "/home/LogFiles/nginx"
@@ -19,8 +22,8 @@ RUN set -ex \
 
 
 # postgresql
-ENV POSTGRESQL_DATA_DIR="/home/data/postgresql"
-ENV POSTGRESQL_LOG_DIR="/home/LogFiles/postgresql"
+ENV POSTGRESQL_DATA_DIR "/home/data/postgresql"
+ENV POSTGRESQL_LOG_DIR "/home/LogFiles/postgresql"
 RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends postgresql \
@@ -40,16 +43,14 @@ ENV PGADMIN_HOME "/home/pgadmin"
 
 # django
 RUN set -ex \
-	&& wget https://bootstrap.pypa.io/get-pip.py \
-	&& python get-pip.py \
+	&& wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate \
+	&& python3 get-pip.py \
 	&& pip install django
 
 
 # post-install
 RUN set -ex \
-	##
-	&& test ! -d /var/www && mkdir -p /var/www \
-    && chown -R www-data:www-data /var/www \
+	&& ln -s /usr/bin/python3 /usr/bin/python \
 	##
 	&& rm -rf /var/log/nginx \
 	&& ln -s $NGINX_LOG_DIR /var/log/nginx \
