@@ -93,7 +93,7 @@
                             "value": "[parameters('dockerRegistryImageName')]"
                         },
                         {
-                            "name": "WORDPRESS_DB_HOST",
+                            "name": "DATABASE_HOST",
                             "value": "[parameters('wordPressDatabaseHost')]"
                         },
                         {
