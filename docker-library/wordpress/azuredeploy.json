@@ -31,40 +31,25 @@
             "type": "string",
             "defaultValue": "appsvc/apps:wordpress"
         },
-        "wordPressDatabaseHost": {
+        "dataBaseHost": {
             "type": "string",
-            "defaultValue": "localhost",
-            "metadata": {
-                "description": "DataBase Host"
-            }
+            "defaultValue": "localhost"
         },
-        "wordPressDatabaseName": {
+        "dataBaseName": {
             "type": "string",
-            "defaultValue": "wordpress",
-            "metadata": {
-                "description": "DataBase Name"
-            }
+            "defaultValue": "wordpress"
         },
-        "wordPressDatabaseUsername": {
+        "dataBaseUsername": {
             "type": "string",
-            "defaultValue": "wordpress",
-            "metadata": {
-                "description": "DataBase Username"
-            }
+            "defaultValue": "wordpress"
         },
-        "wordPressDatabasePassword": {
+        "dataBasePassword": {
             "type": "securestring",
-            "defaultValue": "MS173m_QN",
-            "metadata": {
-                "description": "DataBase Password"
-            }
+            "defaultValue": "MS173m_QN"
         },
-        "wordPressTablePrefix": {
+        "tableNamePrefix": {
             "type": "string",
-            "defaultValue": "wp_",
-            "metadata": {
-                "description": "WordPress Table Prefix"
-            }
+            "defaultValue": "wp_"
         },
         "phpMyAdminUsername": {
             "type": "string",
@@ -94,23 +79,23 @@
                         },
                         {
                             "name": "DATABASE_HOST",
-                            "value": "[parameters('wordPressDatabaseHost')]"
+                            "value": "[parameters('dataBaseHost')]"
                         },
                         {
                             "name": "DATABASE_NAME",
-                            "value": "[parameters('wordPressDatabaseName')]"
+                            "value": "[parameters('dataBaseName')]"
                         },
                         {
                             "name": "DATABASE_USERNAME",
-                            "value": "[parameters('wordPressDatabaseUsername')]"
+                            "value": "[parameters('dataBaseUsername')]"
                         },
                         {
                             "name": "DATABASE_PASSWORD",
-                            "value": "[parameters('wordPressDatabasePassword')]"
+                            "value": "[parameters('dataBasePassword')]"
                         },
                         {
-                            "name": "WORDPRESS_DB_PREFIX",
-                            "value": "[parameters('wordPressTablePrefix')]"
+                            "name": "TABLE_NAME_PREFIX",
+                            "value": "[parameters('tableNamePrefix')]"
                         },
                         {
                             "name": "PHPMYADMIN_USERNAME",
