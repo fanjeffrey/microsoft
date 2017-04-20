@@ -2,7 +2,7 @@
 # Dockerfile for WordPress
 #
 FROM ubuntu:16.04
-LABEL maintainer "v-jifan@microsoft.com"
+MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
 
 
 # ========
