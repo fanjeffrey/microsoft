@@ -27,8 +27,11 @@ ENV POSTGRESQL_LOG_DIR "/home/LogFiles/postgresql"
 RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends postgresql \
+	&& service postgresql start; \
+		su - postgres -c "/usr/lib/postgresql/9.5/bin/psql -U postgres -c \"ALTER USER postgres with password 'postgres';\"" \
 	&& rm -r /var/lib/apt/lists/*
-
+#set log & create user test
+COPY postgresql.conf /etc/postgresql/9.5/main/postgresql.conf
 
 # python
 RUN set -ex \
@@ -36,10 +39,12 @@ RUN set -ex \
 	&& apt-get install -y -V --no-install-recommends python3 \
 	&& rm -r /var/lib/apt/lists/*
 
-
-# pgadmin
-ENV PGADMIN_HOME "/home/pgadmin"
-
+# phppgadmin
+ENV PHPPGADMIN_HOME "/home/phppgadmin"
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y -V --no-install-recommends phppgadmin php7.0-fpm \
+	&& rm -r /var/lib/apt/lists/*
 
 # django
 RUN set -ex \
@@ -53,12 +58,15 @@ RUN set -ex \
 	&& ln -s /usr/bin/python3 /usr/bin/python \
 	##
 	&& rm -rf /var/log/nginx \
+	&& mkdir -p $NGINX_LOG_DIR \
+	&& chown -R www-data:www-data $NGINX_LOG_DIR \
+	&& chmod -R 755 $NGINX_LOG_DIR \
 	&& ln -s $NGINX_LOG_DIR /var/log/nginx \
 	##
 	&& rm -rf /var/log/postgresql \
-	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
-	##
-	&& ln -s $PGADMIN_HOME /var/www/pgadmin
-
+	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql 
 
 EXPOSE 80
+RUN set -ex \
+	&& service php7.0-fpm start \
+	&& service nginx start
