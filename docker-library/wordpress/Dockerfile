@@ -274,10 +274,6 @@ RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
 	&& test ! -d /var/lib/php/sessions && mkdir -p /var/lib/php/sessions \
 	&& chown www-data:www-data /var/lib/php/sessions \
-	## make the log file being generated for Mariadb into /var/log/mysql/error.log
-	&& echo '/etc/mysql/mariadb.conf.d/50-mysqld_safe.cnf comment:skip_log_error syslog' \
-	&& sed -i 's/skip_log_error/#skip_log_error/g' /etc/mysql/mariadb.conf.d/50-mysqld_safe.cnf \
-	&& sed -i 's/syslog/#syslog/g' /etc/mysql/mariadb.conf.d/50-mysqld_safe.cnf \
 	##
 	&& test ! -d /var/www && mkdir -p /var/www \
         && echo '<html><head><meta http-equiv="refresh" content="30" /><meta http-equiv="pragma" content="no-cache" /><meta http-equiv="cache-control" content="no-cache" /><title>Installing WordPress</title></head><body>Installing WordPress ... This could be done in minutes. Please refresh your browser later.</body></html>' > /var/www/index.html \
