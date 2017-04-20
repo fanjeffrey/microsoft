@@ -47,7 +47,7 @@
             "type": "securestring",
             "defaultValue": "MS173m_QN"
         },
-        "tablePrefix": {
+        "tableNamePrefix": {
             "type": "string",
             "defaultValue": "wp_"
         },
@@ -94,8 +94,8 @@
                             "value": "[parameters('dataBasePassword')]"
                         },
                         {
-                            "name": "WORDPRESS_DB_PREFIX",
-                            "value": "[parameters('tablePrefix')]"
+                            "name": "TABLE_NAME_PREFIX",
+                            "value": "[parameters('tableNamePrefix')]"
                         },
                         {
                             "name": "PHPMYADMIN_USERNAME",

@@ -33,7 +33,7 @@ DATABASE_HOST | localhost
 DATABASE_NAME | wordpress
 DATABASE_USERNAME | wordpress
 DATABASE_PASSWORD | MS173m_QN
-DATABASE_TABLE_NAME_PREFIX | wp_
+TABLE_NAME_PREFIX | wp_
 PHPMYADMIN_USERNAME | phpmyadmin
 PHPMYADMIN_PASSWORD | MS173m_QN
 
@@ -59,7 +59,7 @@ docker run -d -t -p 80:80 \
     -e "DATABASE_NAME=<your_db_name>" \
     -e "DATABASE_USERNAME=<your_db_username>" \
     -e "DATABASE_PASSWORD=<your_db_password>" \
-    -e "DATABASE_TABLE_NAME_PREFIX=<your_table_name_prefix>" \
+    -e "TABLE_NAME_PREFIX=<your_table_name_prefix>" \
     fanjeffrey/wordpress:latest
 ```
 
@@ -70,7 +70,7 @@ docker run -d -t -p 80:80 \
     -e "DATABASE_NAME=<your_db_name>" \
     -e "DATABASE_USERNAME=<your_db_username>" \
     -e "DATABASE_PASSWORD=<your_db_password>" \
-    -e "DATABASE_TABLE_NAME_PREFIX=<your_table_name_prefix>" \
+    -e "TABLE_NAME_PREFIX=<your_table_name_prefix>" \
     -e "PHPMYADMIN_USERNAME=<your_phpmyadmin_username>" \
     -e "PHPMYADMIN_PASSWORD=<your_phpmyadmin_password>" \
     fanjeffrey/wordpress:latest
