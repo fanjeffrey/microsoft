@@ -79,23 +79,23 @@
                         },
                         {
                             "name": "DATABASE_HOST",
-                            "value": "[parameters('wordPressDatabaseHost')]"
+                            "value": "[parameters('dataBaseHost')]"
                         },
                         {
                             "name": "DATABASE_NAME",
-                            "value": "[parameters('wordPressDatabaseName')]"
+                            "value": "[parameters('dataBaseName')]"
                         },
                         {
                             "name": "DATABASE_USERNAME",
-                            "value": "[parameters('wordPressDatabaseUsername')]"
+                            "value": "[parameters('dataBaseUsername')]"
                         },
                         {
                             "name": "DATABASE_PASSWORD",
-                            "value": "[parameters('wordPressDatabasePassword')]"
+                            "value": "[parameters('dataBasePassword')]"
                         },
                         {
                             "name": "WORDPRESS_DB_PREFIX",
-                            "value": "[parameters('wordPressTablePrefix')]"
+                            "value": "[parameters('tablePrefix')]"
                         },
                         {
                             "name": "PHPMYADMIN_USERNAME",
