@@ -35,28 +35,28 @@
             "type": "string",
             "defaultValue": "localhost",
             "metadata": {
-                "description": "WordPress Database Host"
+                "description": "DataBase Host"
             }
         },
         "wordPressDatabaseName": {
             "type": "string",
             "defaultValue": "wordpress",
             "metadata": {
-                "description": "WordPress Database Name"
+                "description": "DataBase Name"
             }
         },
         "wordPressDatabaseUsername": {
             "type": "string",
             "defaultValue": "wordpress",
             "metadata": {
-                "description": "WordPress Database Username"
+                "description": "DataBase Username"
             }
         },
         "wordPressDatabasePassword": {
             "type": "securestring",
             "defaultValue": "MS173m_QN",
             "metadata": {
-                "description": "WordPress Database Password"
+                "description": "DataBase Password"
             }
         },
         "wordPressTablePrefix": {
@@ -93,19 +93,19 @@
                             "value": "[parameters('dockerRegistryImageName')]"
                         },
                         {
-                            "name": "WORDPRESS_DB_HOST",
+                            "name": "DATABASE_HOST",
                             "value": "[parameters('wordPressDatabaseHost')]"
                         },
                         {
-                            "name": "WORDPRESS_DB_NAME",
+                            "name": "DATABASE_NAME",
                             "value": "[parameters('wordPressDatabaseName')]"
                         },
                         {
-                            "name": "WORDPRESS_DB_USERNAME",
+                            "name": "DATABASE_USERNAME",
                             "value": "[parameters('wordPressDatabaseUsername')]"
                         },
                         {
-                            "name": "WORDPRESS_DB_PASSWORD",
+                            "name": "DATABASE_PASSWORD",
                             "value": "[parameters('wordPressDatabasePassword')]"
                         },
                         {
