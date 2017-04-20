@@ -82,7 +82,7 @@ update_wordpress_config(){
 	set_var_if_null "DATABASE_NAME" "wordpress"
 	set_var_if_null "DATABASE_USERNAME" "wordpress"
 	set_var_if_null "DATABASE_PASSWORD" "MS173m_QN"
-	set_var_if_null "WORDPRESS_DB_PREFIX" "wp_"
+	set_var_if_null "TABLE_NAME_PREFIX" "wp_"
 	if [ "${DATABASE_HOST,,}" = "localhost" ]; then
 		export DATABASE_HOST="localhost"
 	fi
@@ -92,7 +92,7 @@ update_wordpress_config(){
         sed -i "s/connectstr_dbname = '';/connectstr_dbname = '$DATABASE_NAME';/" "$WORDPRESS_HOME/wp-config.php"
         sed -i "s/connectstr_dbusername = '';/connectstr_dbusername = '$DATABASE_USERNAME';/" "$WORDPRESS_HOME/wp-config.php"
         sed -i "s/connectstr_dbpassword = '';/connectstr_dbpassword = '$DATABASE_PASSWORD';/" "$WORDPRESS_HOME/wp-config.php"
-        sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$WORDPRESS_DB_PREFIX';/" "$WORDPRESS_HOME/wp-config.php"
+        sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$TABLE_NAME_PREFIX';/" "$WORDPRESS_HOME/wp-config.php"
 }
 
 load_wordpress(){
@@ -106,7 +106,7 @@ set -e
 echo "INFO: DATABASE_HOST:" $DATABASE_HOST
 echo "INFO: DATABASE_NAME:" $DATABASE_NAME
 echo "INFO: DATABASE_USERNAME:" $DATABASE_USERNAME
-echo "INFO: WORDPRESS_DB_PREFIX:" $WORDPRESS_DB_PREFIX
+echo "INFO: TABLE_NAME_PREFIX:" $TABLE_NAME_PREFIX
 echo "INFO: PHPMYADMIN_USERNAME:" $PHPMYADMIN_USERNAME
 
 setup_httpd_log_dir
