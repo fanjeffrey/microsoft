@@ -31,40 +31,25 @@
             "type": "string",
             "defaultValue": "appsvc/apps:wordpress"
         },
-        "wordPressDatabaseHost": {
+        "dataBaseHost": {
             "type": "string",
-            "defaultValue": "localhost",
-            "metadata": {
-                "description": "DataBase Host"
-            }
+            "defaultValue": "localhost"
         },
-        "wordPressDatabaseName": {
+        "dataBaseName": {
             "type": "string",
-            "defaultValue": "wordpress",
-            "metadata": {
-                "description": "DataBase Name"
-            }
+            "defaultValue": "wordpress"
         },
-        "wordPressDatabaseUsername": {
+        "dataBaseUsername": {
             "type": "string",
-            "defaultValue": "wordpress",
-            "metadata": {
-                "description": "DataBase Username"
-            }
+            "defaultValue": "wordpress"
         },
-        "wordPressDatabasePassword": {
+        "dataBasePassword": {
             "type": "securestring",
-            "defaultValue": "MS173m_QN",
-            "metadata": {
-                "description": "DataBase Password"
-            }
+            "defaultValue": "MS173m_QN"
         },
-        "wordPressTablePrefix": {
+        "tablePrefix": {
             "type": "string",
-            "defaultValue": "wp_",
-            "metadata": {
-                "description": "WordPress Table Prefix"
-            }
+            "defaultValue": "wp_"
         },
         "phpMyAdminUsername": {
             "type": "string",
