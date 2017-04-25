@@ -9,7 +9,7 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 WORKDIR $DOCKER_BUILD_HOME
 RUN set -ex \
 	&& apt-get update \
-        && apt-get install -y -V --no-install-recommends wget vim supervisor \
+        && apt-get install -y -V --no-install-recommends supervisor \
         && rm -r /var/lib/apt/lists/*
 
 # nginx
@@ -46,7 +46,7 @@ RUN set -ex \
 # django
 RUN set -ex \
 	&& apt-get update \
-	&& apt-get install -y -V --no-install-recommends apt-utils build-essential python3-dev \
+	&& apt-get install -y -V --no-install-recommends build-essential python3-dev \
 	&& pip3 install uwsgi \
 	&& pip3 install django
 
@@ -54,10 +54,8 @@ RUN set -ex \
 RUN set -ex \
         && pip3 install psycopg2
 
-
 # post-install
 RUN set -ex \
-	# && ln -s /usr/bin/python3 /usr/bin/python \
 	##
 	&& rm -rf /var/log/nginx \
 	&& ln -s $NGINX_LOG_DIR /var/log/nginx \

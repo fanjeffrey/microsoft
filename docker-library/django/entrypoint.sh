@@ -1,7 +1,5 @@
 #!/bin/bash
 
-POSTGRESQL_DATA_DIR="/home/data/postgresql"
-POSTGRESQL_LOG_DIR="/home/LogFiles/postgresql"
 # Set password
 POSTGRES_DJANGO_PASSWORD="password"
 DJANGO_ADMIN_PASSWORD="password"
@@ -20,21 +18,18 @@ SETTING_PATH=`find /home/django/ -name settings.py`
 
 # Check is there already exist any django project
 if [ -z "$SETTING_PATH" ] ; then
-
     # Create new django project
     mkdir -p /home/django/website/
     django-admin startproject website /home/django/website
 
     SETTING_PATH=`find /home/django/ -name settings.py`
 else
-
     # Install requirements
     if [ -f /home/django/website/requirements.txt ]; then
         pip install -r /home/django/website/requirements.txt
     fi
 
 fi
-
 
 # Init postgresql
 setup_postgresql(){
@@ -50,11 +45,10 @@ setup_postgresql(){
 }
 
 setup_phppgadmin(){
-	echo 'begin phppgadmin';
+		
+	chown -R www-data:www-data /usr/share/phppgadmin
 	#start php7.0-fpm
 	service php7.0-fpm start
-	
-	chown -R www-data:www-data /usr/share/phppgadmin
 }
 
 setup_model_example(){
@@ -85,18 +79,10 @@ setup_model_example(){
 	echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', '$DJANGO_ADMIN_PASSWORD')" | python3 /home/django/website/manage.py shell	
 }
 
-setup_uwsgi(){
-	/usr/local/bin/uwsgi --ini /home/django/uwsgi.ini
-}
-
 setup_nginx(){
 	test ! -d "$NGINX_LOG_DIR" && echo "INFO: $NGINX_LOG_DIR not found. creating ..." && mkdir -p $NGINX_LOG_DIR
 	chown -R www-data:www-data $NGINX_LOG_DIR
 	chmod -R 766 $NGINX_LOG_DIR
-	echo $NGINX_LOG_DIR
-	
-	nginx -t
-	#service nginx start
 }
 
 setup_postgresql
