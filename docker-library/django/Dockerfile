@@ -9,7 +9,7 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 WORKDIR $DOCKER_BUILD_HOME
 RUN set -ex \
 	&& apt-get update \
-        && apt-get install -y -V --no-install-recommends wget vim \
+        && apt-get install -y -V --no-install-recommends wget vim supervisor \
         && rm -r /var/lib/apt/lists/*
 
 # nginx
@@ -38,23 +38,26 @@ RUN set -ex \
 # python
 RUN set -ex \
 	&& apt-get update \
-	&& apt-get install -y -V --no-install-recommends python3 \
+	&& apt-get install -y -V --no-install-recommends python3 python3-pip \
+	&& pip3 install --upgrade pip \
+	&& pip3 install -U setuptools \
 	&& rm -r /var/lib/apt/lists/*
 
 # django
 RUN set -ex \
-	&& wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate \
-	&& python3 get-pip.py \
-	&& pip install django 
+	&& apt-get update \
+	&& apt-get install -y -V --no-install-recommends apt-utils build-essential python3-dev \
+	&& pip3 install uwsgi \
+	&& pip3 install django
 
 # install Postgres adapter for Python
 RUN set -ex \
-        && pip install psycopg2
+        && pip3 install psycopg2
 
 
 # post-install
 RUN set -ex \
-	&& ln -s /usr/bin/python3 /usr/bin/python \
+	# && ln -s /usr/bin/python3 /usr/bin/python \
 	##
 	&& rm -rf /var/log/nginx \
 	&& ln -s $NGINX_LOG_DIR /var/log/nginx \
@@ -62,15 +65,26 @@ RUN set -ex \
 	&& rm -rf /var/log/postgresql \
 	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
 	##
-	&& ln -s  /usr/share/phppgadmin /var/www/html 
-
+	&& ln -s  /usr/share/phppgadmin /var/www/html
+	##
+	#&& ln -s /etc/nginx/sites-available/django /etc/nginx/sites-enabled/django
+	
 #postgresql scripts: create default user
 COPY init.sql /home/django/
 #postgresql scripts: set log path
 COPY postgresql.conf /etc/postgresql/9.5/main/postgresql.conf
 #nginx scripts: set log path, set phppgadmin(http://domain_IP:port/phppgadmin)
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY nginx-sites-default /etc/nginx/sites-available/default
+COPY nginx-sites-default /etc/nginx/sites-available/default2
+COPY nginx-sites-django /etc/nginx/sites-available/default
+# uWSGI config
+COPY uwsgi.ini /home/django/
+COPY uwsgi_params /home/django/
+# Model_example content
+COPY admin.py /home/django/
+COPY models.py /home/django/
+# supervisor config
+COPY supervisor.conf /etc/supervisor/conf.d/
 
 # =====
 # final
