@@ -60,15 +60,15 @@ RUN set -ex \
 	&& rm -rf /var/log/nginx \
 	&& ln -s $NGINX_LOG_DIR /var/log/nginx \
 	##
-	&& rm -rf /var/log/postgresql \
-	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
+	#&& rm -rf /var/log/postgresql \
+	#&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
 	##
 	&& ln -s  /usr/share/phppgadmin /var/www/html
 	##
 	#&& ln -s /etc/nginx/sites-available/django /etc/nginx/sites-enabled/django
 	
 #postgresql scripts: create default user
-COPY init.sql /home/django/
+COPY init.sql /home/site/wwwroot/django/
 #postgresql scripts: set log path
 COPY postgresql.conf /etc/postgresql/9.5/main/postgresql.conf
 #nginx scripts: set log path, set phppgadmin(http://domain_IP:port/phppgadmin)
@@ -76,11 +76,11 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY nginx-sites-default /etc/nginx/sites-available/default2
 COPY nginx-sites-django /etc/nginx/sites-available/default
 # uWSGI config
-COPY uwsgi.ini /home/django/
-COPY uwsgi_params /home/django/
+COPY uwsgi.ini /home/site/wwwroot/django/
+COPY uwsgi_params /home/site/wwwroot/django/
 # Model_example content
-COPY admin.py /home/django/
-COPY models.py /home/django/
+COPY admin.py /home/site/wwwroot/django/
+COPY models.py /home/site/wwwroot/django/
 # supervisor config
 COPY supervisor.conf /etc/supervisor/conf.d/
 

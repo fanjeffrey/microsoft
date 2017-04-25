@@ -12,3 +12,4 @@ This Docker image contains the following components:
 5. pgAdmin
 
 Ubuntu 16.04 is used as the base image.
+
