@@ -63,8 +63,8 @@ RUN set -ex \
 	#&& rm -rf /var/log/postgresql \
 	#&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
 	##
-	&& ln -s  /usr/share/phppgadmin /var/www
-	&& ln -s  /usr/share/phppgadmin /home
+	&& ln -s  /usr/share/phppgadmin /var/www \
+	&& ln -s  /usr/share/phppgadmin /home \
 	##
 	&& ln -s /home/site/wwwroot /var/www/default
 	

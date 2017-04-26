@@ -9,14 +9,23 @@ upstream django {
 server {
 
 	listen      80 default_server;
-	listen 		[::]:80 default_server; 
+	listen      [::]:80 default_server; 
 
 	server_name _; 
 
+	location ^~ /phppgadmin {
+		root /var/www;
+		index index.php;
+
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+	}
+
 	#collect root static file 
-	location ^~ ^/phppgadmin/.*\.(jpe?g|png|PNG|js|css)$ {
+	#location ^~ ^/phppgadmin/.*\.(jpe?g|png|PNG|js|css)$ {
+	location ^~ /phppgadmin/images {
 	   	disable_symlinks off;
-		root /var/www/phppgadmin;
+		root /var/www;
 	}
 	
 	#collect root static file 
@@ -24,13 +33,6 @@ server {
 	   	root /var/www/default;
 	}
 
-	location ^~ /phppgadmin {
-		root /var/www/html;
-		index index.php;
-
-		include snippets/fastcgi-php.conf;
-		fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-	}
 
 	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
 	location ~ \.php$ {
@@ -44,4 +46,3 @@ server {
 		include     /home/site/wwwroot/django/uwsgi_params; # the uwsgi_params file you installed
 	}
 }
-
