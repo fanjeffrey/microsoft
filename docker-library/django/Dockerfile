@@ -44,6 +44,7 @@ RUN set -ex \
 	&& rm -r /var/lib/apt/lists/*
 
 # django
+ENV DJANGO_HOME "/home/site/wwwroot"
 RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends build-essential python3-dev \

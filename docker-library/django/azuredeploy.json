@@ -27,29 +27,29 @@
         },
         "dockerRegistryImageName": {
             "type": "string",
-            "defaultValue": "appsvc/apps:drupal-mysql"
+            "defaultValue": "songgs/django:latest"
         },
-        "drupalDatabaseHost": {
+        "djangoDatabaseHost": {
             "type": "string",
             "defaultValue": "localhost"
         },
-        "drupalDatabaseName": {
+        "djangoDatabaseName": {
             "type": "string",
-            "defaultValue": "drupal"
+            "defaultValue": "django"
         },
-        "drupalDatabaseUsername": {
+        "djangoDatabaseUsername": {
             "type": "string",
-            "defaultValue": "drupal"
+            "defaultValue": "django"
         },
-        "drupalDatabasePassword": {
+        "djangoDatabasePassword": {
             "type": "securestring",
             "defaultValue": "MS173m_QN"
         },
-        "phpmyadminUsername": {
+        "phppgadminUsername": {
             "type": "string",
-            "defaultValue": "phpmyadmin"
+            "defaultValue": "phppgadmin"
         },
-        "phpmyadminPassword": {
+        "phppgadminPassword": {
             "type": "securestring",
             "defaultValue": "MS173m_QN"
         }
@@ -67,27 +67,27 @@
                         },
                         {
                             "name": "DRUPAL_DB_HOST",
-                            "value": "[parameters('drupalDatabaseHost')]"
+                            "value": "[parameters('djangoDatabaseHost')]"
                         },
                         {
                             "name": "DRUPAL_DB_NAME",
-                            "value": "[parameters('drupalDatabaseName')]"
+                            "value": "[parameters('djangoDatabaseName')]"
                         },
                         {
                             "name": "DRUPAL_DB_USERNAME",
-                            "value": "[parameters('drupalDatabaseUsername')]"
+                            "value": "[parameters('djangoDatabaseUsername')]"
                         },
                         {
                             "name": "DRUPAL_DB_PASSWORD",
-                            "value": "[parameters('drupalDatabasePassword')]"
+                            "value": "[parameters('djangoDatabasePassword')]"
                         },
                         {
-                            "name": "PHPMYADMIN_USERNAME",
-                            "value": "[parameters('phpmyadminUsername')]"
+                            "name": "PHPPGADMIN_USERNAME",
+                            "value": "[parameters('phppgadminUsername')]"
                         },
                         {
-                            "name": "PHPMYADMIN_PASSWORD",
-                            "value": "[parameters('phpmyadminPassword')]"
+                            "name": "PHPPGADMIN_PASSWORD",
+                            "value": "[parameters('phppgadminPassword')]"
                         }
                     ]
                 },

@@ -2,9 +2,9 @@
 
 # Set password
 POSTGRES_DJANGO_PASSWORD="password"
-DJANGO_ADMIN_PASSWORD="password"
+DJANGO_ADMIN_PASSWORD="password" 
 # HOST
-DJANGO_HOST="40.74.243.74"
+DJANGO_HOST="127.0.0.1"
 
 set_var_if_null(){
 	local varname="$1"
@@ -16,7 +16,7 @@ set_var_if_null(){
 
 setup_django(){
 	test ! -d "$POSTGRESQL_LOG_DIR" && echo "INFO: $POSTGRESQL_LOG_DIR not found. creating ..." && mkdir -p "$POSTGRESQL_LOG_DIR"
-
+	test ! -d "$DJANGO_HOME" && echo "INFO: $DJANGO_HOME not found. creating ..." && mkdir -p "$DJANGO_HOME"
 	SETTING_PATH=`find /home/site/wwwroot/django/ -name settings.py`
 
 	# Check is there already exist any django project
