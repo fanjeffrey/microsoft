@@ -2,7 +2,7 @@
 # Dockerfile for WordPress
 #
 FROM ubuntu:16.04
-LABEL maintainer "v-jifan@microsoft.com"
+MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
 
 
 # ========
@@ -272,6 +272,10 @@ COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/
 RUN set -ex \
 	## include php.conf
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
+  ## enable error log and disable using syslog
+  && sed -i 's/skip_log_error/#skip_log_error/g' /etc/mysql/mariadb.conf.d/50-mysqld_safe.cnf \
+	&& sed -i 's/syslog/#syslog/g' /etc/mysql/mariadb.conf.d/50-mysqld_safe.cnf \
+  ##
 	&& test ! -d /var/lib/php/sessions && mkdir -p /var/lib/php/sessions \
 	&& chown www-data:www-data /var/lib/php/sessions \
 	##
