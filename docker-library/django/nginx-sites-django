@@ -2,57 +2,41 @@
 
 # the upstream component nginx needs to connect to
 upstream django {
-	server unix:/home/site/wwwroot/django/website.sock; # for a file socket
-	# server 127.0.0.1:8001; # for a web port socket (we'll use this first)
+	server unix:/home/site/wwwroot/django/website.sock; # for a file socket 
     }
 
 # configuration of the server
 server {
-	# the port your site will be served on, default_server indicates that this server block
-	# is the block to use if no blocks match the server_name
+
 	listen      80 default_server;
+	listen 		[::]:80 default_server; 
 
-	# the domain name it will serve for
-	server_name _; # substitute your machine's IP address or FQDN
-	charset     utf-8;
+	server_name _; 
 
-	# max upload size
-	client_max_body_size 75M;   # adjust to taste
-
-	# Django static file setting
-	#location /static {
-	#	alias /home/site/wwwroot/django/website/static; # your Django project's static files
-	#}
-		
-	# phppgadmin file: images,css
-	#location /images {
-	#	alias /var/www/html/phppgadmin/images; # images files
-	#}
-	#location /js {
-	#	alias /var/www/html/phppgadmin/js; # js files
-	#}
-
-	#location ~* \.(jpg|jpeg|png|js|css)$ {
-	#   	root /var/www/html/phppgadmin;
-	#}
+	#collect root static file 
+	location ^~ ^/phppgadmin/.*\.(jpe?g|png|PNG|js|css)$ {
+	   	disable_symlinks off;
+		root /var/www/phppgadmin;
+	}
 	
+	#collect root static file 
+	location ~* \.(jpg|jpeg|png|js|css)$ {
+	   	root /var/www/default;
+	}
+
 	location ^~ /phppgadmin {
 		root /var/www/html;
 		index index.php;
 
-                include snippets/fastcgi-php.conf;
-                fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/run/php/php7.0-fpm.sock;
 	}
 
 	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
-        #location ~ \.php$ {
-        #        include snippets/fastcgi-php.conf;
-        #       # With php7.0-cgi alone:
-        #       fastcgi_pass 127.0.0.1:9000;
-        #       # With php7.0-fpm:
-        #        fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-        #}
-
+	location ~ \.php$ {
+	        include snippets/fastcgi-php.conf;
+	        fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+	}
 
 	# Finally, send all non-media requests to the Django server.
 	location / {
