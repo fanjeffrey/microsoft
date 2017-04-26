@@ -27,6 +27,18 @@ server {
 	   	disable_symlinks off;
 		root /var/www;
 	}
+	location ^~ /phppgadmin/themes {
+	   	disable_symlinks off;
+		root /var/www;
+	}
+	location ^~ /phppgadmin/libraries {
+	   	disable_symlinks off;
+		root /var/www;
+	}
+	location ^~ /phppgadmin/xloadtree {
+	   	disable_symlinks off;
+		root /var/www;
+	}
 	
 	#collect root static file 
 	location ~* \.(jpg|jpeg|png|js|css)$ {
