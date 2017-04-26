@@ -13,3 +13,7 @@ This Docker image contains the following components:
 
 Ubuntu 16.04 is used as the base image.
 
+### Deploying to Azure
+With the button below, you can easily deploy the image to Azure.
+
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
