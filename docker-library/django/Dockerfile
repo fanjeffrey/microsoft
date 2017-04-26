@@ -74,7 +74,7 @@ COPY init.sql /home/site/wwwroot/django/
 COPY postgresql.conf /etc/postgresql/9.5/main/postgresql.conf
 #nginx scripts: set log path, set phppgadmin(http://domain_IP:port/phppgadmin)
 COPY nginx.conf /etc/nginx/nginx.conf 
-COPY nginx-sites-django /etc/nginx/sites-available/default
+COPY nginx-sites-default /etc/nginx/sites-available/default
 # uWSGI config
 COPY uwsgi.ini /home/site/wwwroot/django/
 COPY uwsgi_params /home/site/wwwroot/django/ 
