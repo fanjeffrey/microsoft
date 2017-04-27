@@ -8,11 +8,12 @@ set_var_if_null(){
 }
 
 # Set password
+set_var_if_null "DJANGO_HOST" "40.74.243.74"
 set_var_if_null "DJANGO_DB_NAME" "django"
 set_var_if_null "DJANGO_DB_USERNAME" "django"
 set_var_if_null "DJANGO_DB_PASSWORD" "password"
 set_var_if_null "DJANGO_ADMIN_PASSWORD" "password"
-set_var_if_null "DJANGO_HOST" "40.74.243.74"
+
 
 startproject_django(){
 	test ! -d "$POSTGRESQL_LOG_DIR" && echo "INFO: $POSTGRESQL_LOG_DIR not found. creating ..." && mkdir -p "$POSTGRESQL_LOG_DIR"

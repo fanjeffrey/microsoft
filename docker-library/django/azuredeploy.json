@@ -27,7 +27,7 @@
         },
         "dockerRegistryImageName": {
             "type": "string",
-            "defaultValue": "DOCKER|songgs/django:latest"
+            "defaultValue": "songgs/django:latest"
         },
         "djangoHost": {
             "type": "string",
@@ -46,14 +46,6 @@
             "defaultValue": "django"
         },
         "djangoDatabasePassword": {
-            "type": "securestring",
-            "defaultValue": "MS173m_QN"
-        },
-        "phppgadminUsername": {
-            "type": "string",
-            "defaultValue": "phppgadmin"
-        },
-        "phppgadminPassword": {
             "type": "securestring",
             "defaultValue": "MS173m_QN"
         }
@@ -88,14 +80,6 @@
                         {
                             "name": "DJANGO_DB_PASSWORD",
                             "value": "[parameters('djangoDatabasePassword')]"
-                        },
-                        {
-                            "name": "PHPPGADMIN_USERNAME",
-                            "value": "[parameters('phppgadminUsername')]"
-                        },
-                        {
-                            "name": "PHPPGADMIN_PASSWORD",
-                            "value": "[parameters('phppgadminPassword')]"
                         }
                     ]
                 },
