@@ -27,7 +27,7 @@
         },
         "dockerRegistryImageName": {
             "type": "string",
-            "defaultValue": "songgs/django:latest"
+            "defaultValue": "DOCKER|songgs/django:latest"
         },
         "djangoDatabaseHost": {
             "type": "string",
@@ -62,23 +62,23 @@
                 "siteConfig": {
                     "appSettings": [
                         {
-                            "name": "DOCKER_CUSTOM_IMAGE_NAME",
+                            "name": "LinuxFxVersion",
                             "value": "[parameters('dockerRegistryImageName')]"
                         },
                         {
-                            "name": "DRUPAL_DB_HOST",
+                            "name": "DJANGO_DB_HOST",
                             "value": "[parameters('djangoDatabaseHost')]"
                         },
                         {
-                            "name": "DRUPAL_DB_NAME",
+                            "name": "DJANGO_DB_NAME",
                             "value": "[parameters('djangoDatabaseName')]"
                         },
                         {
-                            "name": "DRUPAL_DB_USERNAME",
+                            "name": "DJANGO_DB_USERNAME",
                             "value": "[parameters('djangoDatabaseUsername')]"
                         },
                         {
-                            "name": "DRUPAL_DB_PASSWORD",
+                            "name": "DJANGO_DB_PASSWORD",
                             "value": "[parameters('djangoDatabasePassword')]"
                         },
                         {

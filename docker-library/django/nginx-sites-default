@@ -21,8 +21,7 @@ server {
 		fastcgi_pass unix:/run/php/php7.0-fpm.sock;
 	}
 
-	#collect root static file 
-	#location ^~ ^/phppgadmin/.*\.(jpe?g|png|PNG|js|css)$ {
+	#collect phppgadmin static file 
 	location ^~ /phppgadmin/images {
 	   	disable_symlinks off;
 		root /var/www;
@@ -55,6 +54,6 @@ server {
 	# Finally, send all non-media requests to the Django server.
 	location / {
 		uwsgi_pass  django;
-		include     /home/site/wwwroot/django/uwsgi_params; # the uwsgi_params file you installed
+		include     /usr/local/uwsgi/uwsgi_params;
 	}
 }

@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Set password
-POSTGRES_DJANGO_PASSWORD="password"
-DJANGO_ADMIN_PASSWORD="password" 
-# HOST
-DJANGO_HOST="127.0.0.1"
-
 set_var_if_null(){
 	local varname="$1"
 	if [ ! "${!varname:-}" ]; then
@@ -13,8 +7,14 @@ set_var_if_null(){
 	fi
 }
 
+# Set password
+set_var_if_null "DJANGO_DB_NAME" "django"
+set_var_if_null "DJANGO_DB_USERNAME" "django"
+set_var_if_null "DJANGO_DB_PASSWORD" "password"
+set_var_if_null "DJANGO_ADMIN_PASSWORD" "password"
+set_var_if_null "DJANGO_HOST" "40.74.243.74"
 
-setup_django(){
+startproject_django(){
 	test ! -d "$POSTGRESQL_LOG_DIR" && echo "INFO: $POSTGRESQL_LOG_DIR not found. creating ..." && mkdir -p "$POSTGRESQL_LOG_DIR"
 	test ! -d "$DJANGO_HOME" && echo "INFO: $DJANGO_HOME not found. creating ..." && mkdir -p "$DJANGO_HOME"
 	SETTING_PATH=`find /home/site/wwwroot/django/ -name settings.py`
@@ -31,10 +31,10 @@ setup_django(){
 	    if [ -f /home/site/wwwroot/django/website/requirements.txt ]; then
 		pip install -r /home/site/wwwroot/django/website/requirements.txt
 	    fi
-
 	fi
 	sed -i "s|ALLOWED_HOSTS = \[\]|ALLOWED_HOSTS = \[\'$DJANGO_HOST\'\]|g" $SETTING_PATH
 }
+
 # Init postgresql
 setup_postgresql(){
 	test ! -d "$POSTGRESQL_DATA_DIR" && echo "INFO: $POSTGRESQL_DATA_DIR not found. creating ..." && mkdir -p "$POSTGRESQL_DATA_DIR"
@@ -47,8 +47,10 @@ setup_postgresql(){
 	service postgresql start & sleep 2s
 
 	#Init postgres
-	sed -i "s|password|$POSTGRES_DJANGO_PASSWORD|g" /home/site/wwwroot/django/init.sql
-	su - postgres -c 'psql -f /home/site/wwwroot/django/init.sql'
+	sed -i "s|dbdjango|$DJANGO_DB_NAME|g" $POSTGRESQL_SOURCE/init.sql	
+	sed -i "s|dbuserdjango|$DJANGO_DB_USERNAME|g" $POSTGRESQL_SOURCE/init.sql
+	sed -i "s|password|$DJANGO_DB_PASSWORD|g" $POSTGRESQL_SOURCE/init.sql
+	su - postgres -c "psql -f $POSTGRESQL_SOURCE/init.sql"
 }
 
 setup_phppgadmin(){		
@@ -73,7 +75,7 @@ setup_model_example(){
 
 	# Modify database setting to Postgres
 	sed -i "s|django.db.backends.sqlite3|django.db.backends.postgresql_psycopg2|g" $SETTING_PATH
-	sed -i "s|os.path.join(BASE_DIR, 'db.sqlite3')|'django',\n        'HOST': '127.0.0.1',\n        'USER': 'django',\n        'PASSWORD': '$POSTGRES_DJANGO_PASSWORD'|g" $SETTING_PATH
+	sed -i "s|os.path.join(BASE_DIR, 'db.sqlite3')|'django',\n        'HOST': '127.0.0.1',\n        'USER': 'django',\n        'PASSWORD': '$DJANGO_DB_PASSWORD'|g" $SETTING_PATH
 
 	# Modify static files setting
 	sed -i "s|STATIC_URL = '/static/'|STATIC_URL = '/static/'\n\nSTATIC_ROOT = os.path.join(BASE_DIR, 'static')|g" $SETTING_PATH
@@ -90,7 +92,7 @@ setup_nginx(){
 	chown -R www-data:www-data $NGINX_LOG_DIR
 	chmod -R 766 $NGINX_LOG_DIR
 }
-setup_django
+startproject_django
 setup_postgresql
 setup_phppgadmin
 #setup_model_example

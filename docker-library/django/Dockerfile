@@ -23,7 +23,9 @@ RUN set -ex \
 # postgresql
 ENV POSTGRESQL_DATA_DIR "/home/data/postgresql"
 ENV POSTGRESQL_LOG_DIR "/home/LogFiles/postgresql"
+ENV POSTGRESQL_SOURCE "/usr/local/postgresql"
 RUN set -ex \
+	&& mkdir -p $POSTGRESQL_SOURCE \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends postgresql  \
 	&& rm -r /var/lib/apt/lists/*
@@ -45,7 +47,9 @@ RUN set -ex \
 
 # django
 ENV DJANGO_HOME "/home/site/wwwroot"
+ENV UWSGI_SOURCE "/usr/local/uwsgi"
 RUN set -ex \
+	&& mkdir -p $UWSGI_SOURCE \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends build-essential python3-dev \
 	&& pip3 install uwsgi \
@@ -69,16 +73,17 @@ RUN set -ex \
 	##
 	&& ln -s /home/site/wwwroot /var/www/default
 	
-#postgresql scripts: create default user
-COPY init.sql /home/site/wwwroot/django/
+
 #postgresql scripts: set log path
 COPY postgresql.conf /etc/postgresql/9.5/main/postgresql.conf
 #nginx scripts: set log path, set phppgadmin(http://domain_IP:port/phppgadmin)
 COPY nginx.conf /etc/nginx/nginx.conf 
 COPY nginx-sites-default /etc/nginx/sites-available/default
+#postgresql scripts: create default user
+COPY init.sql $POSTGRESQL_SOURCE
 # uWSGI config
-COPY uwsgi.ini /home/site/wwwroot/django/
-COPY uwsgi_params /home/site/wwwroot/django/ 
+COPY uwsgi.ini $UWSGI_SOURCE
+COPY uwsgi_params $UWSGI_SOURCE
 # supervisor config
 COPY supervisor.conf /etc/supervisor/conf.d/
 
