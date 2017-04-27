@@ -17,19 +17,19 @@ set_var_if_null "DJANGO_HOST" "40.74.243.74"
 startproject_django(){
 	test ! -d "$POSTGRESQL_LOG_DIR" && echo "INFO: $POSTGRESQL_LOG_DIR not found. creating ..." && mkdir -p "$POSTGRESQL_LOG_DIR"
 	test ! -d "$DJANGO_HOME" && echo "INFO: $DJANGO_HOME not found. creating ..." && mkdir -p "$DJANGO_HOME"
-	SETTING_PATH=`find /home/site/wwwroot/django/ -name settings.py`
+	SETTING_PATH=`find /home/site/wwwroot -name settings.py`
 
 	# Check is there already exist any django project
 	if [ -z "$SETTING_PATH" ] ; then
 	    # Create new django project
-	    mkdir -p /home/site/wwwroot/django/website/
-	    django-admin startproject website /home/site/wwwroot/django/website
+	    mkdir -p /home/site/wwwroot/
+	    django-admin startproject website /home/site/wwwroot
 
-	    SETTING_PATH=`find /home/site/wwwroot/django/ -name settings.py`
+	    SETTING_PATH=`find /home/site/wwwroot/ -name settings.py`
 	else
 	    # Install requirements
-	    if [ -f /home/site/wwwroot/django/website/requirements.txt ]; then
-		pip install -r /home/site/wwwroot/django/website/requirements.txt
+	    if [ -f /home/site/wwwroot/requirements.txt ]; then
+		pip install -r /home/site/wwwroot/requirements.txt
 	    fi
 	fi
 	sed -i "s|ALLOWED_HOSTS = \[\]|ALLOWED_HOSTS = \[\'$DJANGO_HOST\'\]|g" $SETTING_PATH
@@ -62,10 +62,10 @@ setup_phppgadmin(){
 setup_model_example(){
 
 	# Create model_example app
-	mkdir -p /home/site/wwwroot/django/website/model_example/
-	django-admin startapp model_example /home/site/wwwroot/django/website/model_example/
-	mv /home/site/wwwroot/django/admin.py /home/site/wwwroot/django/website/model_example/
-	mv /home/site/wwwroot/django/models.py /home/site/wwwroot/django/website/model_example/
+	mkdir -p /home/site/wwwroot/model_example/
+	django-admin startapp model_example /home/site/wwwroot/model_example/
+	mv /home/site/wwwroot/django/admin.py /home/site/wwwroot/model_example/
+	mv /home/site/wwwroot/django/models.py /home/site/wwwroot/model_example/
 
 	# Add model_example app
 	sed -i "s|'django.contrib.staticfiles'|'django.contrib.staticfiles',\n    'model_example'|g" $SETTING_PATH
@@ -81,10 +81,10 @@ setup_model_example(){
 	sed -i "s|STATIC_URL = '/static/'|STATIC_URL = '/static/'\n\nSTATIC_ROOT = os.path.join(BASE_DIR, 'static')|g" $SETTING_PATH
 
 	# Django setting
-	python3 /home/site/wwwroot/django/website/manage.py makemigrations
-	python3 /home/site/wwwroot/django/website/manage.py migrate
-	echo yes | python3 /home/site/wwwroot/django/website/manage.py collectstatic
-	echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', '$DJANGO_ADMIN_PASSWORD')" | python3 /home/site/wwwroot/django/website/manage.py shell	
+	python3 /home/site/wwwroot/manage.py makemigrations
+	python3 /home/site/wwwroot/manage.py migrate
+	echo yes | python3 /home/site/wwwroot/manage.py collectstatic
+	echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', '$DJANGO_ADMIN_PASSWORD')" | python3 /home/site/wwwroot/manage.py shell	
 }
 
 setup_nginx(){

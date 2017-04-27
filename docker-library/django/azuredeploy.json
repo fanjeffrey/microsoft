@@ -29,6 +29,10 @@
             "type": "string",
             "defaultValue": "DOCKER|songgs/django:latest"
         },
+        "djangoHost": {
+            "type": "string",
+            "defaultValue": "resourcegroup.azurewebsites.net"
+        },
         "djangoDatabaseHost": {
             "type": "string",
             "defaultValue": "localhost"
@@ -64,6 +68,10 @@
                         {
                             "name": "LinuxFxVersion",
                             "value": "[parameters('dockerRegistryImageName')]"
+                        },
+                        {
+                            "name": "DJANGO_HOST",
+                            "value": "[parameters('djangoHost')]"
                         },
                         {
                             "name": "DJANGO_DB_HOST",
