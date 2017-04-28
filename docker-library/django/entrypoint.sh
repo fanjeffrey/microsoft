@@ -57,8 +57,7 @@ setup_nginx(){
 	test ! -d "$NGINX_LOG_DIR" && echo "INFO: $NGINX_LOG_DIR not found. creating ..." && mkdir -p $NGINX_LOG_DIR
 	chown -R www-data:www-data $NGINX_LOG_DIR
 	test ! -d "$NGINX_DATA_DIR" && echo "INFO: $NGINX_DATA_DIR not found. creating ..." && mkdir -p $NGINX_DATA_DIR
-	ln -s /etc/nginx $NGINX_DATA_DIR 
-	
+	ln -s /etc/nginx $NGINX_DATA_DIR  
 }
 
 setup_postgresql

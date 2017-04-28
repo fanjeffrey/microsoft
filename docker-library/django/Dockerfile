@@ -67,9 +67,9 @@ RUN set -ex \
 	&& rm -rf /var/log/postgresql \
 	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
 	##
-	&& ln -s  /usr/share/phppgadmin /var/www \
+	&& ln -s  /usr/share/phppgadmin /var/www/phppgadmin \
 	##
-	&& ln -s /home/site/wwwroot /var/www/default
+	&& ln -s $DJANGO_HOME /var/www/default
 	
 # setup nginx default conf
 COPY nginx-sites-default /etc/nginx/sites-available/default
