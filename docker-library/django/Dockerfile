@@ -64,6 +64,7 @@ RUN set -ex \
 	##
 	&& rm -rf /var/log/nginx \
 	&& ln -s $NGINX_LOG_DIR /var/log/nginx \
+	&& ln -s /home/data/nginx /etc/nginx \
 	##
 	#&& rm -rf /var/log/postgresql \
 	#&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
