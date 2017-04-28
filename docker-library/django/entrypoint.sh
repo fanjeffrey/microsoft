@@ -19,6 +19,8 @@ echo "INFO: DJANGO_DB_NAME:" $DJANGO_DB_NAME
 echo "INFO: DJANGO_DB_USERNAME:" $DJANGO_DB_USERNAME 
 
 startproject_django(){
+	echo 'begin startproject_django'
+	
 	test ! -d "$POSTGRESQL_LOG_DIR" && echo "INFO: $POSTGRESQL_LOG_DIR not found. creating ..." && mkdir -p "$POSTGRESQL_LOG_DIR"
 	test ! -d "$DJANGO_HOME" && echo "INFO: $DJANGO_HOME not found. creating ..." && mkdir -p "$DJANGO_HOME"
 	SETTING_PATH=`find /home/site/wwwroot -name settings.py`
