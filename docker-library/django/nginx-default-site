@@ -1,0 +1,42 @@
+#
+upstream django {
+	server unix:///tmp/uwsgi.sock;
+}
+
+#
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	root /var/www/html;
+
+	# Add index.php
+	index index.php index.html index.htm index.nginx-debian.html;
+
+	server_name _;
+	charset utf-8;
+
+	location / {
+		uwsgi_pass django;
+		include /etc/nginx/uwsgi_params;
+	}
+
+	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+	#
+	#location ~ \.php$ {
+	#	include snippets/fastcgi-php.conf;
+	#
+	#	# With php7.0-cgi alone:
+	#	fastcgi_pass 127.0.0.1:9000;
+	#	# With php7.0-fpm:
+	#	fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+	#}
+
+	# deny access to .htaccess files, if Apache's document root
+	# concurs with nginx's one
+	#
+	#location ~ /\.ht {
+	#	deny all;
+	#}
+}
+
