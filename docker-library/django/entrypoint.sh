@@ -7,6 +7,12 @@ set_var_if_null(){
 	fi
 }
 
+sete -ex
+rm -f /tmp/uwsgi.sock
+touch /tmp/uwsgi.sock
+chown www-data:www-data /tmp/uwsgi.sock
+chmod 664 /tmp/uwsgi.sock
+
 # setup nginx log dir
 test ! -d "$NGINX_LOG_DIR" && echo "INFO: $NGINX_LOG_DIR not found, creating ..." && mkdir -p "$NGINX_LOG_DIR"
 

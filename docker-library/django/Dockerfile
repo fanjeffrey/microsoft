@@ -30,52 +30,48 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 
 WORKDIR $DOCKER_BUILD_HOME
 
-# tools
 RUN set -ex \
+	# tools
 	&& tools=' \
 		gcc \
 		wget \
 	' \
 	&& apt-get update \
         && apt-get install -y -V --no-install-recommends $tools \
-        && rm -r /var/lib/apt/lists/*
+        && rm -r /var/lib/apt/lists/* \
 
-# nginx
-RUN set -ex \
+	# nginx
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends nginx \
-	&& rm -r /var/lib/apt/lists/*
+	&& rm -r /var/lib/apt/lists/* \
 
-# postgresql
-RUN set -ex \
+	# postgresql
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends postgresql \
-	&& rm -r /var/lib/apt/lists/*
+	&& rm -r /var/lib/apt/lists/* \
 
-# phppgadmin
-RUN set -ex \
+	# phppgadmin
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends php7.0-fpm phppgadmin \
-        && rm -r /var/lib/apt/lists/*
+        && rm -r /var/lib/apt/lists/* \
 
-# python
-RUN set -ex \
+	# python
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends python3 python3-dev \
-	&& rm -r /var/lib/apt/lists/*
+	&& rm -r /var/lib/apt/lists/* \
 
-# django
-RUN set -ex \
+	# django
 	&& wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate \
 	&& python3 get-pip.py \
-	&& pip install django \
+	&& pip install psycopg2 \
 	## see https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/uwsgi/
-	&& pip install http://projects.unbit.it/downloads/uwsgi-lts.tar.gz
+	&& pip install http://projects.unbit.it/downloads/uwsgi-lts.tar.gz \
+	&& pip install django \
 
-# clean up
-RUN set -ex \
+	# clean up
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $tools \
 	&& apt-get autoremove -y
+
 
 # =========
 # Configure
@@ -84,16 +80,11 @@ RUN set -ex \
 COPY nginx-default-site /etc/nginx/sites-available/default
 COPY uwsgi.ini /tmp/ 
 
-# post-install
 RUN set -ex \
 	&& ln -s /usr/bin/python3 /usr/bin/python \
 	##
         && rm -rf /var/log/nginx \
         && ln -s $NGINX_LOG_DIR /var/log/nginx \
-	##
-	&& touch /tmp/uwsgi.sock \
-	&& chown www-data:www-data /tmp/uwsgi.sock \
-	&& chmod 664 /tmp/uwsgi.sock \
 	##
 	&& rm -rf /var/log/postgresql \
 	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
