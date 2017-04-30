@@ -75,6 +75,8 @@ else
 	echo "INFO: copying all files under /usr/share/php/adodb to $PHPPGADMIN_HOME/libraries/adodb ..."
 	rm -rf $PHPPGADMIN_HOME/libraries/adodb
 	mkdir -p $PHPPGADMIN_HOME/libraries/adodb
+	rm -f $PHPPGADMIN_HOME/libraries/js/jquery.js
+	cp /usr/share/javascript/jquery/jquery.js $PHPPGADMIN_HOME/libraries/js/jquery.js
 	cp -R /usr/share/php/adodb/. $PHPPGADMIN_HOME/libraries/adodb
 	echo "INFO: copying config.inc.php to $PHPPGADMIN_HOME/conf ..."
 	rm -f $PHPPGADMIN_HOME/conf/config.inc.php
@@ -82,7 +84,6 @@ else
 fi
 
 rm -rf /usr/share/phppgadmin
-ln -s $PHPPGADMIN_HOME /usr/share/phppgadmin
 chown -R www-data:www-data $PHPPGADMIN_HOME
 
 echo "INFO: start php7.0-fpm for phpPgAdmin site ..."

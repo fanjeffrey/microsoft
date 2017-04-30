@@ -72,6 +72,7 @@ RUN set -ex \
 	## see https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/uwsgi/
 	&& pip install http://projects.unbit.it/downloads/uwsgi-lts.tar.gz
 
+# clean up
 RUN set -ex \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $tools \
 	&& apt-get autoremove -y
@@ -97,6 +98,8 @@ RUN set -ex \
 	&& rm -rf /var/log/postgresql \
 	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
 	##
+	&& rm -rf /var/www/html \
+	&& ln -s $DJANGO_PROJECT_HOME /var/www/default \
 	&& ln -s $PHPPGADMIN_HOME /var/www/phppgadmin \
 	##
 	&& rm -rf $DOCKER_BUILD_HOME/*
