@@ -17,7 +17,7 @@ ENV UWSGI_INI_DIR "/home/uwsgi"
 ENV POSTGRESQL_DATA_DIR "/home/data/postgresql"
 ENV POSTGRESQL_LOG_DIR "/home/LogFiles/postgresql"
 # phppgadmin
-ENV PGADMIN_HOME "/home/phppgadmin"
+ENV PHPPGADMIN_HOME "/home/phppgadmin"
 # django
 ENV DJANGO_PROJECT_HOME "/home/site/wwwroot"
 #
@@ -32,8 +32,12 @@ WORKDIR $DOCKER_BUILD_HOME
 
 # tools
 RUN set -ex \
+	&& tools=' \
+		gcc \
+		wget \
+	' \
 	&& apt-get update \
-        && apt-get install -y -V --no-install-recommends wget gcc \
+        && apt-get install -y -V --no-install-recommends $tools \
         && rm -r /var/lib/apt/lists/*
 
 # nginx
@@ -47,6 +51,12 @@ RUN set -ex \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends postgresql \
 	&& rm -r /var/lib/apt/lists/*
+
+# phppgadmin
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y -V --no-install-recommends php7.0-fpm phppgadmin \
+        && rm -r /var/lib/apt/lists/*
 
 # python
 RUN set -ex \
@@ -62,6 +72,9 @@ RUN set -ex \
 	## see https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/uwsgi/
 	&& pip install http://projects.unbit.it/downloads/uwsgi-lts.tar.gz
 
+RUN set -ex \
+	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $tools \
+	&& apt-get autoremove -y
 
 # =========
 # Configure
@@ -84,7 +97,7 @@ RUN set -ex \
 	&& rm -rf /var/log/postgresql \
 	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
 	##
-	&& ln -s $PGADMIN_HOME /var/www/phppgadmin \
+	&& ln -s $PHPPGADMIN_HOME /var/www/phppgadmin \
 	##
 	&& rm -rf $DOCKER_BUILD_HOME/*
 
