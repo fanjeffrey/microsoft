@@ -10,33 +10,27 @@ server {
 
 	root /var/www/html;
 
-	# Add index.php
-	index index.php index.html index.htm index.nginx-debian.html;
+	index index.html index.htm index.nginx-debian.html;
 
 	server_name _;
 	charset utf-8;
-
-	location / {
-		uwsgi_pass django;
-		include /etc/nginx/uwsgi_params;
+	
+	location /phppgadmin {
+		root /usr/share;
+		index index.php;
+		location ~ ^/phppgadmin/(.+\.php)$ {
+                	include snippets/fastcgi-php.conf;
+			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+		}
+		location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
+                   root /usr/share/;
+		}
 	}
 
-	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
-	#
-	#location ~ \.php$ {
-	#	include snippets/fastcgi-php.conf;
-	#
-	#	# With php7.0-cgi alone:
-	#	fastcgi_pass 127.0.0.1:9000;
-	#	# With php7.0-fpm:
-	#	fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-	#}
-
-	# deny access to .htaccess files, if Apache's document root
-	# concurs with nginx's one
-	#
-	#location ~ /\.ht {
-	#	deny all;
-	#}
+        location / {
+                uwsgi_pass django;
+                include /etc/nginx/uwsgi_params;
+        }
 }
+
 
