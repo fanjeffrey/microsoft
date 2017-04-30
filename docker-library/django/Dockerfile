@@ -1,0 +1,95 @@
+#
+# Dockerfile for Django
+#
+FROM ubuntu:16.04
+MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
+
+
+# ========
+# ENV vars
+# ========
+
+# nginx
+ENV NGINX_LOG_DIR "/home/LogFiles/nginx"
+# uwsgi
+ENV UWSGI_INI_DIR "/home/uwsgi"
+# postgresql
+ENV POSTGRESQL_DATA_DIR "/home/data/postgresql"
+ENV POSTGRESQL_LOG_DIR "/home/LogFiles/postgresql"
+# phppgadmin
+ENV PGADMIN_HOME "/home/phppgadmin"
+# django
+ENV DJANGO_PROJECT_HOME "/home/site/wwwroot"
+#
+ENV DOCKER_BUILD_HOME "/dockerbuild"
+
+
+# =======
+# Install
+# =======
+
+WORKDIR $DOCKER_BUILD_HOME
+
+# tools
+RUN set -ex \
+	&& apt-get update \
+        && apt-get install -y -V --no-install-recommends wget gcc \
+        && rm -r /var/lib/apt/lists/*
+
+# nginx
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y -V --no-install-recommends nginx \
+	&& rm -r /var/lib/apt/lists/*
+
+# postgresql
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y -V --no-install-recommends postgresql \
+	&& rm -r /var/lib/apt/lists/*
+
+# python
+RUN set -ex \
+	&& apt-get update \
+	&& apt-get install -y -V --no-install-recommends python3 python3-dev \
+	&& rm -r /var/lib/apt/lists/*
+
+# django
+RUN set -ex \
+	&& wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate \
+	&& python3 get-pip.py \
+	&& pip install django \
+	## see https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/uwsgi/
+	&& pip install http://projects.unbit.it/downloads/uwsgi-lts.tar.gz
+
+
+# =========
+# Configure
+# =========
+
+COPY nginx-default-site /etc/nginx/sites-available/default
+COPY uwsgi.ini /tmp/ 
+
+# post-install
+RUN set -ex \
+	&& ln -s /usr/bin/python3 /usr/bin/python \
+	##
+        && rm -rf /var/log/nginx \
+        && ln -s $NGINX_LOG_DIR /var/log/nginx \
+	##
+	&& touch /tmp/uwsgi.sock \
+	&& chown www-data:www-data /tmp/uwsgi.sock \
+	&& chmod 664 /tmp/uwsgi.sock \
+	##
+	&& rm -rf /var/log/postgresql \
+	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
+	##
+	&& ln -s $PGADMIN_HOME /var/www/phppgadmin \
+	##
+	&& rm -rf $DOCKER_BUILD_HOME/*
+
+
+COPY entrypoint.sh /usr/local/bin
+RUN chmod u+x /usr/local/bin/entrypoint.sh
+EXPOSE 80
+ENTRYPOINT ["entrypoint.sh"]
