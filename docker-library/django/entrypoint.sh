@@ -1,4 +1,8 @@
 #!/bin/bash
+set -e
+test ! -d /home/LogFiles && mkdir -p /home/LogFiles && touch /home/LogFiles/entrypoint.log
+exec > >(tee -i /home/LogFiles/entrypoint.log)
+exec 2>&1
 
 set_var_if_null(){
 	local varname="$1"
@@ -17,7 +21,7 @@ test ! -d "$UWSGI_INI_DIR" && echo "INFO: $UWSGI_INI_DIR not found, creating ...
 test ! -d "$DJANGO_PROJECT_HOME" && echo "INFO: $DJANGO_PROJECT_HOME not found, creating ..." && mkdir -p $DJANGO_PROJECT_HOME
 WSGI_PY_PATH=`find $DJANGO_PROJECT_HOME -name wsgi.py`
 if [ "$WSGI_PY_PATH" ]; then
-	echo "INFO: wsgi.py found at $WSGI_PY_PATH. So we think a project already exists under $DJANGO_PROJECT_HOME."
+	echo "INFO: wsgi.py found at $WSGI_PY_PATH. So we think a django project already exists under $DJANGO_PROJECT_HOME."
 else
 	# create a sample django project
 	echo "INFO: creating sample django project 'myproject' under $DJANGO_PROJECT_HOME ..."
@@ -30,6 +34,12 @@ fi
 chown -R www-data:www-data "$NGINX_LOG_DIR"
 chown -R www-data:www-data "$UWSGI_INI_DIR"
 chown -R www-data:www-data "$DJANGO_PROJECT_HOME"
+
+echo "INFO: creating /tmp/uwsgi.sock ..."
+rm -f /tmp/uwsgi.sock
+touch /tmp/uwsgi.sock
+chown www-data:www-data /tmp/uwsgi.sock
+chmod 664 /tmp/uwsgi.sock
 
 echo "INFO: starting nginx ..."
 nginx #-g "daemon off;"
@@ -53,36 +63,39 @@ fi
 rm -rf /var/lib/postgresql
 ln -s $POSTGRESQL_DATA_DIR /var/lib/postgresql
 chown -R postgres:postgres $POSTGRESQL_DATA_DIR
-
+# to eliminate "config owner and data owner do not match"
+chown root: /etc/postgresql/9.5/main/postgresql.conf
+chmod -R 700 $POSTGRESQL_DATA_DIR
 echo "INFO: starting postgresql ..."
 service postgresql start
-
-# setup phpPgAdmin user/password
-set_var_if_null 'PHPPGADMIN_USERNAME' 'phppgadmin'
-set_var_if_null 'PHPPGADMIN_PASSWORD' 'MS173m_QN'
-echo "INFO: creating role '$PHPPGADMIN_USERNAME' for phpPgAdmin site ..."
-su - postgres -c "psql -c \"create role $PHPPGADMIN_USERNAME superuser login encrypted password '$PHPPGADMIN_PASSWORD';\""
 
 # setup phpPgAdmin
 test ! -d "$PHPPGADMIN_HOME" && echo "INFO: $PHPPGADMIN_HOME not found. creating ..." && mkdir -p "$PHPPGADMIN_HOME"
 
-if [ -e "$PHPPGADMIN_HOME/config.inc.php" ]; then
-	echo "INFO: $PHPPGADMIN_HOME/config.inc.php already exists."
+if [ -e "$PHPPGADMIN_HOME/conf/config.inc.php" ]; then
+	echo "INFO: $PHPPGADMIN_HOME/conf/config.inc.php already exists."
 else
-	echo "INFO: $PHPPGADMIN_HOME/config.inc.php not found."
+	echo "INFO: $PHPPGADMIN_HOME/conf/config.inc.php not found."
 	echo "INFO: copying all files under /usr/share/phppgadmin to $PHPPGADMIN_HOME ..."
 	cp -R /usr/share/phppgadmin/. $PHPPGADMIN_HOME
 	echo "INFO: copying all files under /usr/share/php/adodb to $PHPPGADMIN_HOME/libraries/adodb ..."
 	rm -rf $PHPPGADMIN_HOME/libraries/adodb
 	mkdir -p $PHPPGADMIN_HOME/libraries/adodb
+	rm -f $PHPPGADMIN_HOME/libraries/js/jquery.js
+	cp /usr/share/javascript/jquery/jquery.js $PHPPGADMIN_HOME/libraries/js/jquery.js
 	cp -R /usr/share/php/adodb/. $PHPPGADMIN_HOME/libraries/adodb
 	echo "INFO: copying config.inc.php to $PHPPGADMIN_HOME/conf ..."
 	rm -f $PHPPGADMIN_HOME/conf/config.inc.php
 	mv /etc/phppgadmin/config.inc.php $PHPPGADMIN_HOME/conf
+
+	# setup phpPgAdmin user/password
+	set_var_if_null 'PHPPGADMIN_USERNAME' 'phppgadmin'
+	set_var_if_null 'PHPPGADMIN_PASSWORD' 'MS173m_QN'
+	echo "INFO: creating role '$PHPPGADMIN_USERNAME' for phpPgAdmin site ..."
+	su - postgres -c "psql -c \"create role $PHPPGADMIN_USERNAME superuser login encrypted password '$PHPPGADMIN_PASSWORD';\""
 fi
 
 rm -rf /usr/share/phppgadmin
-ln -s $PHPPGADMIN_HOME /usr/share/phppgadmin
 chown -R www-data:www-data $PHPPGADMIN_HOME
 
 echo "INFO: start php7.0-fpm for phpPgAdmin site ..."

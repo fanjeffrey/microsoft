@@ -8,22 +8,21 @@ server {
 	listen 80 default_server;
 	listen [::]:80 default_server;
 
-	root /var/www/html;
-
+	root /var/www/default;
 	index index.html index.htm index.nginx-debian.html;
 
 	server_name _;
 	charset utf-8;
 	
 	location /phppgadmin {
-		root /usr/share;
+		root /var/www;
 		index index.php;
 		location ~ ^/phppgadmin/(.+\.php)$ {
                 	include snippets/fastcgi-php.conf;
 			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
 		}
 		location ~* ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
-                   root /usr/share/;
+                   root /var/www;
 		}
 	}
 
