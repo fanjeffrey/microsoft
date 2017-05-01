@@ -1,0 +1,39 @@
+#
+upstream django {
+	server unix:///tmp/uwsgi.sock;
+}
+
+#
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	root /var/www/default;
+	index index.html index.htm index.nginx-debian.html;
+
+	server_name _;
+	charset utf-8;
+	
+	location /images {
+		root /var/www/default;
+	}
+
+	location /css {
+		root /var/www/default;
+	}
+
+	location /js {
+		root /var/www/default;
+	}
+
+	location /static {
+		root /var/www/default;
+	}
+
+        location / {
+                uwsgi_pass django;
+                include /etc/nginx/uwsgi_params;
+        }
+}
+
+
