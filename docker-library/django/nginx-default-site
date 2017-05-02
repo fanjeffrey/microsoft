@@ -15,19 +15,15 @@ server {
 	charset utf-8;
 	
 	location /images {
-		root /var/www/default;
 	}
 
 	location /css {
-		root /var/www/default;
 	}
 
 	location /js {
-		root /var/www/default;
 	}
 
 	location /static {
-		root /var/www/default;
 	}
 
         location / {
