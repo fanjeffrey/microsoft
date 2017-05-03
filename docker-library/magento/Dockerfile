@@ -17,7 +17,7 @@ ENV HTTPD_SOURCE "/usr/src/httpd"
 ENV HTTPD_HOME "/usr/local/httpd"
 ENV HTTPD_CONF_DIR "$HTTPD_HOME/conf"
 ENV HTTPD_CONF_FILE "$HTTPD_CONF_DIR/httpd.conf"
-ENV HTTPD_LOG_DIR="/var/log/httpd"
+ENV HTTPD_LOG_DIR="/home/LogFiles/httpd"
 ENV PATH "$HTTPD_HOME/bin":$PATH
 
 # php
@@ -32,9 +32,8 @@ ENV PHP_CONF_DIR_SCAN "$PHP_CONF_DIR/conf.d"
 ENV PATH "$PHP_HOME/bin":$PATH
 
 # mariadb
-ENV MARIADB_DATA_DIR="/var/lib/mysql"
-ENV MARIADB_LOG_DIR="/var/log/mysql"
-ENV MARIADB_DATA_DIR_TEMP="/tmp/mariadb"
+ENV MARIADB_DATA_DIR="/home/data/mysql"
+ENV MARIADB_LOG_DIR="/home/LogFiles/mysql"
 
 # redis
 ENV REDIS_VERSION "3.2.8"
@@ -48,7 +47,7 @@ ENV PATH "$REDIS_HOME/bin":$PATH
 ENV MAGENTO_VERSION "2.1.5"
 ENV MAGENTO_PACKAGE "Magento-CE-$MAGENTO_VERSION.tar.gz"
 ENV MAGENTO_SOURCE "/usr/src/magento"
-ENV MAGENTO_HOME "/var/www/magento"
+ENV MAGENTO_HOME "/home/site/wwwroot"
 ENV PATH "$MAGENTO_HOME/bin":$PATH
 
 # phpMyAdmin
@@ -56,7 +55,7 @@ ENV PHPMYADMIN_VERSION "4.6.6"
 ENV PHPMYADMIN_DOWNLOAD_URL "https://files.phpmyadmin.net/phpMyAdmin/$PHPMYADMIN_VERSION/phpMyAdmin-$PHPMYADMIN_VERSION-all-languages.tar.gz"
 ENV PHPMYADMIN_SHA256 "54086600558613b31c4daddf4ae58fbc1c252a2b8e3e6fae12f851f78677d72e"
 ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
-ENV PHPMYADMIN_HOME "/var/www/phpmyadmin"
+ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 
 ENV DOCKER_BUILD_HOME "/dockerbuild"
 
@@ -143,7 +142,7 @@ RUN set -ex \
 	&& phpBuildtimeDeps="\
 		libbz2-dev \
 		libgmp-dev \
-        libicu-dev \
+	        libicu-dev \
 		libjpeg-dev \
 		libpng12-dev \
 		libldap2-dev \
@@ -157,7 +156,7 @@ RUN set -ex \
 	&& phpRuntimeDeps=" \
 		libcurl4-openssl-dev \
 		libjpeg8 \
-        libpng12-0 \
+	        libpng12-0 \
 		libmcrypt4 \
 		libxml2 \
 		libxslt1.1 \
@@ -280,39 +279,32 @@ COPY php-log.ini $PHP_CONF_DIR_SCAN/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 # phpmyadmin config
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/config.inc.php
+
 RUN set -ex \
+	## include php.conf
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
 	&& test ! -d /var/lib/php/sessions && mkdir -p /var/lib/php/sessions \
-	&& chown www-data:www-data /var/lib/php/sessions
-
-
-# =====================================
-# Azure Web App on Linux configurations
-# =====================================
-# /home is a shared directory among multiple web app instances
-# /home/site/wwwroot for Magento site
-# /home/phpmyadmin for phpMyAdmin site
-# /home/data for native MariaDB data dir
-# /home/LogFiles/httpd for httpd/php/magento/phpmyadmin logs
-# /home/LogFiles/mariadb for mariadb logs
-
-ENV AZURE_SITE_ROOT "/home/site/wwwroot"
-ENV PHPMYADMIN_HOME_AZURE "/home/phpmyadmin"
-ENV MARIADB_DATA_DIR_AZURE "/home/data"
-ENV HTTPD_LOG_DIR_AZURE "/home/LogFiles/httpd"
-ENV MARIADB_LOG_DIR_AZURE "/home/LogFiles/mariadb"
-
+	&& chown www-data:www-data /var/lib/php/sessions \
+	## install show page
+	&& test ! -d /var/www && mkdir -p /var/www \
+	&& echo '<html><head><meta http-equiv="refresh" content="15" /><meta http-equiv="pragma" content="no-cache" /><meta http-equiv="cache-control" content="no-cache" /><title>Installing Magento ...</title></head><body>Installing Magento ... This could be done in minutes. But it will take longer if running on Azure Web App for Linux.</body></html>' > /var/www/index.html \
+	&& chown -R www-data:www-data /var/www \
+	&& chmod 664 /var/www/index.html \
+	##
+	&& ln -s $MAGENTO_HOME /var/www/magento \
+	##
+	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
+	##
+	&& rm -rf /var/log/mysql \
+	&& ln -s $MARIADB_LOG_DIR /var/log/mysql \
+	##
+	&& rm -rf /var/log/httpd \
+	&& ln -s $HTTPD_LOG_DIR /var/log/httpd
 
 # =====
 # final
 # =====
 COPY entrypoint.sh /usr/local/bin/
-RUN set -ex \
-	&& chmod +x /usr/local/bin/entrypoint.sh \
-	&& test ! -d /var/www && mkdir -p /var/www \
-	&& echo '<html><head><meta http-equiv="refresh" content="15" /><title>Installing Magento ...</title></head><body>Installing Magento ... This could be done in minutes. But it will take longer if running on Azure Web App for Linux.</body></html>' > /var/www/index.html \
-	&& chown -R www-data:www-data /var/www \
-	&& chmod 664 /var/www/index.html	
+RUN chmod +x /usr/local/bin/entrypoint.sh 
 EXPOSE 80
 ENTRYPOINT ["entrypoint.sh"]
-
