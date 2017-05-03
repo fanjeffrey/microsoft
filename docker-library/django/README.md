@@ -31,10 +31,10 @@ With the button below, you can easily deploy the image to Azure.
 
 ## Django with uWSGI and Nginx
 1. Nginx handle static file in folder /home/site/wwwroot:images, css, js, static;
-2. uWSGI configuration file: /home/uwsgi/uwsgi.ini
+2. uWSGI configuration file: /home/uwsgi/uwsgi.ini.
 
 ## How to change database connection to a remote server
-1. Get publish profile on Azure portal;
+1. Get publish profile on Azure portal, FTP Login Parameters:publishUrl, userName, userPWD;
 ![Django publish profile for FTP](https://raw.githubusercontent.com/Song2017/Microsoft/devDjango/docker-library/django/django_publish_profile.PNG)
 
 2. Use any FTP tool(e.g. WinSCP) you prefer to connect to the site;
@@ -54,10 +54,10 @@ With the button below, you can easily deploy the image to Azure.
         }
     }
     ```
-4. For more detail, please see: https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-DATABASES
+4. For more detail, please see: https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-DATABASES.
 
 ## How to upload your django project
-1. Get publish profile on Azure portal 
+1. Get publish profile on Azure portal, FTP Login Parameters:publishUrl, userName, userPWD;
 ![Django publish profile for FTP](https://raw.githubusercontent.com/Song2017/Microsoft/devDjango/docker-library/django/django_publish_profile.PNG)
 
 2. Use any FTP tool(e.g. WinSCP) you prefer to connect to the site;
