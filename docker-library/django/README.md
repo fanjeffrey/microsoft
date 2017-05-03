@@ -15,7 +15,7 @@ Ubuntu 16.04 is used as the base image.
 
 The stack of components:
 ```
-Browser <-> nginx <-> /tmp/uwsgi.sock <-> uWSGI <-> Python/Django <-> Psycopg2 <-> remote PostgreSQL databse
+Browser <-> nginx <-> /tmp/uwsgi.sock <-> uWSGI <-> Python/Django <-> Psycopg2 <-> remote PostgreSQL database
 ```
 
 ## Features
