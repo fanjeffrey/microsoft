@@ -35,7 +35,7 @@ With the button below, you can easily deploy the image to Azure.
 
 ## How to change database connection to a remote server
 1. Get publish profile on Azure portal;
-![Django publish profile for FTP](https://raw.githubusercontent.com/fanjeffrey/Images/master/Microsoft/docker-library/drupal_deploy_setup.PNG)
+![Django publish profile for FTP](https://raw.githubusercontent.com/Song2017/Microsoft/devDjango/docker-library/django/django_publish_profile.PNG)
 
 2. Use any FTP tool(e.g. WinSCP) you prefer to connect to the site;
 3. Edit /home/site/wwwroot/sites/myproject/settings.py to your database configure;
@@ -58,11 +58,11 @@ With the button below, you can easily deploy the image to Azure.
 
 ## How to upload your django project
 1. Get publish profile on Azure portal 
-![Django publish profile for FTP](https://raw.githubusercontent.com/fanjeffrey/Images/devDjango/Microsoft/docker-library/django_publish_profile.PNG)
+![Django publish profile for FTP](https://raw.githubusercontent.com/Song2017/Microsoft/devDjango/docker-library/django/django_publish_profile.PNG)
 
 2. Use any FTP tool(e.g. WinSCP) you prefer to connect to the site;
 3. Upload the file of the django project that you want to upload to the folder /home/site/wwwroot;
-![Django default project for FTP](https://raw.githubusercontent.com/fanjeffrey/Images/devDjango/Microsoft/docker-library/django_default_project.PNG)
+![Django default project for FTP](https://raw.githubusercontent.com/Song2017/Microsoft/devDjango/docker-library/django/django_default_project.PNG)
 
 4. To create your Django project, please see: https://docs.djangoproject.com/en/1.11/intro/tutorial01/.
 
