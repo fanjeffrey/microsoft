@@ -5,10 +5,10 @@ This Django Docker image is built for [Azure Web App on Linux](https://docs.micr
 ## Components
 This Docker image contains the following components:
 
-1. Django
-2. Python
-3. Nginx
-4. uWSGI
+1. Django   **1.1.1**
+2. Python   **3.5.2**
+3. Nginx    **1.10.0**
+4. uWSGI    **2.0.15**
 
 Ubuntu 16.04 is used as the base image.
 
