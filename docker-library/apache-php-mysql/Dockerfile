@@ -42,7 +42,7 @@ ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
 ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 
 # app
-ENV APP_HOME "/home/site/wwwroot"
+ENV HOME "/home/site/wwwroot"
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
 
@@ -263,7 +263,7 @@ RUN set -ex \
 	##
 	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
 	##
-	&& ln -s $APP_HOME /var/www/app
+	&& ln -s $HOME /var/www
 
 # =====
 # final
