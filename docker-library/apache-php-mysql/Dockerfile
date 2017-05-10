@@ -41,6 +41,8 @@ ENV PHPMYADMIN_SHA256 "54086600558613b31c4daddf4ae58fbc1c252a2b8e3e6fae12f851f78
 ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
 ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 
+# app
+ENV APP_HOME "/home/site/wwwroot"
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
 
@@ -242,6 +244,8 @@ COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 # phpmyadmin
 COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/
+# app
+COPY httpd-app.conf $HTTPD_CONF_DIR/
 
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
@@ -249,7 +253,6 @@ RUN set -ex \
 	&& chown www-data:www-data /var/lib/php/sessions \
 	##
 	&& test ! -d /var/www && mkdir -p /var/www \
-        && echo '<html><head><meta http-equiv="refresh" content="30" /><meta http-equiv="pragma" content="no-cache" /><meta http-equiv="cache-control" content="no-cache" /><title>Installing</title></head><body>Installing ... This could be done in minutes. Please refresh your browser later.</body></html>' > /var/www/index.html \
         && chown -R www-data:www-data /var/www \
 	##
 	&& rm -rf /var/log/httpd \
@@ -259,6 +262,8 @@ RUN set -ex \
 	&& ln -s $MARIADB_LOG_DIR /var/log/mysql \
 	##
 	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
+	##
+	&& ln -s $APP_HOME /var/www/app
 
 # =====
 # final

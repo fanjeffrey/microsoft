@@ -80,6 +80,17 @@ apachectl start
 
 update_settings
 
+# That settings.php doesn't exist means Drupal is not installed/configured yet.
+if [ ! -d "$APP_HOME" ]; then
+	echo "INFO: path $APP_HOME not found."
+	echo "Installing app path for the first time ..."
+	
+	test ! -d "$APP_HOME" && echo "INFO: $APP_HOME not found. creating ..." && mkdir -p "$APP_HOME"
+	chown -R www-data:www-data $APP_HOME
+else
+	echo "INFO: path $APP_HOME already exists."
+fi
+
 # If local MariaDB is used 
 if [ "${DATABASE_HOST,,}" = "localhost" ]; then
 	echo "Setting up MariaDB data dir ..."
