@@ -1,4 +1,4 @@
-# Docker Image for Drupal with MySQL
+# Docker Image for Apache with MySQL
 ## Overview
 This Drupal (with MySQL) Docker image is built for [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro).
 
@@ -27,8 +27,8 @@ You can specify the following environment variables when deploying the image to 
 Name | Default Value
 ---- | -------------
 DATABASE_HOST | localhost
-DATABASE_NAME | drupal
-DATABASE_USERNAME | drupal
+DATABASE_NAME | mysql
+DATABASE_USERNAME | mysql
 DATABASE_PASSWORD | MS173m_QN
 PHPMYADMIN_USERNAME | phpmyadmin
 PHPMYADMIN_PASSWORD | MS173m_QN
@@ -49,4 +49,4 @@ If you're using the builtin MariaDB, you can access the builtin phpMyAdmin site 
 ## How to install APP
 1. Use any FTP tool you prefer to connect to the site (you can get the credentials on Azure portal);
 2. Upload the tar file of the APP that you want to install to the folder /home/site/wwwroot/;
-3. Extract the contents into a sub-folder under /home/site/wwwroot;
+3. Extract the contents into /home/site/wwwroot;
