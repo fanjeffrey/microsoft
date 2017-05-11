@@ -17,16 +17,13 @@ This docker image enables you to:
 
 - run a Apache Environment on **Azure Web App on Linux**;
 - connect your App site to **Azure ClearDB** or the builtin MariaDB;
-
-## Limitations
-- The phpMyAdmin built in this docker image is available only when you use the MariaDB built in this docker image as the database.
+- The MariaDB with the phpMyAdmin built in this docker image.
 
 ## Deploying / Running
 You can specify the following environment variables when deploying the image to Azure or running it on your Docker engine's host.
 
 Name | Default Value
 ---- | -------------
-DATABASE_HOST | localhost
 DATABASE_NAME | mysql
 DATABASE_USERNAME | mysql
 DATABASE_PASSWORD | MS173m_QN
@@ -42,7 +39,7 @@ With the button below, you can easily deploy the image to Azure.
 The builtin MariaDB server uses port 3306.
 
 ## The Builtin phpMyAdmin Site
-If you're using the builtin MariaDB, you can access the builtin phpMyAdmin site with a URL like below:
+we're using the builtin MariaDB default, so you can access the builtin phpMyAdmin site with a URL like below:
 
 **http://hostname[:port]/phpmyadmin**
 
@@ -50,3 +47,6 @@ If you're using the builtin MariaDB, you can access the builtin phpMyAdmin site 
 1. Use any FTP tool you prefer to connect to the site (you can get the credentials on Azure portal);
 2. Upload the tar file of the APP that you want to install to the folder /home/site/wwwroot/;
 3. Extract the contents into /home/site/wwwroot;
+
+## Startup Log
+The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.

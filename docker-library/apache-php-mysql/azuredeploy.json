@@ -29,10 +29,6 @@
             "type": "string",
             "defaultValue": "songgs/apache-php-mysql:latest"
         },
-        "databaseHost": {
-            "type": "string",
-            "defaultValue": "localhost"
-        },
         "databaseName": {
             "type": "string",
             "defaultValue": "mysql"
@@ -64,10 +60,6 @@
                         {
                             "name": "DOCKER_CUSTOM_IMAGE_NAME",
                             "value": "[parameters('dockerRegistryImageName')]"
-                        },
-                        {
-                            "name": "DATABASE_HOST",
-                            "value": "[parameters('databaseHost')]"
                         },
                         {
                             "name": "DATABASE_NAME",

@@ -26,7 +26,7 @@ setup_mariadb_data_dir(){
 	if [ ! -d "$MARIADB_DATA_DIR/mysql" ]; then
 		echo "INFO: 'mysql' database doesn't exist under $MARIADB_DATA_DIR. So we think $MARIADB_DATA_DIR is empty."
 		echo "Copying all data files from the original folder /var/lib/mysql to $MARIADB_DATA_DIR ..."
-		cp -R /var/lib/mysql/. $MARIADB_DATA_DIR
+		cp -nR /var/lib/mysql/. $MARIADB_DATA_DIR
 	else
 		echo "INFO: 'mysql' database already exists under $MARIADB_DATA_DIR."
 	fi
@@ -50,7 +50,7 @@ setup_phpmyadmin(){
 	mv $PHPMYADMIN_SOURCE/phpmyadmin.tar.gz $PHPMYADMIN_HOME/
 	tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_HOME --strip-components=1
 	# create config.inc.php
-	mv $PHPMYADMIN_SOURCE/phpmyadmin-config.inc.php $PHPMYADMIN_HOME/config.inc.php
+	cp -nR $PHPMYADMIN_SOURCE/phpmyadmin-config.inc.php $PHPMYADMIN_HOME/config.inc.php
 	rm $PHPMYADMIN_HOME/phpmyadmin.tar.gz
 	rm -rf $PHPMYADMIN_SOURCE
 
@@ -58,18 +58,13 @@ setup_phpmyadmin(){
 }
 
 update_settings(){
-	set_var_if_null "DATABASE_HOST" "localhost"
 	set_var_if_null "DATABASE_NAME" "mysql"
 	set_var_if_null "DATABASE_USERNAME" "mysql"
 	set_var_if_null "DATABASE_PASSWORD" "MS173m_QN"
-	if [ "${DATABASE_HOST,,}" = "localhost" -o "$DATABASE_HOST" = "127.0.0.1" ]; then
-		export DATABASE_HOST="localhost"
-	fi
 }
 
 set -e
 
-echo "INFO: DATABASE_HOST:" $DATABASE_HOST
 echo "INFO: DATABASE_NAME:" $DATABASE_NAME
 echo "INFO: DATABASE_USERNAME:" $DATABASE_USERNAME
 echo "INFO: PHPMYADMIN_USERNAME:" $PHPMYADMIN_USERNAME
@@ -91,16 +86,17 @@ else
 	echo "INFO: path $HOME already exists."
 fi
 
-# If local MariaDB is used 
-if [ "${DATABASE_HOST,,}" = "localhost" ]; then
-	echo "Setting up MariaDB data dir ..."
-	setup_mariadb_data_dir
-	echo "Setting up MariaDB log dir ..."
-	test ! -d "$MARIADB_LOG_DIR" && echo "INFO: $MARIADB_LOG_DIR not found. creating ..." && mkdir -p "$MARIADB_LOG_DIR"
-	chown -R mysql:mysql $MARIADB_LOG_DIR
-	echo "Starting local MariaDB ..."
-	start_mariadb
+# local MariaDB is used 
+echo "Setting up MariaDB data dir ..."
+setup_mariadb_data_dir
+echo "Setting up MariaDB log dir ..."
+test ! -d "$MARIADB_LOG_DIR" && echo "INFO: $MARIADB_LOG_DIR not found. creating ..." && mkdir -p "$MARIADB_LOG_DIR"
+chown -R mysql:mysql $MARIADB_LOG_DIR
+echo "Starting local MariaDB ..."
+start_mariadb
 
+
+if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
 	echo "Granting user for phpMyAdmin ..."
 	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
 	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
@@ -111,21 +107,16 @@ if [ "${DATABASE_HOST,,}" = "localhost" ]; then
 	echo "Granting user for Drupal ..."
 	mysql -u root -e "GRANT ALL ON \`$DATABASE_NAME\`.* TO \`$DATABASE_USERNAME\`@\`$DATABASE_HOST\` IDENTIFIED BY '$DATABASE_PASSWORD'; FLUSH PRIVILEGES;"
 
-	if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
-		echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."
-		echo "Installing phpMyAdmin ..."
-		setup_phpmyadmin
-		else
-		echo "INFO: $PHPMYADMIN_HOME/config.inc.php already exists."
-	fi
+	echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."
+	echo "Installing phpMyAdmin ..."
+	setup_phpmyadmin
+	else
+	echo "INFO: $PHPMYADMIN_HOME/config.inc.php already exists."
+fi
 
-	echo "Loading phpMyAdmin conf ..."
-	if ! grep -q "^Include conf/httpd-phpmyadmin.conf" $HTTPD_CONF_FILE; then
-		echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
-	fi
-
-else
-	echo "INFO: local MariaDB is NOT used as DATABASE_HOST in settings.php."
+echo "Loading phpMyAdmin conf ..."
+if ! grep -q "^Include conf/httpd-phpmyadmin.conf" $HTTPD_CONF_FILE; then
+	echo 'Include conf/httpd-phpmyadmin.conf' >> $HTTPD_CONF_FILE
 fi
 
 apachectl stop
