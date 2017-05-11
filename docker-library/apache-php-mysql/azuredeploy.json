@@ -31,11 +31,11 @@
         },
         "databaseName": {
             "type": "string",
-            "defaultValue": "mysql"
+            "defaultValue": "appdb"
         },
         "databaseUsername": {
             "type": "string",
-            "defaultValue": "mysql"
+            "defaultValue": "appuser"
         },
         "databasePassword": {
             "type": "securestring",

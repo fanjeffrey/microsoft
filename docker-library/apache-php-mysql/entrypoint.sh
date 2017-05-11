@@ -58,8 +58,8 @@ setup_phpmyadmin(){
 }
 
 update_settings(){
-	set_var_if_null "DATABASE_NAME" "mysql"
-	set_var_if_null "DATABASE_USERNAME" "mysql"
+	set_var_if_null "DATABASE_NAME" "appdb"
+	set_var_if_null "DATABASE_USERNAME" "appuser"
 	set_var_if_null "DATABASE_PASSWORD" "MS173m_QN"
 }
 

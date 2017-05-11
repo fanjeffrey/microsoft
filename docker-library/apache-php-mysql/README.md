@@ -24,8 +24,8 @@ You can specify the following environment variables when deploying the image to 
 
 Name | Default Value
 ---- | -------------
-DATABASE_NAME | mysql
-DATABASE_USERNAME | mysql
+DATABASE_NAME | appdb
+DATABASE_USERNAME | appuser
 DATABASE_PASSWORD | MS173m_QN
 PHPMYADMIN_USERNAME | phpmyadmin
 PHPMYADMIN_PASSWORD | MS173m_QN
