@@ -75,7 +75,7 @@ apachectl start
 
 update_settings
 
-# That settings.php doesn't exist means Drupal is not installed/configured yet.
+# That settings.php doesn't exist means App is not installed/configured yet.
 if [ ! -d "$HOME" ]; then
 	echo "INFO: path $HOME not found."
 	echo "Installing app path for the first time ..."
@@ -102,9 +102,9 @@ if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
 	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
 	mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
-	echo "Creating database for Drupal if not exists ..."
+	echo "Creating database if not exists ..."
 	mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$DATABASE_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
-	echo "Granting user for Drupal ..."
+	echo "Granting user ..."
 	mysql -u root -e "GRANT ALL ON \`$DATABASE_NAME\`.* TO \`$DATABASE_USERNAME\`@\`$DATABASE_HOST\` IDENTIFIED BY '$DATABASE_PASSWORD'; FLUSH PRIVILEGES;"
 
 	echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."
