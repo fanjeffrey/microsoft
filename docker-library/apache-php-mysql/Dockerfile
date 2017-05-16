@@ -244,6 +244,7 @@ COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 # phpmyadmin
 COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/
+COPY mariadb.cnf /etc/mysql/
 
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \

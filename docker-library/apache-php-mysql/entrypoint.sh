@@ -61,9 +61,13 @@ update_settings(){
 	set_var_if_null "DATABASE_NAME" "appdb"
 	set_var_if_null "DATABASE_USERNAME" "appuser"
 	set_var_if_null "DATABASE_PASSWORD" "MS173m_QN"
+	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
+	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
 }
 
 set -e
+
+update_settings
 
 echo "INFO: DATABASE_NAME:" $DATABASE_NAME
 echo "INFO: DATABASE_USERNAME:" $DATABASE_USERNAME
@@ -72,8 +76,6 @@ echo "INFO: PHPMYADMIN_USERNAME:" $PHPMYADMIN_USERNAME
 test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ..." && mkdir -p "$HTTPD_LOG_DIR"
 chown -R www-data:www-data $HTTPD_LOG_DIR
 apachectl start
-
-update_settings
 
 # That settings.php doesn't exist means App is not installed/configured yet.
 if [ ! -d "$HOME" ]; then
@@ -98,8 +100,6 @@ start_mariadb
 
 if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
 	echo "Granting user for phpMyAdmin ..."
-	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
-	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
 	mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
 	echo "Creating database if not exists ..."
