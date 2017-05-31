@@ -25,7 +25,7 @@ setup_phppgadmin(){
 	mv $PHPPGADMIN_SOURCE/phppgadmin.tar.gz $PHPPGADMIN_HOME/
 	tar -xf phppgadmin.tar.gz -C $PHPPGADMIN_HOME --strip-components=1
 	# create config.inc.php
-	cp -nR $PHPPGADMIN_SOURCE/phppgadmin-config.inc.php $PHPPGADMIN_HOME/config.inc.php
+	#cp -nR $PHPPGADMIN_SOURCE/phppgadmin-config.inc.php $PHPPGADMIN_HOME/config.inc.php
 	rm $PHPPGADMIN_HOME/phppgadmin.tar.gz
 	rm -rf $PHPPGADMIN_SOURCE
 
@@ -74,6 +74,7 @@ if [ ! -e "$PHPPGADMIN_HOME/config.inc.php" ]; then
 
 	echo "INFO: $PHPPGADMIN_HOME/config.inc.php not found."
 	echo "Installing phpPgAdmin ..."
+	setup_phppgadmin
 else
 	echo "INFO: $PHPPGADMIN_HOME/config.inc.php already exists."
 fi

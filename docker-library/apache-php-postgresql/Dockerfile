@@ -36,8 +36,8 @@ ENV PATH "$PHP_HOME/bin":$PATH
 
 # phppgadmin
 ENV PHPPGADMIN_VERSION "5.1"
-ENV PHPPGADMIN_DOWNLOAD_URL "https://nchc.dl.sourceforge.net/project/phppgadmin/phpPgAdmin%20%5Bstable%5D/phpPgAdmin-PHPPGADMIN_VERSION/phpPgAdmin-PHPPGADMIN_VERSION.tar.gz"
-ENV PHPPGADMIN_SHA256 "ef90fc9942c67ab95f063cacc43911a40d34fbc1"
+ENV PHPPGADMIN_DOWNLOAD_URL "https://nchc.dl.sourceforge.net/project/phppgadmin/phpPgAdmin%20%5Bstable%5D/phpPgAdmin-$PHPPGADMIN_VERSION/phpPgAdmin-$PHPPGADMIN_VERSION.tar.gz"
+ENV PHPPGADMIN_SHA256 "42294e7b19d3b4003912eaad9a34df4096c0380871aedce152aa13d4955878a5"
 ENV PHPPGADMIN_SOURCE "/usr/src/phppgadmin"
 ENV PHPPGADMIN_HOME "/home/phppgadmin"
 
@@ -239,7 +239,7 @@ COPY php.ini $PHP_CONF_DIR/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 # phppgadmin
 COPY httpd-phppgadmin.conf $HTTPD_CONF_DIR/
-COPY phppgadmin-config.inc.php $PHPPGADMIN_SOURCE/
+#COPY phppgadmin-config.inc.php $PHPPGADMIN_SOURCE/
 
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
