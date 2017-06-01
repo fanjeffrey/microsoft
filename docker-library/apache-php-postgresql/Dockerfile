@@ -1,5 +1,5 @@
 #
-# Dockerfile for Apache-php-postgresql with MariaDB
+# Dockerfile for Apache-php-postgresql with POSTGRESQL
 #
 FROM ubuntu:16.04
 MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
@@ -21,8 +21,8 @@ ENV HTTPD_LOG_DIR="/home/LogFiles/httpd"
 ENV PATH "$HTTPD_HOME/bin":$PATH
 
 # postgresql
-ENV MARIADB_DATA_DIR="/home/data/postgresql"
-ENV MARIADB_LOG_DIR="/home/LogFiles/postgresql"
+ENV POSTGRESQL_DATA_DIR="/home/data/postgresql"
+ENV POSTGRESQL_LOG_DIR="/home/LogFiles/postgresql"
 
 # php
 ENV PHP_VERSION "7.1.2"
@@ -241,7 +241,6 @@ COPY php.ini $PHP_CONF_DIR/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 # phppgadmin
 COPY httpd-phppgadmin.conf $HTTPD_CONF_DIR/
-#COPY phppgadmin-config.inc.php $PHPPGADMIN_SOURCE/
 
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
@@ -254,8 +253,8 @@ RUN set -ex \
 	&& rm -rf /var/log/httpd \
 	&& ln -s $HTTPD_LOG_DIR /var/log/httpd \
 	##
-	&& rm -rf /var/log/mysql \
-	&& ln -s $MARIADB_LOG_DIR /var/log/mysql \
+	&& rm -rf /var/log/postgresql \
+	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
 	##
 	&& ln -s $PHPPGADMIN_HOME /var/www/phppgadmin \
 	##
