@@ -154,6 +154,7 @@ RUN set -ex \
 		libssl-dev \
 		libxml2-dev \
 		libxslt-dev \
+		libpq-dev \
 	" \
 	## runtime deps
 	&& phpRuntimeDeps=" \
@@ -202,6 +203,7 @@ RUN set -ex \
 		--with-openssl \
 		--with-xsl \
 		--with-zlib \
+		--with-pgsql \
 	&& make -j "$(nproc)" \
 	&& make install \
 	&& make clean \
