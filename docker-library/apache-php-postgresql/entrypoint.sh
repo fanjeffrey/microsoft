@@ -17,6 +17,7 @@ set_var_if_null(){
 		export "$varname"="$2"
 	fi
 }
+
 setup_postgresql_data_dir(){
 	test ! -d "$POSTGRESQL_DATA_DIR" && echo "INFO: $POSTGRESQL_DATA_DIR not found. creating ..." && mkdir -p "$POSTGRESQL_DATA_DIR"
 
@@ -35,8 +36,28 @@ setup_postgresql_data_dir(){
 	chown -R postgres:postgres $POSTGRESQL_DATA_DIR
 }
 
+setup_postgresql_log_dir(){
+	test ! -d "$POSTGRESQL_LOG_DIR" && echo "INFO: $POSTGRESQL_LOG_DIR not found. creating ..." && mkdir -p "$POSTGRESQL_LOG_DIR"
+	# check if postgresql log exists
+	if [ ! -e "$POSTGRESQL_LOG_DIR/postgresql-9.5-main.log" ]; then
+		echo "INFO: 'postgresql' log doesn't exist under $POSTGRESQL_LOG_DIR. So we think $POSTGRESQL_LOG_DIR is empty."
+		echo "Copying all data files from the original folder /var/log/postgresql to $POSTGRESQL_LOG_DIR ..."
+		cp -nR /var/log/postgresql/. $POSTGRESQL_DATA_DIR
+	else
+		echo "INFO: 'postgresql' log already exists under $POSTGRESQL_LOG_DIR."
+	fi
+
+	&& rm -rf /var/log/postgresql
+	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql
+
+	chown -R postgres:postgres $POSTGRESQL_LOG_DIR
+}
+
 start_postgresql(){
-	service postgrsql start
+	#setup client authentication
+	sed -i "s/\:\:1\/128                 md5/\:\:1\/128                 trust/g" /etc/postgresql/9.5/main/pg_hba.conf
+
+	service postgresql start
 }
 
 setup_phppgadmin(){
@@ -46,8 +67,8 @@ setup_phppgadmin(){
 	mv $PHPPGADMIN_SOURCE/phppgadmin.tar.gz $PHPPGADMIN_HOME/
 	tar -xf phppgadmin.tar.gz -C $PHPPGADMIN_HOME --strip-components=1
 	# setup config.inc.php
-	sed -i "s/= ''/= 'localhost'/g" $PHPPGADMIN_HOME/config.inc.php
-	sed -i "s/extra_login_security'\] = true/extra_login_security'\] = false/g" $PHPPGADMIN_HOME/config.inc.php
+	sed -i "s/= ''/= 'localhost'/g" $PHPPGADMIN_HOME/conf/config.inc.php
+	sed -i "s/extra_login_security'\] = true/extra_login_security'\] = false/g" $PHPPGADMIN_HOME/conf/config.inc.php
 	rm $PHPPGADMIN_HOME/phppgadmin.tar.gz
 	rm -rf $PHPPGADMIN_SOURCE
 
@@ -89,8 +110,8 @@ fi
 echo "Setting up PostgreSQL data dir ..."
 setup_postgresql_data_dir
 echo "Setting up PostgreSQL log dir ..."
-test ! -d "$POSTGRESQL_LOG_DIR" && echo "INFO: $POSTGRESQL_LOG_DIR not found. creating ..." && mkdir -p "$POSTGRESQL_LOG_DIR"
-chown -R postgres:postgres $POSTGRESQL_LOG_DIR
+setup_postgresql_log_dir
+
 echo "Starting local PostgreSQL ..."
 start_postgresql
 
