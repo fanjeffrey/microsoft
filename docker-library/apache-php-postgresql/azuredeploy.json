@@ -28,26 +28,6 @@
         "dockerRegistryImageName": {
             "type": "string",
             "defaultValue": "songgs/apache-php-postgresql:latest"
-        },
-        "databaseName": {
-            "type": "string",
-            "defaultValue": "appdb"
-        },
-        "databaseUsername": {
-            "type": "string",
-            "defaultValue": "appuser"
-        },
-        "databasePassword": {
-            "type": "securestring",
-            "defaultValue": "MS173m_QN"
-        },
-        "phppgadminUsername": {
-            "type": "string",
-            "defaultValue": "phppgadmin"
-        },
-        "phppgadminPassword": {
-            "type": "securestring",
-            "defaultValue": "MS173m_QN"
         }
     },
     "resources": [
@@ -60,26 +40,6 @@
                         {
                             "name": "DOCKER_CUSTOM_IMAGE_NAME",
                             "value": "[parameters('dockerRegistryImageName')]"
-                        },
-                        {
-                            "name": "DATABASE_NAME",
-                            "value": "[parameters('databaseName')]"
-                        },
-                        {
-                            "name": "DATABASE_USERNAME",
-                            "value": "[parameters('databaseUsername')]"
-                        },
-                        {
-                            "name": "DATABASE_PASSWORD",
-                            "value": "[parameters('databasePassword')]"
-                        },
-                        {
-                            "name": "PHPPGADMIN_USERNAME",
-                            "value": "[parameters('phppgadminUsername')]"
-                        },
-                        {
-                            "name": "PHPPGADMIN_PASSWORD",
-                            "value": "[parameters('phppgadminPassword')]"
                         }
                     ]
                 },

@@ -20,10 +20,6 @@ ENV HTTPD_CONF_FILE "$HTTPD_CONF_DIR/httpd.conf"
 ENV HTTPD_LOG_DIR="/home/LogFiles/httpd"
 ENV PATH "$HTTPD_HOME/bin":$PATH
 
-# postgresql
-ENV POSTGRESQL_DATA_DIR="/home/data/postgresql"
-ENV POSTGRESQL_LOG_DIR="/home/LogFiles/postgresql"
-
 # php
 ENV PHP_VERSION "7.1.2"
 ENV PHP_DOWNLOAD_URL "https://secure.php.net/get/php-$PHP_VERSION.tar.gz/from/this/mirror"
@@ -34,12 +30,6 @@ ENV PHP_CONF_DIR "$PHP_HOME/etc"
 ENV PHP_CONF_DIR_SCAN "$PHP_CONF_DIR/conf.d"
 ENV PATH "$PHP_HOME/bin":$PATH
 
-# phppgadmin
-ENV PHPPGADMIN_VERSION "5.1"
-ENV PHPPGADMIN_DOWNLOAD_URL "https://nchc.dl.sourceforge.net/project/phppgadmin/phpPgAdmin%20%5Bstable%5D/phpPgAdmin-$PHPPGADMIN_VERSION/phpPgAdmin-$PHPPGADMIN_VERSION.tar.gz"
-ENV PHPPGADMIN_SHA256 "42294e7b19d3b4003912eaad9a34df4096c0380871aedce152aa13d4955878a5"
-ENV PHPPGADMIN_SOURCE "/usr/src/phppgadmin"
-ENV PHPPGADMIN_HOME "/home/phppgadmin"
 
 # app
 ENV HOME "/home/site/wwwroot"
@@ -52,9 +42,7 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 # ~. tools
 # 1. essentials
 # 2. apache httpd
-# 3. postgresql
-# 4. php
-# 5. phppgadmin
+# 3. php
 # ====================
 
 WORKDIR $DOCKER_BUILD_HOME
@@ -127,15 +115,8 @@ RUN set -ex \
 	&& rm $DOCKER_BUILD_HOME/httpd.tar.gz \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $httpdBuildtimeDeps \
 
-	# ----------
-	# 3. postgresql
-	# ----------
-	&& apt-get update \
-	&& DEBIAN_FRONTEND=noninteractive apt-get install postgresql -y -V --no-install-recommends \
-	&& rm -r /var/lib/apt/lists/* \
-
 	# ------
-	# 4. php
+	# 3. php
 	# ------
 	### see http://php.net/manual/en/install.unix.apache2.php
 	### see http://linuxfromscratch.org/blfs/view/svn/general/php.html
@@ -213,14 +194,6 @@ RUN set -ex \
 	&& rm $DOCKER_BUILD_HOME/php.tar.gz \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $phpBuildtimeDeps \
 
-	# -------------
-	# 5. phppgadmin
-	# -------------
-	&& mkdir -p $PHPPGADMIN_SOURCE \
-	&& cd $PHPPGADMIN_SOURCE \
-	&& wget -O phppgadmin.tar.gz "$PHPPGADMIN_DOWNLOAD_URL" --no-check-certificate \
-	&& echo "$PHPPGADMIN_SHA256 *phppgadmin.tar.gz" | sha256sum -c - \
-
 	# -----------
 	# ~. clean up
 	# -----------
@@ -239,8 +212,6 @@ COPY httpd-php.conf $HTTPD_CONF_DIR/
 # php
 COPY php.ini $PHP_CONF_DIR/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
-# phppgadmin
-COPY httpd-phppgadmin.conf $HTTPD_CONF_DIR/
 
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
@@ -252,8 +223,6 @@ RUN set -ex \
 	##
 	&& rm -rf /var/log/httpd \
 	&& ln -s $HTTPD_LOG_DIR /var/log/httpd \
-	##
-	&& ln -s $PHPPGADMIN_HOME /var/www/phppgadmin \
 	##
 	&& ln -s $HOME /var/www
 
