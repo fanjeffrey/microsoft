@@ -118,6 +118,10 @@ RUN set -ex \
 	# ------
 	# 3. php
 	# ------
+	# postgresql
+	&& apt-get update \
+	&& apt-get install -y -V --no-install-recommends postgresql \
+	&& rm -r /var/lib/apt/lists/* \
 	### see http://php.net/manual/en/install.unix.apache2.php
 	### see http://linuxfromscratch.org/blfs/view/svn/general/php.html
 	&& mkdir -p $PHP_SOURCE \
@@ -148,7 +152,7 @@ RUN set -ex \
 	" \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends $phpBuildtimeDeps $phpRuntimeDeps \	
-	&& rm -rf /var/lib/apt/lists/* \
+	#&& rm -rf /var/lib/apt/lists/* \
 	&& ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h \
 	&& ln -s /usr/lib/x86_64-linux-gnu/libldap.so /usr/lib/libldap.so \
 	&& ln -s /usr/lib/x86_64-linux-gnu/liblber.so /usr/lib/liblber.so \

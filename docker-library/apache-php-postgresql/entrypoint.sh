@@ -20,15 +20,9 @@ set_var_if_null(){
 
 set -e
 
-update_settings
-
-echo "INFO: DATABASE_NAME:" $DATABASE_NAME
-echo "INFO: DATABASE_USERNAME:" $DATABASE_USERNAME
-echo "INFO: PHPPGADMIN_USERNAME:" $PHPPGADMIN_USERNAME
-
 test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ..." && mkdir -p "$HTTPD_LOG_DIR"
 chown -R www-data:www-data $HTTPD_LOG_DIR
-apachectl start
+#apachectl start
 
 # That settings.php doesn't exist means App is not installed/configured yet.
 if [ ! -d "$HOME" ]; then
@@ -40,10 +34,6 @@ if [ ! -d "$HOME" ]; then
 else
 	echo "INFO: path $HOME already exists."
 fi
-
-apachectl stop
-# delay 2 seconds to try to avoid "httpd (pid XX) already running"
-sleep 2s
 
 echo "Starting Apache httpd -D FOREGROUND ..."
 apachectl start -D FOREGROUND
