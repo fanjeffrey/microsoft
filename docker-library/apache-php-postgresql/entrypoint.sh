@@ -47,8 +47,8 @@ setup_postgresql_log_dir(){
 		echo "INFO: 'postgresql' log already exists under $POSTGRESQL_LOG_DIR."
 	fi
 
-	&& rm -rf /var/log/postgresql
-	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql
+	rm -rf /var/log/postgresql
+	ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql
 
 	chown -R postgres:postgres $POSTGRESQL_LOG_DIR
 }
@@ -116,7 +116,7 @@ echo "Starting local PostgreSQL ..."
 start_postgresql
 
 if [ ! -e "$PHPPGADMIN_HOME/config.inc.php" ]; then
-	echo "Granting user for phpMyAdmin ..."
+	echo "Granting user for phpPgAdmin ..."
 
 	echo "Creating database if not exists ..."
 	echo "Granting user ..."

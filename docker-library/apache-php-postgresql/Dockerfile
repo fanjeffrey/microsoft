@@ -253,9 +253,6 @@ RUN set -ex \
 	&& rm -rf /var/log/httpd \
 	&& ln -s $HTTPD_LOG_DIR /var/log/httpd \
 	##
-	&& rm -rf /var/log/postgresql \
-	&& ln -s $POSTGRESQL_LOG_DIR /var/log/postgresql \
-	##
 	&& ln -s $PHPPGADMIN_HOME /var/www/phppgadmin \
 	##
 	&& ln -s $HOME /var/www
