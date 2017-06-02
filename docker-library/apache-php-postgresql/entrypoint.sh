@@ -42,7 +42,7 @@ setup_postgresql_log_dir(){
 	if [ ! -e "$POSTGRESQL_LOG_DIR/postgresql-9.5-main.log" ]; then
 		echo "INFO: 'postgresql' log doesn't exist under $POSTGRESQL_LOG_DIR. So we think $POSTGRESQL_LOG_DIR is empty."
 		echo "Copying all data files from the original folder /var/log/postgresql to $POSTGRESQL_LOG_DIR ..."
-		cp -nR /var/log/postgresql/. $POSTGRESQL_DATA_DIR
+		cp -nR /var/log/postgresql/. $POSTGRESQL_LOG_DIR
 	else
 		echo "INFO: 'postgresql' log already exists under $POSTGRESQL_LOG_DIR."
 	fi
@@ -56,7 +56,7 @@ setup_postgresql_log_dir(){
 start_postgresql(){
 	#setup client authentication
 	sed -i "s/\:\:1\/128                 md5/\:\:1\/128                 trust/g" /etc/postgresql/9.5/main/pg_hba.conf
-
+	#su postgres -c "/usr/lib/postgresql/9.5/bin/postgres -d 3 -D /var/lib/postgresql/9.5/main/ -c config_file=/etc/postgresql/9.5/main/postgresql.conf"
 	service postgresql start
 }
 
