@@ -1,6 +1,6 @@
-# Docker Image for Apache with MySQL
+# Docker Image for Apache-PHP-MySQL
 ## Overview
-This Drupal (with MySQL) Docker image is built for [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro).
+This Docker image is built for [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro).
 
 ## Components
 This docker image contains the following components:
@@ -15,9 +15,9 @@ Ubuntu 16.04 is used as the base image.
 ## Features
 This docker image enables you to:
 
-- run a Apache Environment on **Azure Web App on Linux**;
+- run a Apache/PHP/MySQL Environment on **Azure Web App on Linux**;
 - connect your App site to **Azure ClearDB** or the builtin MariaDB;
-- The MariaDB with the phpMyAdmin built in this docker image.
+- manage the build-in MariaDB with the built-in phpMyAdmin;
 
 ## Deploying / Running
 You can specify the following environment variables when deploying the image to Azure or running it on your Docker engine's host.
@@ -39,14 +39,15 @@ With the button below, you can easily deploy the image to Azure.
 The builtin MariaDB server uses port 3306.
 
 ## The Builtin phpMyAdmin Site
-we're using the builtin MariaDB default, so you can access the builtin phpMyAdmin site with a URL like below:
+You can access the builtin phpMyAdmin site with a URL like below if you're using the build-in MariaDB:
 
 **http://hostname[:port]/phpmyadmin**
 
 ## How to install APP
 1. Use any FTP tool you prefer to connect to the site (you can get the credentials on Azure portal);
-2. Upload the tar file of the APP that you want to install to the folder /home/site/wwwroot/;
-3. Extract the contents into /home/site/wwwroot;
+2. Upload the files of the app that you want to install to the folder /home/site/wwwroot/;
+3. Create database on the built-in MariaDB database for your app with the build-in phpMyAdmin;
+4. Update the config file of your app with your created database information;
 
 ## Startup Log
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
