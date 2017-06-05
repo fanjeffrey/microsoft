@@ -252,7 +252,7 @@ RUN set -ex \
 	&& chown www-data:www-data /var/lib/php/sessions \
 	##
 	&& test ! -d /var/www && mkdir -p /var/www \
-        && chown -R www-data:www-data /var/www \
+	&& chown -R www-data:www-data /var/www \
 	##
 	&& rm -rf /var/log/httpd \
 	&& ln -s $HTTPD_LOG_DIR /var/log/httpd \
