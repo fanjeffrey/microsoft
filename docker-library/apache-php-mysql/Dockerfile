@@ -1,5 +1,5 @@
 #
-# Dockerfile for Apache-php-mysql with MariaDB
+# Dockerfile for Apache/PHP/MySQL
 #
 FROM ubuntu:16.04
 MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
