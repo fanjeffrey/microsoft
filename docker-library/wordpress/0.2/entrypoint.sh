@@ -19,7 +19,7 @@ setup_mariadb_data_dir(){
 	if [ ! -d "$MARIADB_DATA_DIR/mysql" ]; then
                 echo "INFO: 'mysql' database doesn't exist under $MARIADB_DATA_DIR. So we think $MARIADB_DATA_DIR is empty."
                 echo "Copying all data files from the original folder /var/lib/mysql to $MARIADB_DATA_DIR ..."
-                cp -R /var/lib/mysql/. $MARIADB_DATA_DIR
+                cp -R --no-clobber /var/lib/mysql/. $MARIADB_DATA_DIR
         else
                 echo "INFO: 'mysql' database already exists under $MARIADB_DATA_DIR."
         fi
@@ -45,10 +45,10 @@ setup_phpmyadmin(){
 	test ! -d "$PHPMYADMIN_HOME" && echo "INFO: $PHPMYADMIN_HOME not found. creating ..." && mkdir -p "$PHPMYADMIN_HOME"
 
 	cd $PHPMYADMIN_HOME
-	mv $PHPMYADMIN_SOURCE/phpmyadmin.tar.gz $PHPMYADMIN_HOME/
+	mv --no-clobber $PHPMYADMIN_SOURCE/phpmyadmin.tar.gz $PHPMYADMIN_HOME/
 	tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_HOME --strip-components=1
 	# create config.inc.php
-	mv $PHPMYADMIN_SOURCE/phpmyadmin-config.inc.php $PHPMYADMIN_HOME/config.inc.php
+	mv --no-clobber $PHPMYADMIN_SOURCE/phpmyadmin-config.inc.php $PHPMYADMIN_HOME/config.inc.php
 	
 	rm $PHPMYADMIN_HOME/phpmyadmin.tar.gz
 	rm -rf $PHPMYADMIN_SOURCE
@@ -66,10 +66,10 @@ setup_wordpress(){
 	test ! -d "$WORDPRESS_HOME" && echo "INFO: $WORDPRESS_HOME not found. creating ..." && mkdir -p "$WORDPRESS_HOME"
 
 	cd $WORDPRESS_HOME
-	mv $WORDPRESS_SOURCE/wordpress.tar.gz $WORDPRESS_HOME/
+	mv --no-clobber $WORDPRESS_SOURCE/wordpress.tar.gz $WORDPRESS_HOME/
 	tar -xf wordpress.tar.gz -C $WORDPRESS_HOME/ --strip-components=1
 	# create wp-config.php
-	mv $WORDPRESS_SOURCE/wp-config.php.microsoft $WORDPRESS_HOME/wp-config.php
+	mv --no-clobber $WORDPRESS_SOURCE/wp-config.php.microsoft $WORDPRESS_HOME/wp-config.php
 
 	rm $WORDPRESS_HOME/wordpress.tar.gz
 	rm -rf $WORDPRESS_SOURCE
@@ -83,16 +83,13 @@ update_wordpress_config(){
 	set_var_if_null "DATABASE_USERNAME" "wordpress"
 	set_var_if_null "DATABASE_PASSWORD" "MS173m_QN"
 	set_var_if_null "TABLE_NAME_PREFIX" "wp_"
+
+	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
+	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
+
 	if [ "${DATABASE_HOST,,}" = "localhost" ]; then
 		export DATABASE_HOST="localhost"
 	fi
-
-	# update wp-config.php with the vars
-        sed -i "s/connectstr_dbhost = '';/connectstr_dbhost = '$DATABASE_HOST';/" "$WORDPRESS_HOME/wp-config.php"
-        sed -i "s/connectstr_dbname = '';/connectstr_dbname = '$DATABASE_NAME';/" "$WORDPRESS_HOME/wp-config.php"
-        sed -i "s/connectstr_dbusername = '';/connectstr_dbusername = '$DATABASE_USERNAME';/" "$WORDPRESS_HOME/wp-config.php"
-        sed -i "s/connectstr_dbpassword = '';/connectstr_dbpassword = '$DATABASE_PASSWORD';/" "$WORDPRESS_HOME/wp-config.php"
-        sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$TABLE_NAME_PREFIX';/" "$WORDPRESS_HOME/wp-config.php"
 }
 
 load_wordpress(){
@@ -102,6 +99,9 @@ load_wordpress(){
 }
 
 set -e
+
+# set default value at beginning
+update_wordpress_config
 
 echo "INFO: DATABASE_HOST:" $DATABASE_HOST
 echo "INFO: DATABASE_NAME:" $DATABASE_NAME
@@ -117,7 +117,13 @@ if [ ! -e "$WORDPRESS_HOME/wp-config.php" ]; then
 	echo "INFO: $WORDPRESS_HOME/wp-config.php not found."
 	echo "Installing WordPress for the first time ..."
 	setup_wordpress
-        update_wordpress_config
+
+	# update wp-config.php with the vars
+        sed -i "s/connectstr_dbhost = '';/connectstr_dbhost = '$DATABASE_HOST';/" "$WORDPRESS_HOME/wp-config.php"
+        sed -i "s/connectstr_dbname = '';/connectstr_dbname = '$DATABASE_NAME';/" "$WORDPRESS_HOME/wp-config.php"
+        sed -i "s/connectstr_dbusername = '';/connectstr_dbusername = '$DATABASE_USERNAME';/" "$WORDPRESS_HOME/wp-config.php"
+        sed -i "s/connectstr_dbpassword = '';/connectstr_dbpassword = '$DATABASE_PASSWORD';/" "$WORDPRESS_HOME/wp-config.php"
+        sed -i "s/table_prefix  = 'wp_';/table_prefix  = '$TABLE_NAME_PREFIX';/" "$WORDPRESS_HOME/wp-config.php"
 else
 	echo "INFO: $WORDPRESS_HOME/wp-config.php already exists."
 fi	
@@ -133,8 +139,6 @@ if grep -q "^\$connectstr_dbhost = 'localhost'\|^\$connectstr_dbhost = '127.0.0.
 	start_mariadb
 	
 	echo "Granting user for phpMyAdmin ..."
-	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
-	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
 	mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 	
 	echo "Creating database for WordPress if not exists ..."
