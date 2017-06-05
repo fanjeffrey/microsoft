@@ -18,7 +18,6 @@ set_var_if_null(){
 	fi
 }
 
-
 setup_mariadb_data_dir(){
 	test ! -d "$MARIADB_DATA_DIR" && echo "INFO: $MARIADB_DATA_DIR not found. creating ..." && mkdir -p "$MARIADB_DATA_DIR"
 
@@ -77,17 +76,6 @@ test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ...
 chown -R www-data:www-data $HTTPD_LOG_DIR
 apachectl start
 
-# That settings.php doesn't exist means App is not installed/configured yet.
-if [ ! -d "$HOME" ]; then
-	echo "INFO: path $HOME not found."
-	echo "Installing app path for the first time ..."
-	
-	test ! -d "$HOME" && echo "INFO: $HOME not found. creating ..." && mkdir -p "$HOME"
-	chown -R www-data:www-data $HOME
-else
-	echo "INFO: path $HOME already exists."
-fi
-
 # local MariaDB is used 
 echo "Setting up MariaDB data dir ..."
 setup_mariadb_data_dir
@@ -96,7 +84,6 @@ test ! -d "$MARIADB_LOG_DIR" && echo "INFO: $MARIADB_LOG_DIR not found. creating
 chown -R mysql:mysql $MARIADB_LOG_DIR
 echo "Starting local MariaDB ..."
 start_mariadb
-
 
 if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
 	echo "Granting user for phpMyAdmin ..."
