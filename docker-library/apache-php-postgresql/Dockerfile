@@ -32,7 +32,7 @@ ENV PATH "$PHP_HOME/bin":$PATH
 
 
 # app
-ENV HOME "/home/site/wwwroot"
+ENV APPHOME "/home/site/wwwroot"
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
 
@@ -189,6 +189,7 @@ RUN set -ex \
 		--with-xsl \
 		--with-zlib \
 		--with-pgsql \
+		--with-pdo-pgsql \
 	&& make -j "$(nproc)" \
 	&& make install \
 	&& make clean \
@@ -228,7 +229,7 @@ RUN set -ex \
 	&& rm -rf /var/log/httpd \
 	&& ln -s $HTTPD_LOG_DIR /var/log/httpd \
 	##
-	&& ln -s $HOME /var/www
+	&& ln -s $APPHOME /var/www
 
 # =====
 # final

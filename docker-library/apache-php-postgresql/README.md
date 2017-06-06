@@ -1,6 +1,6 @@
 # Docker Image for Apache with PHP
 ## Overview
-This Drupal (with MySQL) Docker image is built for [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro).
+This Docker image is built for [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro).
 
 ## Components
 This docker image contains the following components:
@@ -14,7 +14,7 @@ Ubuntu 16.04 is used as the base image.
 This docker image enables you to:
 
 - run a Apache Environment on **Azure Web App on Linux**;
-- connect your App site to DataBase **PostgreSQL** 
+- connect your App site to remote DataBase **PostgreSQL** 
 
 ### Deploying to Azure
 With the button below, you can easily deploy the image to Azure.
