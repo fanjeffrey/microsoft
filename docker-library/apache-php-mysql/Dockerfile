@@ -41,7 +41,7 @@ ENV PHPMYADMIN_SHA256 "54086600558613b31c4daddf4ae58fbc1c252a2b8e3e6fae12f851f78
 ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
 ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 
-# SSH
+# ssh
 ENV SSH_LOG "/home/LogFiles/ssh.log"
 ENV SSH_PASSWD "root:Docker!"
 
@@ -59,7 +59,7 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 # 3. mariadb
 # 4. php
 # 5. phpmyadmin
-# 6. SSH
+# 6. ssh
 # ====================
 
 WORKDIR $DOCKER_BUILD_HOME
@@ -228,7 +228,7 @@ RUN set -ex \
 	&& echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
 
 	# ------
-	# 6. SSH
+	# 6. ssh
 	# ------
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends openssh-server \
@@ -256,7 +256,7 @@ COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/
 COPY mariadb.cnf /etc/mysql/
-# SSH 
+# ssh
 COPY sshd_config /etc/ssh/
 
 RUN set -ex \
