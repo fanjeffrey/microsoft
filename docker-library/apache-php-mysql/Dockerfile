@@ -42,7 +42,6 @@ ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
 ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 
 # ssh
-ENV SSH_LOG "/home/LogFiles/ssh.log"
 ENV SSH_PASSWD "root:Docker!"
 
 # app
@@ -275,10 +274,7 @@ RUN set -ex \
 	##
 	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
 	##
-	&& ln -s $APP_HOME /var/www/wwwroot \
-	##
-	&& rm -rf /var/log/auth.log \
-	&& ln -s $SSH_LOG /var/log/auth.log
+	&& ln -s $APP_HOME /var/www/wwwroot 
 
 # =====
 # final

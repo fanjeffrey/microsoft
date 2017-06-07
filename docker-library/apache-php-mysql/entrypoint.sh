@@ -64,19 +64,10 @@ update_settings(){
 	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
 }
 
-start_ssh(){
-	# start ssh
-	service ssh start
-
-	# ssh log file
-	test ! -e "$SSH_LOG" && echo "INFO: $SSH_LOG not found. creating ..." && touch "$SSH_LOG"
-	echo "$(date) Container Started " >> "$SSH_LOG"
-}
-
 set -e
 
 echo "Starting service ssh..."
-start_ssh
+service ssh start
 
 # create /home/site/wwwroot for local machine
 test ! -d "$APP_HOME" && echo "INFO: $APP_HOME not found. creating ..." && mkdir -p "$APP_HOME"
