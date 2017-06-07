@@ -18,6 +18,10 @@ This docker image enables you to:
 - run a Apache/PHP/MySQL Environment on **Azure Web App on Linux**;
 - connect your App site to **Azure ClearDB** or the builtin MariaDB;
 - manage the build-in MariaDB with the built-in phpMyAdmin;
+- access docker image with SSH
+```
+        https://<your sitename>.scm.azurewebsites.net/webssh/host
+```
 
 ## Deploying / Running
 You can specify the following environment variables when deploying the image to Azure or running it on your Docker engine's host.

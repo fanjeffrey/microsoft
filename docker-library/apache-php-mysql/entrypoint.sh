@@ -67,12 +67,20 @@ update_settings(){
 start_ssh(){
 	# start ssh
 	service ssh start
+
 	# ssh log file
 	test ! -e "$SSH_LOG" && echo "INFO: $SSH_LOG not found. creating ..." && touch "$SSH_LOG"
 	echo "$(date) Container Started " >> "$SSH_LOG"
 }
 
 set -e
+
+echo "Starting service ssh..."
+start_ssh
+
+# create /home/site/wwwroot for local machine
+test ! -d "$APP_HOME" && echo "INFO: $APP_HOME not found. creating ..." && mkdir -p "$APP_HOME"
+chown -R www-data:www-data $APP_HOME
 
 update_settings
 
@@ -92,9 +100,6 @@ test ! -d "$MARIADB_LOG_DIR" && echo "INFO: $MARIADB_LOG_DIR not found. creating
 chown -R mysql:mysql $MARIADB_LOG_DIR
 echo "Starting local MariaDB ..."
 start_mariadb
-# create /home/site/wwwroot for local machine
-test ! -d "$APPHOME" && echo "INFO: $APPHOME not found. creating ..." && mkdir -p "$APPHOME"
-chown -R www-data:www-data $APPHOME
 
 if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
 	echo "Granting user for phpMyAdmin ..."
@@ -120,9 +125,6 @@ fi
 apachectl stop
 # delay 2 seconds to try to avoid "httpd (pid XX) already running"
 sleep 2s
-
-echo "Starting service ssh..."
-start_ssh
 
 echo "Starting Apache httpd -D FOREGROUND ..."
 apachectl start -D FOREGROUND

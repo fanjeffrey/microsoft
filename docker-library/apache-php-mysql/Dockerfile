@@ -42,11 +42,11 @@ ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
 ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 
 # SSH
-ENV SSH_LOG "/home/LogFiles/ssh-auth.log"
+ENV SSH_LOG "/home/LogFiles/ssh.log"
 ENV SSH_PASSWD "root:Docker!"
 
 # app
-ENV APPHOME "/home/site/wwwroot"
+ENV APP_HOME "/home/site/wwwroot"
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
 
@@ -59,7 +59,7 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 # 3. mariadb
 # 4. php
 # 5. phpmyadmin
-# 6. SSH Server support
+# 6. SSH
 # ====================
 
 WORKDIR $DOCKER_BUILD_HOME
@@ -227,9 +227,9 @@ RUN set -ex \
 	&& wget -O phpmyadmin.tar.gz "$PHPMYADMIN_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
 
-	# -------------
-	# 6. SSH Server support
-	# -------------
+	# ------
+	# 6. SSH
+	# ------
 	&& apt-get update \
 	&& apt-get install -y --no-install-recommends openssh-server \
 	&& echo "$SSH_PASSWD" | chpasswd \
@@ -275,7 +275,7 @@ RUN set -ex \
 	##
 	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
 	##
-	&& ln -s $APPHOME /var/www/wwwroot \
+	&& ln -s $APP_HOME /var/www/wwwroot \
 	##
 	&& rm -rf /var/log/auth.log \
 	&& ln -s $SSH_LOG /var/log/auth.log
