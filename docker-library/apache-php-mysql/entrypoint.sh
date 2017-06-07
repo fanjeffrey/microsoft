@@ -69,7 +69,6 @@ set -e
 echo "Starting SSH ..."
 service ssh start
 
-# create /home/site/wwwroot for local machine
 test ! -d "$APP_HOME" && echo "INFO: $APP_HOME not found. creating ..." && mkdir -p "$APP_HOME"
 chown -R www-data:www-data $APP_HOME
 
