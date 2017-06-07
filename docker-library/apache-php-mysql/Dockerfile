@@ -41,8 +41,12 @@ ENV PHPMYADMIN_SHA256 "54086600558613b31c4daddf4ae58fbc1c252a2b8e3e6fae12f851f78
 ENV PHPMYADMIN_SOURCE "/usr/src/phpmyadmin"
 ENV PHPMYADMIN_HOME "/home/phpmyadmin"
 
+# SSH
+ENV SSH_LOG "/home/LogFiles/ssh-auth.log"
+ENV SSH_PASSWD "root:Docker!"
+
 # app
-ENV HOME "/home/site/wwwroot"
+ENV APPHOME "/home/site/wwwroot"
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
 
@@ -55,6 +59,7 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 # 3. mariadb
 # 4. php
 # 5. phpmyadmin
+# 6. SSH Server support
 # ====================
 
 WORKDIR $DOCKER_BUILD_HOME
@@ -68,7 +73,6 @@ RUN set -ex \
 		make \
 		pkg-config \
 		wget \
-		vim \
 	" \
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends $tools \
@@ -223,6 +227,13 @@ RUN set -ex \
 	&& wget -O phpmyadmin.tar.gz "$PHPMYADMIN_DOWNLOAD_URL" --no-check-certificate \
 	&& echo "$PHPMYADMIN_SHA256 *phpmyadmin.tar.gz" | sha256sum -c - \
 
+	# -------------
+	# 6. SSH Server support
+	# -------------
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends openssh-server \
+	&& echo "$SSH_PASSWD" | chpasswd \
+
 	# -----------
 	# ~. clean up
 	# -----------
@@ -245,6 +256,8 @@ COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
 COPY httpd-phpmyadmin.conf $HTTPD_CONF_DIR/
 COPY phpmyadmin-config.inc.php $PHPMYADMIN_SOURCE/
 COPY mariadb.cnf /etc/mysql/
+# SSH 
+COPY sshd_config /etc/ssh/
 
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
@@ -262,12 +275,15 @@ RUN set -ex \
 	##
 	&& ln -s $PHPMYADMIN_HOME /var/www/phpmyadmin \
 	##
-	&& ln -s $HOME /var/www
+	&& ln -s $APPHOME /var/www/wwwroot \
+	##
+	&& rm -rf /var/log/auth.log \
+	&& ln -s $SSH_LOG /var/log/auth.log
 
 # =====
 # final
 # =====
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod u+x /usr/local/bin/entrypoint.sh
-EXPOSE 80
+EXPOSE 2222 80
 ENTRYPOINT ["entrypoint.sh"]

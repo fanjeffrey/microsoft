@@ -25,7 +25,7 @@ setup_mariadb_data_dir(){
 	if [ ! -d "$MARIADB_DATA_DIR/mysql" ]; then
 		echo "INFO: 'mysql' database doesn't exist under $MARIADB_DATA_DIR. So we think $MARIADB_DATA_DIR is empty."
 		echo "Copying all data files from the original folder /var/lib/mysql to $MARIADB_DATA_DIR ..."
-		cp -nR /var/lib/mysql/. $MARIADB_DATA_DIR
+		cp -R --no-clobber /var/lib/mysql/. $MARIADB_DATA_DIR
 	else
 		echo "INFO: 'mysql' database already exists under $MARIADB_DATA_DIR."
 	fi
@@ -49,7 +49,7 @@ setup_phpmyadmin(){
 	mv $PHPMYADMIN_SOURCE/phpmyadmin.tar.gz $PHPMYADMIN_HOME/
 	tar -xf phpmyadmin.tar.gz -C $PHPMYADMIN_HOME --strip-components=1
 	# create config.inc.php
-	cp -nR $PHPMYADMIN_SOURCE/phpmyadmin-config.inc.php $PHPMYADMIN_HOME/config.inc.php
+	cp -R --no-clobber $PHPMYADMIN_SOURCE/phpmyadmin-config.inc.php $PHPMYADMIN_HOME/config.inc.php
 	rm $PHPMYADMIN_HOME/phpmyadmin.tar.gz
 	rm -rf $PHPMYADMIN_SOURCE
 
@@ -62,6 +62,14 @@ update_settings(){
 	set_var_if_null "DATABASE_PASSWORD" "MS173m_QN"
 	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
 	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
+}
+
+start_ssh(){
+	# start ssh
+	service ssh start
+	# ssh log file
+	test ! -e "$SSH_LOG" && echo "INFO: $SSH_LOG not found. creating ..." && touch "$SSH_LOG"
+	echo "$(date) Container Started " >> "$SSH_LOG"
 }
 
 set -e
@@ -84,6 +92,9 @@ test ! -d "$MARIADB_LOG_DIR" && echo "INFO: $MARIADB_LOG_DIR not found. creating
 chown -R mysql:mysql $MARIADB_LOG_DIR
 echo "Starting local MariaDB ..."
 start_mariadb
+# create /home/site/wwwroot for local machine
+test ! -d "$APPHOME" && echo "INFO: $APPHOME not found. creating ..." && mkdir -p "$APPHOME"
+chown -R www-data:www-data $APPHOME
 
 if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
 	echo "Granting user for phpMyAdmin ..."
@@ -97,7 +108,7 @@ if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
 	echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."
 	echo "Installing phpMyAdmin ..."
 	setup_phpmyadmin
-	else
+else
 	echo "INFO: $PHPMYADMIN_HOME/config.inc.php already exists."
 fi
 
@@ -109,6 +120,9 @@ fi
 apachectl stop
 # delay 2 seconds to try to avoid "httpd (pid XX) already running"
 sleep 2s
+
+echo "Starting service ssh..."
+start_ssh
 
 echo "Starting Apache httpd -D FOREGROUND ..."
 apachectl start -D FOREGROUND
