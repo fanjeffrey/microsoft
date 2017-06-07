@@ -66,7 +66,7 @@ update_settings(){
 
 set -e
 
-echo "Starting service ssh..."
+echo "Starting SSH ..."
 service ssh start
 
 # create /home/site/wwwroot for local machine
