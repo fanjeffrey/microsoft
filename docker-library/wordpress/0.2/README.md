@@ -92,3 +92,6 @@ If you're using the builtin MariaDB, you can access the builtin phpMyAdmin site 
 If you're using the builtin MariaDB, you can leverage the builtin Redis cache server with WordPress cache plugins. For example, the [Redis Object Cache](https://wordpress.org/plugins/redis-cache/).
 
 The builtin Redis cache server uses port 6379.
+
+## Startup Log
+The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
