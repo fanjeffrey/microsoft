@@ -30,6 +30,8 @@ ENV PHP_CONF_DIR "$PHP_HOME/etc"
 ENV PHP_CONF_DIR_SCAN "$PHP_CONF_DIR/conf.d"
 ENV PATH "$PHP_HOME/bin":$PATH
 
+# ssh
+ENV SSH_PASSWD "root:Docker!"
 
 # app
 ENV APPHOME "/home/site/wwwroot"
@@ -43,6 +45,7 @@ ENV DOCKER_BUILD_HOME "/dockerbuild"
 # 1. essentials
 # 2. apache httpd
 # 3. php
+# 4. ssh
 # ====================
 
 WORKDIR $DOCKER_BUILD_HOME
@@ -198,7 +201,14 @@ RUN set -ex \
 	&& rm -rf $PHP_HOME/php/man \
 	&& rm $DOCKER_BUILD_HOME/php.tar.gz \
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $phpBuildtimeDeps \
-
+	
+	# ------
+	# 4. ssh
+	# ------
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends openssh-server \
+	&& echo "$SSH_PASSWD" | chpasswd \
+	
 	# -----------
 	# ~. clean up
 	# -----------
@@ -217,6 +227,8 @@ COPY httpd-php.conf $HTTPD_CONF_DIR/
 # php
 COPY php.ini $PHP_CONF_DIR/
 COPY php-opcache.ini $PHP_CONF_DIR_SCAN/
+# ssh
+COPY sshd_config /etc/ssh/
 
 RUN set -ex \
 	&& echo 'Include conf/httpd-php.conf' >> $HTTPD_CONF_FILE \
@@ -236,5 +248,5 @@ RUN set -ex \
 # =====
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod u+x /usr/local/bin/entrypoint.sh
-EXPOSE 80
+EXPOSE 2222 80
 ENTRYPOINT ["entrypoint.sh"]

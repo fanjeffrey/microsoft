@@ -20,6 +20,9 @@ set_var_if_null(){
 
 set -e
 
+echo "Starting SSH ..."
+service ssh start
+
 test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ..." && mkdir -p "$HTTPD_LOG_DIR"
 chown -R www-data:www-data $HTTPD_LOG_DIR
 test ! -d "$APPHOME" && echo "INFO: $APPHOME not found. creating ..." && mkdir -p "$APPHOME"

@@ -7,6 +7,7 @@ This docker image contains the following components:
 
 1. PHP          **7.1.2**
 2. Apache HTTPD **2.4.25**
+3. SSH
 
 Ubuntu 16.04 is used as the base image.
 
@@ -15,6 +16,10 @@ This docker image enables you to:
 
 - run a Apache Environment on **Azure Web App on Linux**;
 - connect your App site to remote DataBase **PostgreSQL** 
+- ssh to the docker container via the URL like below;
+```
+        https://<your sitename>.scm.azurewebsites.net/webssh/host
+```
 
 ### Deploying to Azure
 With the button below, you can easily deploy the image to Azure.
