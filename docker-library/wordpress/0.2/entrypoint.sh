@@ -100,6 +100,9 @@ load_wordpress(){
 
 set -e
 
+echo "Starting SSH ..."
+service ssh start
+
 # set default value at beginning
 update_wordpress_config
 
