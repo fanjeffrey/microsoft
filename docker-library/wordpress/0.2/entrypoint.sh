@@ -109,8 +109,6 @@ load_wordpress(){
         fi
 }
 
-set -e
-
 echo "Starting SSH ..."
 service ssh start
 
