@@ -25,7 +25,7 @@ test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ...
 chown -R www-data:www-data $HTTPD_LOG_DIR
 
 test ! -d "$APP_HOME" && echo "INFO: $APP_HOME not found. creating ..." && mkdir -p "$APP_HOME"
-chown -R www-data:www-data $APPHOME
+chown -R www-data:www-data $APP_HOME
 
 echo "Starting Apache httpd -D FOREGROUND ..."
 apachectl start -D FOREGROUND
