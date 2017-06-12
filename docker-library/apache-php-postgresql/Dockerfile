@@ -121,7 +121,6 @@ RUN set -ex \
 	# ------
 	# 3. php
 	# ------
-	# postgresql
 	&& apt-get update \
 	&& apt-get install -y -V --no-install-recommends postgresql \
 	&& rm -r /var/lib/apt/lists/* \
