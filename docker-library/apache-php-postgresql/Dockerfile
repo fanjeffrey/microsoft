@@ -1,5 +1,5 @@
 #
-# Dockerfile for Apache-php-postgresql with POSTGRESQL
+# Dockerfile for Apache-PHP-PostgreSQL
 #
 FROM ubuntu:16.04
 MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
@@ -34,7 +34,7 @@ ENV PATH "$PHP_HOME/bin":$PATH
 ENV SSH_PASSWD "root:Docker!"
 
 # app
-ENV APPHOME "/home/site/wwwroot"
+ENV APP_HOME "/home/site/wwwroot"
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
 
@@ -241,7 +241,7 @@ RUN set -ex \
 	&& rm -rf /var/log/httpd \
 	&& ln -s $HTTPD_LOG_DIR /var/log/httpd \
 	##
-	&& ln -s $APPHOME /var/www
+	&& ln -s $APP_HOME /var/www
 
 # =====
 # final
