@@ -27,7 +27,7 @@
         },
         "dockerRegistryImageName": {
             "type": "string",
-            "defaultValue": "songgs/apache-php-postgresql:latest"
+            "defaultValue": "fanjeffrey/apache-php-pqsql:0.1"
         }
     },
     "resources": [
