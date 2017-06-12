@@ -1,4 +1,4 @@
-# Docker Image for Apache with PHP
+# Docker Image for Apache-PHP-PostgreSQL
 ## Overview
 This Docker image is built for [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro).
 
@@ -14,8 +14,8 @@ Ubuntu 16.04 is used as the base image.
 ## Features
 This docker image enables you to:
 
-- run a Apache Environment on **Azure Web App on Linux**;
-- connect your App site to remote DataBase **PostgreSQL** 
+- run a Apache/PHP Environment on **Azure Web App on Linux**;
+- connect your app site to remote **PostgreSQL** database; 
 - ssh to the docker container via the URL like below;
 ```
         https://<your sitename>.scm.azurewebsites.net/webssh/host
@@ -26,10 +26,9 @@ With the button below, you can easily deploy the image to Azure.
 
 [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
 
-## How to install APP
+## How to Upload Your App
 1. Use any FTP tool you prefer to connect to the site (you can get the credentials on Azure portal);
-2. Upload the tar file of the APP that you want to install to the folder /home/site/wwwroot/;
-3. Extract the contents into /home/site/wwwroot;
+2. Upload your app files to the folder /home/site/wwwroot/;
 
 ## Startup Log
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
