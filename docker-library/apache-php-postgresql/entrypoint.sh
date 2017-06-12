@@ -18,8 +18,6 @@ set_var_if_null(){
 	fi
 }
 
-set -e
-
 echo "Starting SSH ..."
 service ssh start
 
