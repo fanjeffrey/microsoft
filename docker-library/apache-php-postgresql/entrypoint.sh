@@ -23,7 +23,8 @@ service ssh start
 
 test ! -d "$HTTPD_LOG_DIR" && echo "INFO: $HTTPD_LOG_DIR not found. creating ..." && mkdir -p "$HTTPD_LOG_DIR"
 chown -R www-data:www-data $HTTPD_LOG_DIR
-test ! -d "$APPHOME" && echo "INFO: $APPHOME not found. creating ..." && mkdir -p "$APPHOME"
+
+test ! -d "$APP_HOME" && echo "INFO: $APP_HOME not found. creating ..." && mkdir -p "$APP_HOME"
 chown -R www-data:www-data $APPHOME
 
 echo "Starting Apache httpd -D FOREGROUND ..."
