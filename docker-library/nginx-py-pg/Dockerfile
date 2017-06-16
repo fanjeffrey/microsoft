@@ -72,7 +72,7 @@ RUN set -ex \
 # =========
 
 # nginx
-COPY nginx-default-site /etc/nginx/sites-available/default/
+COPY nginx-default-site /etc/nginx/sites-available/default
 # uwsgi
 COPY uwsgi.ini /tmp/ 
 # ssh

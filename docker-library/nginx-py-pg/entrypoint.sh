@@ -45,5 +45,5 @@ echo "INFO: starting nginx ..."
 service nginx start
 
 echo "INFO: starting uwsgi ..."
-uwsgi --uid www-data --gid www-data --ini=$UWSGI_INI_DIR/uwsgi.ini
+uwsgi --uid=www-data --gid=www-data --ini=$UWSGI_INI_DIR/uwsgi.ini
 
