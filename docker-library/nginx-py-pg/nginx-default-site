@@ -9,7 +9,7 @@ server {
 	listen [::]:80 default_server;
 
 	root /var/www/default;
-	index index.html index.htm index.nginx-debian.html;
+	index index.html index.htm index.nginx-debian.html hostingstart.html;
 
 	server_name _;
 	charset utf-8;

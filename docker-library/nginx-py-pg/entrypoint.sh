@@ -29,8 +29,8 @@ chown -R www-data:www-data "$NGINX_LOG_DIR"
 
 # setup uWSGI ini dir
 test ! -d "$UWSGI_INI_DIR" && echo "INFO: $UWSGI_INI_DIR not found, creating ..." && mkdir -p "$UWSGI_INI_DIR"
+mv --no-clobber /tmp/uwsgi.ini "$UWSGI_INI_DIR/"
 chown -R www-data:www-data "$UWSGI_INI_DIR"
-mv /tmp/uwsgi.ini "$UWSGI_INI_DIR/"
 
 # setup app home dir
 test ! -d "$APP_HOME" && echo "INFO: $APP_HOME not found, creating ..." && mkdir -p $APP_HOME 
@@ -46,4 +46,4 @@ echo "INFO: starting nginx ..."
 service nginx start
 
 echo "INFO: starting uwsgi ..."
-uwsgi --ini=$UWSGI_INI_DIR/uwsgi.ini
+uwsgi $UWSGI_INI_DIR/uwsgi.ini
