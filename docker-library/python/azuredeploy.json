@@ -25,9 +25,9 @@
                 "S3"
             ]
         },
-        "dockerRegistryImageName": {
+        "linuxFxVersion": {
             "type": "string",
-            "defaultValue": "appsvc/apps:django"
+            "defaultValue": "DOCKER|APPSVC/APPS:PYTHON"
         }
     },
     "resources": [
@@ -38,8 +38,8 @@
                 "siteConfig": {
                     "appSettings": [
                         {
-                            "name": "DOCKER_CUSTOM_IMAGE_NAME",
-                            "value": "[parameters('dockerRegistryImageName')]"
+                            "name": "LinuxFxVersion",
+                            "value": "[parameters('linuxFxVersion')]"
                         }
                     ]
                 },
