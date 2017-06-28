@@ -25,9 +25,9 @@
                 "S3"
             ]
         },
-        "linuxFxVersion": {
+        "dockerRegistryImageName": {
             "type": "string",
-            "defaultValue": "DOCKER|FANJEFFREY/APACHE-PHP-PQSQL:0.1"
+            "defaultValue": "fanjeffrey/apache-php-pqsql:0.1"
         }
     },
     "resources": [
@@ -38,8 +38,8 @@
                 "siteConfig": {
                     "appSettings": [
                         {
-                            "name": "LinuxFxVersion",
-                            "value": "[parameters('linuxFxVersion')]"
+                            "name": "DOCKER_CUSTOM_IMAGE_NAME",
+                            "value": "[parameters('dockerRegistryImageName')]"
                         }
                     ]
                 },
