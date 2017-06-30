@@ -18,7 +18,7 @@ set_var_if_null(){
 	fi
 }
 
-echo "Starting SSH ..."
+echo "INFO: starting SSH ..."
 service ssh start
 
 # setup nginx log dir
