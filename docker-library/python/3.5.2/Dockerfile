@@ -1,5 +1,5 @@
 #
-# Dockerfile for Django
+# Dockerfile for Python
 #
 FROM ubuntu:16.04
 MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
@@ -15,6 +15,8 @@ ENV NGINX_LOG_DIR "/home/LogFiles/nginx"
 ENV UWSGI_INI_DIR "/home/uwsgi"
 # django
 ENV DJANGO_PROJECT_HOME "/home/site/wwwroot"
+# ssh
+ENV SSH_PASSWD "root:Docker!"
 #
 ENV DOCKER_BUILD_HOME "/dockerbuild"
 
@@ -53,6 +55,11 @@ RUN set -ex \
 	&& pip install http://projects.unbit.it/downloads/uwsgi-lts.tar.gz \
 	&& pip install django \
 
+	# ssh
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends openssh-server \
+	&& echo "$SSH_PASSWD" | chpasswd \
+
 	# clean up
 	&& apt-get purge -y -V -o APT::AutoRemove::RecommendsImportant=false --auto-remove $tools \
 	&& apt-get autoremove -y
@@ -62,8 +69,12 @@ RUN set -ex \
 # Configure
 # =========
 
+# nginx
 COPY nginx-default-site /etc/nginx/sites-available/default
+# uwsgi
 COPY uwsgi.ini /tmp/ 
+# ssh
+COPY sshd_config /etc/ssh/
 
 RUN set -ex \
 	&& ln -s /usr/bin/python3 /usr/bin/python \
@@ -79,5 +90,5 @@ RUN set -ex \
 
 COPY entrypoint.sh /usr/local/bin
 RUN chmod u+x /usr/local/bin/entrypoint.sh
-EXPOSE 80
+EXPOSE 2222 80
 ENTRYPOINT ["entrypoint.sh"]

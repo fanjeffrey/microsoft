@@ -27,7 +27,7 @@
         },
         "dockerRegistryImageName": {
             "type": "string",
-            "defaultValue": "appsvc/apps:django"
+            "defaultValue": "appsvc/apps:python"
         }
     },
     "resources": [

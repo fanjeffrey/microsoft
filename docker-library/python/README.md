@@ -1,12 +1,12 @@
-# Docker Image for Django
+# Docker Image for Python
 ## Overview
-This Django Docker image is built for [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro).
+This Python Docker image is built for [Azure Web App on Linux](https://docs.microsoft.com/en-us/azure/app-service-web/app-service-linux-intro).
 
 ## Components
 This Docker image contains the following components:
 
-1. Django **1.11**
-2. Python **3.5.2**
+1. Python **3.5.2**
+2. Django **1.11**
 3. nginx **1.10.0**
 4. uWSGI **2.0.15**
 5. Psycopg2 **2.7.1**
