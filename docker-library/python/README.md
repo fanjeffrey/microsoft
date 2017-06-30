@@ -7,9 +7,10 @@ This Docker image contains the following components:
 
 1. Python **3.5.2**
 2. Django **1.11**
-3. nginx **1.10.0**
+3. Nginx **1.10.0**
 4. uWSGI **2.0.15**
 5. Psycopg2 **2.7.1**
+6. SSH
 
 Ubuntu 16.04 is used as the base image.
 
@@ -20,8 +21,12 @@ Browser <-> nginx <-> /tmp/uwsgi.sock <-> uWSGI <-> Python/Django <-> Psycopg2 <
 
 ## Features
 This docker image enables you to:
-- run a site based on Django on **Azure Web App on Linux**;
+- run a sample Django site on **Azure Web App on Linux**;
 - connect you site to a remote PostgreSQL database;
+- ssh to the docker container via the URL like below;
+```
+        https://<your sitename>.scm.azurewebsites.net/webssh/host
+```
 
 ## Deploying to Azure
 With the button below, you can easily deploy this image to Azure.
@@ -48,7 +53,7 @@ You can customeize this ini file, and upload to /home/uwsgi to overwrite.
 ## Startup Log
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
 
-## How to Deploy Your Django Project
+## How to Deploy Sample Django Project
 1. Use any FTP tool you prefer to connect to the site (you can get the credentials on Azure portal).
 2. Upload your Django project to /home/site/wwwroot.
 3. Customize /home/uwsgi/uwsgi.ini file according to your project's requirements. For example, if your project name is "abc", then you need change the "module" like below.
@@ -57,4 +62,5 @@ The startup log file (**entrypoint.log**) is placed under the folder /home/LogFi
 	module=abc.wsgi
 	```
 4. Save and upload uwsgi.ini back to /home/uwsgi to overwrite.
+5. Connect to SSH host and run python command line.
 
