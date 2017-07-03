@@ -18,6 +18,9 @@ set_var_if_null(){
 	fi
 }
 
+echo "INFO: starting SSH ..."
+service ssh start
+
 # setup nginx log dir
 test ! -d "$NGINX_LOG_DIR" && echo "INFO: $NGINX_LOG_DIR not found, creating ..." && mkdir -p "$NGINX_LOG_DIR"
 

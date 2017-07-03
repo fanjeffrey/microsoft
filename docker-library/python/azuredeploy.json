@@ -24,10 +24,6 @@
                 "S2",
                 "S3"
             ]
-        },
-        "dockerRegistryImageName": {
-            "type": "string",
-            "defaultValue": "appsvc/apps:django"
         }
     },
     "resources": [
@@ -36,12 +32,8 @@
             "name": "[parameters('siteName')]",
             "properties": {
                 "siteConfig": {
-                    "appSettings": [
-                        {
-                            "name": "DOCKER_CUSTOM_IMAGE_NAME",
-                            "value": "[parameters('dockerRegistryImageName')]"
-                        }
-                    ]
+                    "appCommandLine": "",
+                    "linuxFxVersion": "DOCKER|fanjeffrey/python"
                 },
                 "name": "[parameters('siteName')]",
                 "serverFarmId": "[parameters('servicePlanName')]",
