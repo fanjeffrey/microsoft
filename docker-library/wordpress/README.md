@@ -11,6 +11,7 @@ This docker image currently contains the following components:
 4. MariaDB      **10.0+**
 5. Redis        **3.2.8**
 6. phpMyAdmin   **4.6.6**
+7. SSH
 
 ## Features
 This docker image enables you to:
@@ -53,7 +54,7 @@ At the SETUP page, as shown below, you can change default values of these enviro
 ### Running on Docker engine's host
 The **docker run** command below will get you a container that has a WordPress site connected to the builtin MariaDB, and has the builtin Redis cache server started, and has the builtin phpMyAdmin site enabled.
 ```
-docker run -d -t -p 80:80 fanjeffrey/wordpress:latest
+docker run -d -t -p 80:80 appsvc/apps:wordpress-0.2
 ```
 
 The command below will connect the WordPress site within your Docker container to an Azure ClearDb.
@@ -64,7 +65,7 @@ docker run -d -t -p 80:80 \
     -e "DATABASE_USERNAME=<your_db_username>" \
     -e "DATABASE_PASSWORD=<your_db_password>" \
     -e "TABLE_NAME_PREFIX=<your_table_name_prefix>" \
-    fanjeffrey/wordpress:latest
+    appsvc/apps:wordpress-0.2
 ```
 
 When you use "localhost" as the database host, you can customize phpMyAdmin username and password.
@@ -77,7 +78,7 @@ docker run -d -t -p 80:80 \
     -e "TABLE_NAME_PREFIX=<your_table_name_prefix>" \
     -e "PHPMYADMIN_USERNAME=<your_phpmyadmin_username>" \
     -e "PHPMYADMIN_PASSWORD=<your_phpmyadmin_password>" \
-    fanjeffrey/wordpress:latest
+    appsvc/apps:wordpress-0.2
 ```
 
 ## The Builtin MariaDB server
