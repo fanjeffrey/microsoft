@@ -109,7 +109,7 @@ load_wordpress(){
         fi
 }
 
-echo "INFO: Starting SSH ..."
+echo "Starting SSH ..."
 service ssh start
 
 # set default value at beginning
