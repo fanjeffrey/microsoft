@@ -13,8 +13,6 @@ MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
 ENV NGINX_LOG_DIR "/home/LogFiles/nginx"
 # uwsgi
 ENV UWSGI_INI_DIR "/home/uwsgi"
-# django
-ENV DJANGO_PROJECT_HOME "/home/site/wwwroot"
 # ssh
 ENV SSH_PASSWD "root:Docker!"
 #
@@ -47,13 +45,10 @@ RUN set -ex \
 	&& apt-get install -y -V --no-install-recommends python3 python3-dev \
 	&& rm -r /var/lib/apt/lists/* \
 
-	# django
+	# psycopg2
 	&& wget https://bootstrap.pypa.io/get-pip.py --no-check-certificate \
 	&& python3 get-pip.py \
 	&& pip install psycopg2 \
-	## see https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/uwsgi/
-	&& pip install http://projects.unbit.it/downloads/uwsgi-lts.tar.gz \
-	&& pip install django \
 
 	# ssh
 	&& apt-get update \
@@ -83,7 +78,7 @@ RUN set -ex \
         && ln -s $NGINX_LOG_DIR /var/log/nginx \
 	##
 	&& rm -rf /var/www/html \
-	&& ln -s $DJANGO_PROJECT_HOME /var/www/default \
+	&& ln -s /home/site/wwwroot /var/www/default \
 	##
 	&& rm -rf $DOCKER_BUILD_HOME/*
 
