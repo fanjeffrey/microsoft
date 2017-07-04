@@ -27,10 +27,6 @@
                 "S3"
             ]
         },
-        "dockerRegistryImageName": {
-            "type": "string",
-            "defaultValue": "appsvc/apps:wordpress-0.2"
-        },
         "dataBaseHost": {
             "type": "string",
             "defaultValue": "localhost"
@@ -103,7 +99,7 @@
                         }
                     ],
                     "appCommandLine": "",
-                    "linuxFxVersion": "DOCKER|songgs/wordpress"
+                    "linuxFxVersion": "DOCKER|appsvc/apps:wordpress-0.2"
                 },
                 "name": "[parameters('siteName')]",
                 "serverFarmId": "[parameters('servicePlanName')]",
