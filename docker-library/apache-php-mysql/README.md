@@ -56,3 +56,11 @@ You can access the builtin phpMyAdmin site with a URL like below if you're using
 
 ## Startup Log
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
+
+## Change Log
+- **Version 0.2**  
+  1. Enlarge upload file size
+     * [php.ini][php.ini_0.2]
+
+[php.ini_0.2]:https://github.com/Azure-App-Service/apps/blob/master/apache-php-mysql/0.2/php.ini
+
