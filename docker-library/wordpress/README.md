@@ -96,3 +96,23 @@ The builtin Redis cache server uses port 6379.
 
 ## Startup Log
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
+
+## Change Log
+- **Version 0.2**
+  1. Support SSH
+     * [Dockerfile][Dockerfile_0.2], [sshd_config][sshd_config_0.2]
+  2. Update LinuxFxVersion
+     * [azuredeploy.json][azuredeploy.json_0.2]
+  3. Add LICENSE
+     * [LICENSE][LICENSE_0.2]
+  4. Enlarge upload file size
+     * [php.ini][php.ini_0.2]
+  5. PHP Support Zlib
+     * [Dockerfile][Dockerfile_0.2]
+
+
+[Dockerfile_0.2]:https://github.com/Azure-App-Service/apps/blob/master/Wordpress/0.2/Dockerfile
+[LICENSE_0.2]:https://github.com/Azure-App-Service/apps/blob/master/Wordpress/LICENSE
+[sshd_config_0.2]:https://github.com/Azure-App-Service/apps/blob/master/Wordpress/0.2/sshd_config
+[azuredeploy.json_0.2]:https://github.com/Azure-App-Service/apps/blob/master/Wordpress/azuredeploy.json
+[php.ini_0.2]:https://github.com/Azure-App-Service/apps/blob/master/Wordpress/0.2/php.ini
