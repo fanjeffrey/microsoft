@@ -96,3 +96,12 @@ The builtin Redis cache server uses port 6379.
 
 ## Startup Log
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
+
+## Change Log
+- **Version 0.2**
+  1. Supports SSH. See [Dockerfile](0.2/Dockerfile), [sshd_config](0.2/sshd_config) here;
+  2. Updates  LinuxFxVersion. See [azuredeploy.json](azuredeploy.json) here;
+  3. Adds LICENSE. See [LICENSE](LICENSE) here.
+- **Version 0.3**
+  1. Supports uploading large files. See [php.ini](0.3/php.ini) here;
+  2. Supports Zlib in PHP. See [Dockerfile](0.3/Dockerfile) here.
