@@ -37,6 +37,11 @@ setup_mariadb_data_dir(){
 }
 
 start_mariadb(){
+
+	#https://askubuntu.com/questions/857713/mariadb-wont-start-on-ubuntu-cant-lock-aria-control-file
+	find /etc/mysql/mariadb.conf.d/50-server.cnf -exec sed -i 's/^max_binlog_size/#max_binlog_size/g' {} \;
+	find /etc/mysql/mariadb.conf.d/50-server.cnf -exec sed -i 's/^expire_logs_days/#expire_logs_days/g' {} \;
+
 	service mysql start
 	rm -f /tmp/mysql.sock
 	ln -s /var/run/mysqld/mysqld.sock /tmp/mysql.sock
