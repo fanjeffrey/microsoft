@@ -24,6 +24,10 @@
                 "S2",
                 "S3"
             ]
+        },
+        "dataBaseType": {
+            "type": "string",
+            "defaultValue": "local"
         }
     },
     "resources": [
@@ -31,6 +35,12 @@
             "type": "Microsoft.Web/sites",
             "name": "[parameters('siteName')]",
             "properties": {
+                "appSettings": [
+                        {
+                            "name": "DATABASE_TYPE",
+                            "value": "[parameters('dataBaseType')]"
+                        }
+                    ],
                 "siteConfig": {
                     "appCommandLine": "",
                     "linuxFxVersion": "DOCKER|fanjeffrey/apm:0.2"
