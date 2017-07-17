@@ -25,25 +25,9 @@
                 "S3"
             ]
         },
-        "databaseName": {
+        "dataBaseType": {
             "type": "string",
-            "defaultValue": "appdb"
-        },
-        "databaseUsername": {
-            "type": "string",
-            "defaultValue": "appuser"
-        },
-        "databasePassword": {
-            "type": "securestring",
-            "defaultValue": "MS173m_QN"
-        },
-        "phpmyadminUsername": {
-            "type": "string",
-            "defaultValue": "phpmyadmin"
-        },
-        "phpmyadminPassword": {
-            "type": "securestring",
-            "defaultValue": "MS173m_QN"
+            "defaultValue": "local"
         }
     },
     "resources": [
@@ -51,29 +35,13 @@
             "type": "Microsoft.Web/sites",
             "name": "[parameters('siteName')]",
             "properties": {
-                "siteConfig": {
-                    "appSettings": [
+                "appSettings": [
                         {
-                            "name": "DATABASE_NAME",
-                            "value": "[parameters('databaseName')]"
-                        },
-                        {
-                            "name": "DATABASE_USERNAME",
-                            "value": "[parameters('databaseUsername')]"
-                        },
-                        {
-                            "name": "DATABASE_PASSWORD",
-                            "value": "[parameters('databasePassword')]"
-                        },
-                        {
-                            "name": "PHPMYADMIN_USERNAME",
-                            "value": "[parameters('phpmyadminUsername')]"
-                        },
-                        {
-                            "name": "PHPMYADMIN_PASSWORD",
-                            "value": "[parameters('phpmyadminPassword')]"
+                            "name": "DATABASE_TYPE",
+                            "value": "[parameters('dataBaseType')]"
                         }
                     ],
+                "siteConfig": {
                     "appCommandLine": "",
                     "linuxFxVersion": "DOCKER|fanjeffrey/apm:0.2"
                 },
