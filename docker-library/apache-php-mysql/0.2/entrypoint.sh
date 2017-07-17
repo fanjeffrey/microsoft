@@ -58,9 +58,6 @@ setup_phpmyadmin(){
 
 update_settings(){
 	set_var_if_null "DATABASE_TYPE" "remote"
-	set_var_if_null "DATABASE_NAME" "appdb"
-	set_var_if_null "DATABASE_USERNAME" "appuser"
-	set_var_if_null "DATABASE_PASSWORD" "MS173m_QN"
 	set_var_if_null 'PHPMYADMIN_USERNAME' 'phpmyadmin'
 	set_var_if_null 'PHPMYADMIN_PASSWORD' 'MS173m_QN'
 }
@@ -83,8 +80,6 @@ if [ "${DATABASE_TYPE,,}" = "local" ]; then
 
 	echo "INFO: Local Mariadb and phpMyAdmin Loading ..."
 	echo "INFO: DATABASE_TYPE:" $DATABASE_TYPE
-	echo "INFO: DATABASE_NAME:" $DATABASE_NAME
-	echo "INFO: DATABASE_USERNAME:" $DATABASE_USERNAME
 	echo "INFO: PHPMYADMIN_USERNAME:" $PHPMYADMIN_USERNAME
 
 	# local MariaDB is used
@@ -97,15 +92,9 @@ if [ "${DATABASE_TYPE,,}" = "local" ]; then
 	start_mariadb
 
 	if [ ! -e "$PHPMYADMIN_HOME/config.inc.php" ]; then
+		echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."
 		echo "Granting user for phpMyAdmin ..."
 		mysql -u root -e "GRANT ALL ON *.* TO \`$PHPMYADMIN_USERNAME\`@'localhost' IDENTIFIED BY '$PHPMYADMIN_PASSWORD' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-
-		echo "Creating database if not exists ..."
-		mysql -u root -e "CREATE DATABASE IF NOT EXISTS \`$DATABASE_NAME\` CHARACTER SET utf8 COLLATE utf8_general_ci;"
-		echo "Granting user ..."
-		mysql -u root -e "GRANT ALL ON \`$DATABASE_NAME\`.* TO \`$DATABASE_USERNAME\`@\`$DATABASE_HOST\` IDENTIFIED BY '$DATABASE_PASSWORD'; FLUSH PRIVILEGES;"
-
-		echo "INFO: $PHPMYADMIN_HOME/config.inc.php not found."
 		echo "Installing phpMyAdmin ..."
 		setup_phpmyadmin
 	else

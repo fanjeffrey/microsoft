@@ -31,9 +31,6 @@ Here are default environment variables when deploying the image to Azure.
 Name | Default Value
 ---- | -------------
 DATABASE_TYPE | local
-DATABASE_NAME | appdb
-DATABASE_USERNAME | appuser
-DATABASE_PASSWORD | MS173m_QN
 PHPMYADMIN_USERNAME | phpmyadmin
 PHPMYADMIN_PASSWORD | MS173m_QN
 
