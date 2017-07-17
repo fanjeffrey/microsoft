@@ -28,6 +28,14 @@
         "dataBaseType": {
             "type": "string",
             "defaultValue": "local"
+        },
+        "phpmyadminUsername": {
+            "type": "string",
+            "defaultValue": "phpmyadmin"
+        },
+        "phpmyadminPassword": {
+            "type": "securestring",
+            "defaultValue": "MS173m_QN"
         }
     },
     "resources": [
@@ -39,6 +47,14 @@
                         {
                             "name": "DATABASE_TYPE",
                             "value": "[parameters('dataBaseType')]"
+                        },
+                        {
+                            "name": "PHPMYADMIN_USERNAME",
+                            "value": "[parameters('phpmyadminUsername')]"
+                        },
+                        {
+                            "name": "PHPMYADMIN_PASSWORD",
+                            "value": "[parameters('phpmyadminPassword')]"
                         }
                     ],
                 "siteConfig": {
