@@ -1,5 +1,5 @@
 #
-upstream django {
+upstream app {
 	server unix:///tmp/uwsgi.sock;
 }
 
@@ -27,7 +27,7 @@ server {
 	}
 
         location / {
-                uwsgi_pass django;
+                uwsgi_pass app;
                 include /etc/nginx/uwsgi_params;
         }
 }
