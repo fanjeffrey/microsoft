@@ -18,6 +18,9 @@ set_var_if_null(){
 	fi
 }
 
+python --version
+pip --version
+
 echo "INFO: starting SSH ..."
 service ssh start
 
@@ -26,24 +29,15 @@ test ! -d "$NGINX_LOG_DIR" && echo "INFO: $NGINX_LOG_DIR not found, creating ...
 
 # setup uWSGI ini dir
 test ! -d "$UWSGI_INI_DIR" && echo "INFO: $UWSGI_INI_DIR not found, creating ..." && mkdir -p "$UWSGI_INI_DIR"
+echo "INFO: moving /tmp/uwsgi.ini"
+mv --no-clobber /tmp/uwsgi.ini "$UWSGI_INI_DIR/"
 
-# setup django project home dir
-test ! -d "$DJANGO_PROJECT_HOME" && echo "INFO: $DJANGO_PROJECT_HOME not found, creating ..." && mkdir -p $DJANGO_PROJECT_HOME
-WSGI_PY_PATH=`find $DJANGO_PROJECT_HOME -name wsgi.py`
-if [ "$WSGI_PY_PATH" ]; then
-	echo "INFO: wsgi.py found at $WSGI_PY_PATH. So we think a django project already exists under $DJANGO_PROJECT_HOME."
-else
-	# create a sample django project
-	echo "INFO: creating sample django project 'myproject' under $DJANGO_PROJECT_HOME ..."
-	django-admin startproject myproject "$DJANGO_PROJECT_HOME"
-	echo "INFO: set ALLOWED_HOSTS = ['*'] in settings.py to eliminate DisallowedHost warning. "
-	sed -i "s/ALLOWED_HOSTS = \[\]/ALLOWED_HOSTS = \['\*'\]/" "$DJANGO_PROJECT_HOME/myproject/settings.py"
-	mv /tmp/uwsgi.ini "$UWSGI_INI_DIR/"
-fi
+# setup site home dir
+test ! -d /home/site/wwwroot && echo "INFO: /home/site/wwwroot not found, creating ..." && mkdir -p /home/site/wwwroot
 
 chown -R www-data:www-data "$NGINX_LOG_DIR"
 chown -R www-data:www-data "$UWSGI_INI_DIR"
-chown -R www-data:www-data "$DJANGO_PROJECT_HOME"
+chown -R www-data:www-data /home/site/wwwroot
 
 echo "INFO: creating /tmp/uwsgi.sock ..."
 rm -f /tmp/uwsgi.sock
@@ -56,4 +50,3 @@ nginx #-g "daemon off;"
 
 echo "INFO: starting uwsgi ..."
 uwsgi --uid www-data --gid www-data --ini=$UWSGI_INI_DIR/uwsgi.ini
-
