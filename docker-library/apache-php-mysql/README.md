@@ -17,9 +17,8 @@ Ubuntu 16.04 is used as the base image.
 This docker image enables you to:
 
 - run a Apache/PHP/MySQL Environment on **Azure Web App on Linux**;
-- set DATABASE_TYPE with **local** will run built-in MariaDB and phpMyAdmin;
 - connect your App site to **Azure ClearDB** or the built-in MariaDB;
-- manage the build-in MariaDB with the built-in phpMyAdmin;
+- manage the build-in MariaDB with the built-in phpMyAdmin(You need set DATABASE_TYPE to **"local"**);
 - ssh to the docker container via the URL like below;
 ```
         https://<your sitename>.scm.azurewebsites.net/webssh/host
@@ -59,4 +58,6 @@ The startup log file (**entrypoint.log**) is placed under the folder /home/LogFi
 ## Change Log
 - **Version 0.2** 
   1. Supports uploading large files. See [php.ini](0.2/php.ini) here.
-  2. Add App Setting Key: DATABASE_TYPE. See [entrypoint.sh](0.2/entrypoint.sh),[azuredeploy.json](azuredeploy.json) here.
+  2. Add App Setting Key: DATABASE_TYPE, default value is up to the way to deploy as below. See [entrypoint.sh](0.2/entrypoint.sh), [azuredeploy.json](azuredeploy.json) here.
+        * Deploy to Azure: default value is local, run local mariadb and phpMyAdmin
+        * Docker Container in Azure Portal: default value is remote, disable local mariadb and phpMyAdmin
