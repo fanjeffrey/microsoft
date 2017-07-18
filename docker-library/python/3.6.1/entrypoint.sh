@@ -29,6 +29,8 @@ test ! -d "$NGINX_LOG_DIR" && echo "INFO: $NGINX_LOG_DIR not found, creating ...
 
 # setup uWSGI ini dir
 test ! -d "$UWSGI_INI_DIR" && echo "INFO: $UWSGI_INI_DIR not found, creating ..." && mkdir -p "$UWSGI_INI_DIR"
+echo "INFO: moving /tmp/uwsgi.ini"
+mv --no-clobber /tmp/uwsgi.ini "$UWSGI_INI_DIR/"
 
 # setup site home dir
 test ! -d /home/site/wwwroot && echo "INFO: /home/site/wwwroot not found, creating ..." && mkdir -p /home/site/wwwroot
@@ -43,10 +45,8 @@ touch /tmp/uwsgi.sock
 chown www-data:www-data /tmp/uwsgi.sock
 chmod 664 /tmp/uwsgi.sock
 
-#echo "INFO: starting nginx ..."
-#nginx #-g "daemon off;"
+echo "INFO: starting nginx ..."
+nginx #-g "daemon off;"
 
-#echo "INFO: starting uwsgi ..."
-#uwsgi --uid www-data --gid www-data --ini=$UWSGI_INI_DIR/uwsgi.ini
-bash
-
+echo "INFO: starting uwsgi ..."
+uwsgi --uid www-data --gid www-data --ini=$UWSGI_INI_DIR/uwsgi.ini
