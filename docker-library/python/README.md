@@ -5,24 +5,24 @@ This Python Docker image is built for [Azure Web App on Linux](https://docs.micr
 ## Components
 This Docker image contains the following components:
 
-1. Python **3.5.2**
-2. Django **1.11**
-3. Nginx **1.10.0**
-4. uWSGI **2.0.15**
-5. Psycopg2 **2.7.1**
+1. Python **3.6.1**
+2. Nginx **1.10.0**
+3. uWSGI **2.0.15**
+4. Psycopg2 **2.7.1**
+5. Pip **9.0.1**
 6. SSH
 
 Ubuntu 16.04 is used as the base image.
 
 The stack of components:
 ```
-Browser <-> nginx <-> /tmp/uwsgi.sock <-> uWSGI <-> Python/Django <-> Psycopg2 <-> remote PostgreSQL database
+Browser <-> nginx <-> /tmp/uwsgi.sock <-> uWSGI <-> Your Python app <-> Psycopg2 <-> remote PostgreSQL database
 ```
 
 ## Features
 This docker image enables you to:
-- run a sample Django site on **Azure Web App on Linux**;
-- connect you site to a remote PostgreSQL database;
+- run your Python app on **Azure Web App on Linux**;
+- connect you Python app to a remote PostgreSQL database;
 - ssh to the docker container via the URL like below;
 ```
         https://<your sitename>.scm.azurewebsites.net/webssh/host
