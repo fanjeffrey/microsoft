@@ -43,23 +43,23 @@
             "type": "Microsoft.Web/sites",
             "name": "[parameters('siteName')]",
             "properties": {
-                "appSettings": [
-                        {
-                            "name": "DATABASE_TYPE",
-                            "value": "[parameters('dataBaseType')]"
-                        },
-                        {
-                            "name": "PHPMYADMIN_USERNAME",
-                            "value": "[parameters('phpmyadminUsername')]"
-                        },
-                        {
-                            "name": "PHPMYADMIN_PASSWORD",
-                            "value": "[parameters('phpmyadminPassword')]"
-                        }
-                    ],
                 "siteConfig": {
-                    "appCommandLine": "",
-                    "linuxFxVersion": "DOCKER|fanjeffrey/apm:0.2"
+                    "appSettings": [
+                            {
+                                "name": "DATABASE_TYPE",
+                                "value": "[parameters('dataBaseType')]"
+                            },
+                            {
+                                "name": "PHPMYADMIN_USERNAME",
+                                "value": "[parameters('phpmyadminUsername')]"
+                            },
+                            {
+                                "name": "PHPMYADMIN_PASSWORD",
+                                "value": "[parameters('phpmyadminPassword')]"
+                            }
+                        ],
+                            "appCommandLine": "",
+                            "linuxFxVersion": "DOCKER|fanjeffrey/apm:0.2"
                 },
                 "name": "[parameters('siteName')]",
                 "serverFarmId": "[parameters('servicePlanName')]",

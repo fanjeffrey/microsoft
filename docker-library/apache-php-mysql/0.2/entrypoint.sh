@@ -78,7 +78,7 @@ update_settings
 
 if [ "${DATABASE_TYPE,,}" = "local" ]; then
 
-	echo "INFO: Local Mariadb and phpMyAdmin Loading ..."
+	echo "INFO: loading local Mariadb and phpMyAdmin ..."
 	echo "INFO: DATABASE_TYPE:" $DATABASE_TYPE
 	echo "INFO: PHPMYADMIN_USERNAME:" $PHPMYADMIN_USERNAME
 
