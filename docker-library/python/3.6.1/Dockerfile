@@ -113,7 +113,8 @@ RUN set -ex \
 # nginx
 COPY nginx-default-site /etc/nginx/sites-available/default
 # uwsgi
-COPY uwsgi.ini /tmp/ 
+COPY uwsgi.ini /tmp/
+COPY index.py /tmp/
 # ssh
 COPY sshd_config /etc/ssh/
 
