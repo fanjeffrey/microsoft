@@ -53,14 +53,6 @@ You can customeize this ini file, and upload to /home/uwsgi to overwrite.
 ## Startup Log
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
 
-## How to Deploy Sample Django Project
-1. Use any FTP tool you prefer to connect to the site (you can get the credentials on Azure portal).
-2. Upload your Django project to /home/site/wwwroot.
-3. Customize /home/uwsgi/uwsgi.ini file according to your project's requirements. For example, if your project name is "abc", then you need change the "module" like below.
-	```
-	# Django's wsgi file
-	module=abc.wsgi
-	```
-4. Save and upload uwsgi.ini back to /home/uwsgi to overwrite.
-5. Connect to SSH host and run python command line.
+## How to Deploy Django Project
+**This section is still in developing**
 
