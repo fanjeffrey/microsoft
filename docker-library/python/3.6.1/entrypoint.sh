@@ -34,6 +34,8 @@ mv --no-clobber /tmp/uwsgi.ini "$UWSGI_INI_DIR/"
 
 # setup site home dir
 test ! -d /home/site/wwwroot && echo "INFO: /home/site/wwwroot not found, creating ..." && mkdir -p /home/site/wwwroot
+echo "INFO: moving /tmp/index.py"
+mv --no-clobber /tmp/index.py /home/site/wwwroot/
 
 chown -R www-data:www-data "$NGINX_LOG_DIR"
 chown -R www-data:www-data "$UWSGI_INI_DIR"
