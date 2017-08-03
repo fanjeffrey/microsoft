@@ -28,11 +28,6 @@ This docker image enables you to:
         https://<your sitename>.scm.azurewebsites.net/webssh/host
 ```
 
-## Deploying to Azure
-With the button below, you can easily deploy this image to Azure.
-
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
-
 ## Predefined Nginx Locations
 This docker image defines the following nginx locations for your static files.
 - /images
@@ -42,17 +37,21 @@ This docker image defines the following nginx locations for your static files.
 
 For more information, see [nginx default site conf](./nginx-default-site).
 
-## uWSGI INI
-This docker image contains a default uWSGI ini file which is placed under /home/uwsgi and invoked like below:
-```
-uwsgi --uid www-data --gid www-data --ini=$UWSGI_INI_DIR/uwsgi.ini
-```
-
-You can customeize this ini file, and upload to /home/uwsgi to overwrite.
-
 ## Startup Log
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
 
 ## How to Deploy Django Project
-**This section is still in developing**
+- Access ssh host
+- Install Django and Upload your Django Project
+    ```
+    pip install Django==1.11.3
+    ```
+- Configuring [uWSGI .ini file](https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/uwsgi/#configuring-and-starting-the-uwsgi-server-for-django): /home/uwsgi/uwsgi.ini
+- Run app server uWSGI 
+    ```
+    uwsgi --uid www-data --gid www-data –ini=/home/uwsgi/uwsgi.ini
+    ```
 
+## Change Log
+- **Version 3.6.1** 
+  1. Remove azuredeploy.json.
