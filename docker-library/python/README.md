@@ -51,6 +51,12 @@ The startup log file (**entrypoint.log**) is placed under the folder /home/LogFi
 ## How to Deploy Django Project
 1. login the container via https://<your sitename>.scm.azurewebsites.net/webssh/host
 2. install Django
-        ```
+```
         pip install Django==1.11.3
-        ```
+```
+3. upload your Django project, for example to the location /home/site/wwwroot
+4. update /home/uwsgi/uwsgi.ini per the requirements of your project
+5. run the command below
+```
+        uwsgi --uid www-data --gid www-data –ini=/home/uwsgi/uwsgi.ini
+```
