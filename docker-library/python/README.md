@@ -25,7 +25,7 @@ This docker image enables you to:
 - connect you Python app to a remote PostgreSQL database;
 - ssh to the docker container via the URL like below;
 ```
-        https://<your sitename>.scm.azurewebsites.net/webssh/host
+        https://<your-site-name>.scm.azurewebsites.net/webssh/host
 ```
 
 ## Predefined Nginx Locations
@@ -49,7 +49,10 @@ You can customeize this ini file, and upload to /home/uwsgi to overwrite.
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
 
 ## How to Deploy Django Project
-1. login the container via https://yoursitename.scm.azurewebsites.net/webssh/host
+1. login the instance via the url like below:
+```
+        https://<your-site-name>.scm.azurewebsites.net/webssh/host
+```
 2. install Django
 ```
         pip install Django==1.11.3
