@@ -35,7 +35,7 @@ This docker image defines the following nginx locations for your static files.
 - /js
 - /static
 
-For more information, see [nginx default site conf](./nginx-default-site).
+For more information, see [nginx default site conf](./3.6.1/nginx-default-site).
 
 ## Startup Log
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
