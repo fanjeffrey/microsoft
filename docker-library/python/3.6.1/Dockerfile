@@ -13,8 +13,6 @@ MAINTAINER Azure App Service Container Images <appsvc-images@microsoft.com>
 ENV PYTHON_VERSION "3.6.1"
 ENV PYTHON_TAR_URL "https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tar.xz"
 ENV PYTHON_TAR_MD5 "692b4fc3a2ba0d54d1495d4ead5b0b5c"
-# nginx
-ENV NGINX_LOG_DIR "/home/LogFiles/nginx"
 # uwsgi
 ENV UWSGI_INI_DIR "/home/uwsgi"
 # ssh
@@ -121,9 +119,6 @@ COPY sshd_config /etc/ssh/
 RUN set -ex \
 	&& ln -s /usr/local/bin/python3.6 /usr/bin/python3 \
 	&& ln -s /usr/bin/python3 /usr/bin/python \
-	##
-        && rm -rf /var/log/nginx \
-        && ln -s $NGINX_LOG_DIR /var/log/nginx \
 	##
 	&& rm -rf /var/www/html \
 	&& ln -s /home/site/wwwroot /var/www/default \

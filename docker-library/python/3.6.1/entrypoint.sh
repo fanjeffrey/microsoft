@@ -14,7 +14,8 @@ echo "INFO: starting SSH ..."
 service ssh start
 
 # setup nginx log dir
-test ! -d "$NGINX_LOG_DIR" && echo "INFO: $NGINX_LOG_DIR not found, creating ..." && mkdir -p "$NGINX_LOG_DIR"
+# http://nginx.org/en/docs/ngx_core_module.html#error_log
+sed -i "s|error_log /var/log/nginx/error.log;|error_log stderr;|g" /etc/nginx/nginx.conf
 
 # setup uWSGI ini dir
 test ! -d "$UWSGI_INI_DIR" && echo "INFO: $UWSGI_INI_DIR not found, creating ..." && mkdir -p "$UWSGI_INI_DIR"
@@ -26,7 +27,6 @@ test ! -d /home/site/wwwroot && echo "INFO: /home/site/wwwroot not found, creati
 mv --no-clobber /tmp/index.py /home/site/wwwroot/
 touch /home/uwsgi/project-master.pid
 
-chown -R www-data:www-data "$NGINX_LOG_DIR"
 chown -R www-data:www-data "$UWSGI_INI_DIR"
 chown -R www-data:www-data /home/site/wwwroot
 
