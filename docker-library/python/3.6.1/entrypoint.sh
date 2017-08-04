@@ -24,9 +24,9 @@ mv --no-clobber /tmp/uwsgi.ini "$UWSGI_DIR/"
 touch $UWSGI_DIR/project-master.pid
 
 # setup server root
-mv --no-clobber /tmp/index.py /var/wwww/html/
+mv --no-clobber /tmp/index.py /var/www/html/
 
-chown -R www-data:www-data /var/wwww/html/
+chown -R www-data:www-data /var/www/html/
 chown -R www-data:www-data "$UWSGI_DIR"
 
 echo "INFO: creating /tmp/uwsgi.sock ..."
