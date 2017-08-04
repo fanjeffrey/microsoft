@@ -17,18 +17,17 @@ service ssh start
 # http://nginx.org/en/docs/ngx_core_module.html#error_log
 sed -i "s|error_log /var/log/nginx/error.log;|error_log stderr;|g" /etc/nginx/nginx.conf
 
-# setup uWSGI ini dir
-test ! -d "$UWSGI_INI_DIR" && echo "INFO: $UWSGI_INI_DIR not found, creating ..." && mkdir -p "$UWSGI_INI_DIR"
+# setup uWSGI dir
+test ! -d "$UWSGI_DIR" && echo "INFO: $UWSGI_DIR not found, creating ..." && mkdir -p "$UWSGI_DIR"
 echo "INFO: moving /tmp/uwsgi.ini"
-mv --no-clobber /tmp/uwsgi.ini "$UWSGI_INI_DIR/"
+mv --no-clobber /tmp/uwsgi.ini "$UWSGI_DIR/"
+touch $UWSGI_DIR/project-master.pid
 
-# setup site home dir
-test ! -d /home/site/wwwroot && echo "INFO: /home/site/wwwroot not found, creating ..." && mkdir -p /home/site/wwwroot
-mv --no-clobber /tmp/index.py /home/site/wwwroot/
-touch /home/uwsgi/project-master.pid
+# setup server root
+mv --no-clobber /tmp/index.py /var/wwww/html/
 
-chown -R www-data:www-data "$UWSGI_INI_DIR"
-chown -R www-data:www-data /home/site/wwwroot
+chown -R www-data:www-data /var/wwww/html/
+chown -R www-data:www-data "$UWSGI_DIR"
 
 echo "INFO: creating /tmp/uwsgi.sock ..."
 rm -f /tmp/uwsgi.sock
@@ -40,4 +39,4 @@ echo "INFO: starting nginx ..."
 nginx #-g "daemon off;"
 
 echo "INFO: starting uwsgi ..."
-uwsgi --uid www-data --gid www-data --ini=$UWSGI_INI_DIR/uwsgi.ini
+uwsgi --uid www-data --gid www-data --ini=$UWSGI_DIR/uwsgi.ini
