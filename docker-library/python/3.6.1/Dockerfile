@@ -120,7 +120,9 @@ RUN set -ex \
 	&& ln -s /usr/local/bin/python3.6 /usr/bin/python3 \
 	&& ln -s /usr/bin/python3 /usr/bin/python \
 	##
-	&& rm -rf $DOCKER_BUILD_HOME/*
+	&& rm -rf $DOCKER_BUILD_HOME/* \
+	##
+	&& test ! -d $UWSGI_DIR && mkdir -p $UWSGI_DIR
 
 COPY entrypoint.sh /usr/local/bin
 RUN chmod u+x /usr/local/bin/entrypoint.sh

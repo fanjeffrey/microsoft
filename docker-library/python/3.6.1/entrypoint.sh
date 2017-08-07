@@ -18,7 +18,6 @@ service ssh start
 sed -i "s|error_log /var/log/nginx/error.log;|error_log stderr;|g" /etc/nginx/nginx.conf
 
 # setup uWSGI dir
-test ! -d "$UWSGI_DIR" && echo "INFO: $UWSGI_DIR not found, creating ..." && mkdir -p "$UWSGI_DIR"
 echo "INFO: moving /tmp/uwsgi.ini"
 mv --no-clobber /tmp/uwsgi.ini "$UWSGI_DIR/"
 touch $UWSGI_DIR/project-master.pid
