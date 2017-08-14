@@ -1,12 +1,4 @@
 #!/bin/bash
-
-set_var_if_null(){
-	local varname="$1"
-	if [ ! "${!varname:-}" ]; then
-		export "$varname"="$2"
-	fi
-}
-
 set -e
 
 python --version
