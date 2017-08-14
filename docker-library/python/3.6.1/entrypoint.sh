@@ -1,15 +1,4 @@
 #!/bin/bash
-log(){
-	while read line ; do
-		echo "`date '+%D %T'` $line"
-	done
-}
-
-set -e
-logfile=/var/log/docker/entrypoint.log
-test ! -f $logfile && mkdir -p /var/log/docker && touch $logfile
-exec > >(log | tee -ai $logfile)
-exec 2>&1
 
 set_var_if_null(){
 	local varname="$1"
@@ -17,6 +6,8 @@ set_var_if_null(){
 		export "$varname"="$2"
 	fi
 }
+
+set -e
 
 python --version
 pip --version
