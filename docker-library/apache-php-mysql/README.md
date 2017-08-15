@@ -53,7 +53,11 @@ You can access the builtin phpMyAdmin site with a URL like below if you're using
 4. Update the config file of your app with your created database information;
 
 ## Startup Log
-The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
+-After image deploy to Azure successfully.
+-Go to Azure portal, go to the blade for your web app and click Diagnostics logs.
+-On the Diagnostics logs blade, selecet "File System" of "Docker Container logging", set "Quota" and "Retention Period", Click Save.
+-Restart your web app.
+-The startup log is included by /home/LogFiles/RD????????????/docker.log.
 
 ## Change Log
 - **Version 0.2** 
