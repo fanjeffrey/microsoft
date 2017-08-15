@@ -95,7 +95,11 @@ If you're using the builtin MariaDB, you can leverage the builtin Redis cache se
 The builtin Redis cache server uses port 6379.
 
 ## Startup Log
-The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
+1. After deploy to Azure successfully.
+2. Go to Azure portal, go to the blade for your web app and click Diagnostics logs.
+3. On the Diagnostics logs blade, selecet *"File System"* of *"Docker Container logging"*, set *"Quota"* and *"Retention Period"*, Click Save.
+4. Restart your web app.
+5. The startup log is included by /home/LogFiles/RD????????????/docker.log.
 
 ## Change Log
 - **Version 0.2**
@@ -104,3 +108,4 @@ The startup log file (**entrypoint.log**) is placed under the folder /home/LogFi
 - **Version 0.3**
   1. Supports uploading large files. See [php.ini](0.3/php.ini) here;
   2. Supports Zlib. See [Dockerfile](0.3/Dockerfile) here.
+  3. Abandon entrypoint.log, replace with Azure internal docker container loggin file system.

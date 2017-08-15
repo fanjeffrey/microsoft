@@ -53,14 +53,15 @@ You can access the builtin phpMyAdmin site with a URL like below if you're using
 4. Update the config file of your app with your created database information;
 
 ## Startup Log
--After image deploy to Azure successfully.
--Go to Azure portal, go to the blade for your web app and click Diagnostics logs.
--On the Diagnostics logs blade, selecet "File System" of "Docker Container logging", set "Quota" and "Retention Period", Click Save.
--Restart your web app.
--The startup log is included by /home/LogFiles/RD????????????/docker.log.
+1. After deploy to Azure successfully.
+2. Go to Azure portal, go to the blade for your web app and click Diagnostics logs.
+3. On the Diagnostics logs blade, selecet *"File System"* of *"Docker Container logging"*, set *"Quota"* and *"Retention Period"*, Click Save.
+4. Restart your web app.
+5. The startup log is included by /home/LogFiles/RD????????????/docker.log.
 
 ## Change Log
 - **Version 0.2** 
   1. Supports uploading large files. See [php.ini](0.2/php.ini) here.
   2. New app setting item: DATABASE_TYPE, default value is "remote". You can set it to "local" to start the built-in MySQL database server. See [entrypoint.sh](0.2/entrypoint.sh) for more information.
   3. Dropped 3 app setting items: DATABASE_NAME, DATABASE_USER, and DATABASE_PASSWORD. Removal of these items has no impacts on your existing database or site contents.
+  4. Abandon entrypoint.log, replace with Azure internal docker container loggin file system.
