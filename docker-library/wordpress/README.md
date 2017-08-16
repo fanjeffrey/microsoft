@@ -95,11 +95,20 @@ If you're using the builtin MariaDB, you can leverage the builtin Redis cache se
 The builtin Redis cache server uses port 6379.
 
 ## Startup Log
-1. After deploy to Azure successfully.
-2. Go to Azure portal, go to the blade for your web app and click Diagnostics logs.
-3. On the Diagnostics logs blade, selecet *"File System"* of *"Docker Container logging"*, set *"Quota"* and *"Retention Period"*, Click Save.
-4. Restart your web app.
-5. The startup log is included by /home/LogFiles/RD????????????/docker.log.
+Startup log from entrypoint.sh is disabled by default. To enable startup log, you can follow the steps below.
+1. Go to Azure portal, go to the blade of your web app.
+2. Click *"Diagnostics logs"*.
+3. On the *"Diagnostics logs"* blade, selecet *"File System"* under *"Docker Container logging"*.
+4. Set *"Quota"* and *"Retention Period"*, and Click *"Save"*.
+4. Go to the "Overview" blade, Restart your web app by clicking *"Stop"* and then *"start"*.
+
+
+On Webssh run the command below to check if the startup logs from entrypoint.sh is enabled.
+#Replace RDXXXXXX with your actual folder name.
+```
+cat /home/LogFiles/RDXXXXXX/docker.log
+```
+---
 
 ## Change Log
 - **Version 0.2**
