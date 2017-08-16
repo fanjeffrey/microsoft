@@ -61,8 +61,8 @@ Startup log from entrypoint.sh is disabled by default. To enable startup log, yo
 4. Go to the "Overview" blade, Restart your web app by clicking *"Stop"* and then *"start"*.
 
 On Webssh run the command below to check if the startup logs from entrypoint.sh is enabled.
-#Replace RDXXXXXX with your actual folder name.
 ```
+#Replace RDXXXXXX with your actual folder name.
 cat /home/LogFiles/RDXXXXXX/docker.log
 ```
 ---
