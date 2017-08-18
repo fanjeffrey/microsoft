@@ -33,11 +33,6 @@ DATABASE_TYPE | local
 PHPMYADMIN_USERNAME | phpmyadmin
 PHPMYADMIN_PASSWORD | MS173m_QN
 
-### Deploying to Azure
-With the button below, you can easily deploy the image to Azure.
-
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
-
 ## The Builtin MariaDB server
 The builtin MariaDB server uses port 3306.
 
