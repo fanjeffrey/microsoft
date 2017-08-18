@@ -56,6 +56,9 @@ You can access the builtin phpMyAdmin site with a URL like below if you're using
 The startup log file (**entrypoint.log**) is placed under the folder /home/LogFiles.
 
 ## Change Log
+- **Version 0.3** 
+  1. Open Module Deflate.
+
 - **Version 0.2** 
   1. Supports uploading large files. See [php.ini](0.2/php.ini) here.
   2. New app setting item: DATABASE_TYPE, default value is "remote". You can set it to "local" to start the built-in MySQL database server. See [entrypoint.sh](0.2/entrypoint.sh) for more information.
