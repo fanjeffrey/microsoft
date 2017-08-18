@@ -58,7 +58,7 @@ Startup log from entrypoint.sh is disabled by default. To enable startup log, yo
 2. Click *"Diagnostics logs"*.
 3. On the *"Diagnostics logs"* blade, selecet *"File System"* under *"Docker Container logging"*.
 4. Set *"Quota"* and *"Retention Period"*, and Click *"Save"*.
-4. Go to the "Overview" blade, Restart your web app by clicking *"Stop"* and then *"start"*.
+5. Go to the "Overview" blade, Restart your web app by clicking *"Stop"* and then *"start"*.
 
 On Webssh run the command below to check if the startup logs from entrypoint.sh is enabled.
 ```
@@ -72,4 +72,4 @@ cat /home/LogFiles/RDXXXXXX/docker.log
   1. Supports uploading large files. See [php.ini](0.2/php.ini) here.
   2. New app setting item: DATABASE_TYPE, default value is "remote". You can set it to "local" to start the built-in MySQL database server. See [entrypoint.sh](0.2/entrypoint.sh) for more information.
   3. Dropped 3 app setting items: DATABASE_NAME, DATABASE_USER, and DATABASE_PASSWORD. Removal of these items has no impacts on your existing database or site contents.
-  4. Abandon entrypoint.log, replace with Azure internal docker container logging file system.
+  4. Abandon using entrypoint.log as startup log, replace it with Azure internal docker container logging file system.
