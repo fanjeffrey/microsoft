@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 set_var_if_null(){
 	local varname="$1"
 	if [ ! "${!varname:-}" ]; then
