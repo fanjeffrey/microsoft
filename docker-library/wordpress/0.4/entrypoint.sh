@@ -6,10 +6,6 @@ log(){
 }
 
 set -e
-logfile=/home/LogFiles/entrypoint.log
-test ! -f $logfile && mkdir -p /home/LogFiles && touch $logfile
-exec > >(log | tee -ai $logfile)
-exec 2>&1
 
 set_var_if_null(){
 	local varname="$1"
